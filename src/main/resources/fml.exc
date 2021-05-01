@@ -1,0 +1,3 @@
+net/minecraft/network/NetServerHandler.handleVanilla250Packet(Lnet/minecraft/network/packet/Packet250CustomPayload;)V=|p_72501_1_
+net/minecraft/client/multiplayer/NetClientHandler.handleVanilla250Packet(Lnet/minecraft/network/packet/Packet250CustomPayload;)V=|p_72501_1_
+net/minecraft/client/multiplayer/NetClientHandler.fmlPacket131Callback(Lnet/minecraft/network/packet/Packet131MapData;)V=|p_72494_1_
