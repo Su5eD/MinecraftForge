@@ -2,9 +2,9 @@
 +++ ../src-work/minecraft/net/minecraft/world/storage/WorldInfo.java
 @@ -1,8 +1,11 @@
  package net.minecraft.world.storage;
-+
-+import java.util.Map;
  
++import java.util.Map;
++
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import net.minecraft.crash.CrashReportCategory;
@@ -20,10 +20,11 @@
  
      protected WorldInfo()
      {
-@@ -534,4 +538,24 @@
+@@ -533,5 +537,25 @@
+     static boolean func_85131_q(WorldInfo p_85131_0_)
      {
          return p_85131_0_.field_76110_t;
-     }
++    }
 +
 +    /**
 +     * Allow access to additional mod specific world based properties
@@ -43,5 +44,5 @@
 +    public NBTBase getAdditionalProperty(String additionalProperty)
 +    {
 +        return this.additionalProperties!=null? this.additionalProperties.get(additionalProperty) : null;
-+    }
+     }
  }

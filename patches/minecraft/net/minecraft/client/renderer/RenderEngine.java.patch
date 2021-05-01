@@ -36,9 +36,8 @@
                  return var7;
              }
 -            catch (IOException var6)
--            {
 +            catch (Exception var6)
-+            {
+             {
 +                log.log(Level.INFO, String.format("An error occured reading texture file %s (getTexture)", p_78346_1_), var6);
                  var6.printStackTrace();
                  int[] var5 = this.func_78348_b(this.field_78364_l);
@@ -129,9 +128,8 @@
                  this.field_78363_a = false;
              }
 -            catch (IOException var7)
--            {
 +            catch (Exception var7)
-+            {
+             {
 +                log.log(Level.INFO,String.format("An error occured reading texture file %s (refreshTexture)", var9), var7);
                  var7.printStackTrace();
              }
@@ -141,9 +139,8 @@
                  this.field_78363_a = false;
              }
 -            catch (IOException var6)
--            {
 +            catch (Exception var6)
-+            {
+             {
 +                log.log(Level.INFO,String.format("An error occured reading texture file data %s (refreshTexture)", var9), var6);
                  var6.printStackTrace();
              }

@@ -7,11 +7,19 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.IOException;
-@@ -73,6 +74,7 @@
+@@ -70,12 +71,13 @@
+         if (this.field_74442_b.size() > var1)
+         {
+             System.out.println("Memory connection overburdened; after processing 2500 packets, we still have " + this.field_74442_b.size() + " to go!");
+-        }
+-
          if (this.field_74441_e && this.field_74442_b.isEmpty())
          {
              this.field_74440_d.func_72515_a(this.field_74438_f, this.field_74439_g);
 +            FMLNetworkHandler.onConnectionClosed(this, this.field_74440_d.getPlayer());
          }
++    }
++
      }
  
+     public SocketAddress func_74430_c()

@@ -46,15 +46,15 @@
              }
              catch (Exception var4)
              {
-@@ -142,6 +154,8 @@
-         NBTTagCompound var3 = p_75755_1_.func_76082_a(p_75755_2_);
+@@ -143,6 +155,8 @@
          NBTTagCompound var4 = new NBTTagCompound();
          var4.func_74782_a("Data", var3);
-+
-+        FMLCommonHandler.instance().handleWorldDataSave(this, p_75755_1_, var4);
  
++        FMLCommonHandler.instance().handleWorldDataSave(this, p_75755_1_, var4);
++
          try
          {
+             File var5 = new File(this.field_75770_b, "level.dat_new");
 @@ -180,6 +194,8 @@
          NBTTagCompound var2 = p_75761_1_.func_76066_a();
          NBTTagCompound var3 = new NBTTagCompound();

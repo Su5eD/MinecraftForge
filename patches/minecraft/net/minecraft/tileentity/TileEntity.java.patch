@@ -1,0 +1,57 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntity.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntity.java
+@@ -1,9 +1,12 @@
+ package net.minecraft.tileentity;
+ 
++import cpw.mods.fml.common.FMLLog;
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
+ import java.util.HashMap;
+ import java.util.Map;
++import java.util.logging.Level;
++
+ import net.minecraft.block.Block;
+ import net.minecraft.block.TileEntityRecordPlayer;
+ import net.minecraft.crash.CrashReportCategory;
+@@ -83,10 +86,12 @@
+     public static TileEntity func_70317_c(NBTTagCompound p_70317_0_)
+     {
+         TileEntity var1 = null;
++        
++        Class var2 = null;
+ 
+         try
+         {
+-            Class var2 = (Class)field_70326_a.get(p_70317_0_.func_74779_i("id"));
++            var2 = (Class)field_70326_a.get(p_70317_0_.func_74779_i("id"));
+ 
+             if (var2 != null)
+             {
+@@ -100,7 +105,17 @@
+ 
+         if (var1 != null)
+         {
+-            var1.func_70307_a(p_70317_0_);
++            try
++            {
++                var1.func_70307_a(p_70317_0_);
++            }
++            catch (Exception e)
++            {
++                FMLLog.log(Level.SEVERE, e,
++                        "A TileEntity %s(%s) has thrown an exception during loading, its state cannot be restored. Report this to the mod author",
++                        p_70317_0_.func_74779_i("id"), var2.getName());
++                var1 = null;
++            }
+         }
+         else
+         {
+@@ -187,7 +202,7 @@
+     public void func_85027_a(CrashReportCategory p_85027_1_)
+     {
+         p_85027_1_.func_71500_a("Name", new CallableTileEntityName(this));
+-        CrashReportCategory.func_85068_a(p_85027_1_, this.field_70329_l, this.field_70330_m, this.field_70327_n, this.field_70324_q.field_71990_ca, this.field_70325_p);
++        CrashReportCategory.func_85068_a(p_85027_1_, this.field_70329_l, this.field_70330_m, this.field_70327_n, this.field_70324_q != null ? this.field_70324_q.field_71990_ca : 0, this.field_70325_p);
+     }
+ 
+     static Map func_85028_t()

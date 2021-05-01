@@ -1,14 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/server/dedicated/ConsoleLogManager.java
 +++ ../src-work/minecraft/net/minecraft/server/dedicated/ConsoleLogManager.java
-@@ -4,6 +4,8 @@
- import java.util.logging.FileHandler;
+@@ -5,6 +5,8 @@
  import java.util.logging.Level;
  import java.util.logging.Logger;
-+
-+import cpw.mods.fml.common.FMLLog;
  
++import cpw.mods.fml.common.FMLLog;
++
  public class ConsoleLogManager
  {
+     public static Logger field_73700_a = Logger.getLogger("Minecraft");
 @@ -12,10 +14,7 @@
      public static void func_73699_a()
      {

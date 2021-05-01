@@ -26,9 +26,6 @@
          float var10;
  
 -        for (var7 = 0; var7 < 16; ++var7)
--        {
--            var8 = (float)var7 / 16.0F;
--            var9 = p_78439_1_ + (p_78439_3_ - p_78439_1_) * var8 - 0.001953125F;
 +        /* Gets the width/16 of the currently bound texture, used
 +         * to fix the side rendering issues on textures != 16 */
 +        int tileSize = TextureFXManager.instance().getTextureDimensions(GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D)).width / 16;
@@ -37,7 +34,9 @@
 +        float tz = 1.0f /  tileSize;
 +
 +        for (var7 = 0; var7 < tileSize; ++var7)
-+        {
+         {
+-            var8 = (float)var7 / 16.0F;
+-            var9 = p_78439_1_ + (p_78439_3_ - p_78439_1_) * var8 - 0.001953125F;
 +            var8 = (float)var7 / tileSize;
 +            var9 = p_78439_1_ + (p_78439_3_ - p_78439_1_) * var8 - tx;
              var10 = var6 * var8;
@@ -48,12 +47,11 @@
          p_78439_0_.func_78375_b(1.0F, 0.0F, 0.0F);
  
 -        for (var7 = 0; var7 < 16; ++var7)
--        {
++        for (var7 = 0; var7 < tileSize; ++var7)
+         {
 -            var8 = (float)var7 / 16.0F;
 -            var9 = p_78439_1_ + (p_78439_3_ - p_78439_1_) * var8 - 0.001953125F;
 -            var10 = var6 * var8 + 0.0625F;
-+        for (var7 = 0; var7 < tileSize; ++var7)
-+        {
 +            var8 = (float)var7 / tileSize;
 +            var9 = p_78439_1_ + (p_78439_3_ - p_78439_1_) * var8 - tx;
 +            var10 = var6 * var8 + tz;
@@ -65,12 +63,11 @@
          p_78439_0_.func_78375_b(0.0F, 1.0F, 0.0F);
  
 -        for (var7 = 0; var7 < 16; ++var7)
--        {
++        for (var7 = 0; var7 < tileSize; ++var7)
+         {
 -            var8 = (float)var7 / 16.0F;
 -            var9 = p_78439_4_ + (p_78439_2_ - p_78439_4_) * var8 - 0.001953125F;
 -            var10 = var6 * var8 + 0.0625F;
-+        for (var7 = 0; var7 < tileSize; ++var7)
-+        {
 +            var8 = (float)var7 / tileSize;
 +            var9 = p_78439_4_ + (p_78439_2_ - p_78439_4_) * var8 - tx;
 +            var10 = var6 * var8 + tz;
@@ -82,11 +79,10 @@
          p_78439_0_.func_78375_b(0.0F, -1.0F, 0.0F);
  
 -        for (var7 = 0; var7 < 16; ++var7)
--        {
++        for (var7 = 0; var7 < tileSize; ++var7)
+         {
 -            var8 = (float)var7 / 16.0F;
 -            var9 = p_78439_4_ + (p_78439_2_ - p_78439_4_) * var8 - 0.001953125F;
-+        for (var7 = 0; var7 < tileSize; ++var7)
-+        {
 +            var8 = (float)var7 / tileSize;
 +            var9 = p_78439_4_ + (p_78439_2_ - p_78439_4_) * var8 - tx;
              var10 = var6 * var8;

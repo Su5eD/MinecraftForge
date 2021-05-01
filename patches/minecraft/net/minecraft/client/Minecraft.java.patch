@@ -60,7 +60,7 @@
              }
  
              GL11.glFlush();
-@@ -1270,10 +1286,14 @@
+@@ -1270,11 +1286,15 @@
  
      public void func_71407_l()
      {
@@ -70,11 +70,12 @@
          {
              --this.field_71467_ac;
          }
-+
-+        FMLCommonHandler.instance().onPreClientTick();
  
++        FMLCommonHandler.instance().onPreClientTick();
++
          this.field_71424_I.func_76320_a("stats");
          this.field_71413_E.func_77449_e();
+         this.field_71424_I.func_76318_c("gui");
 @@ -1730,6 +1750,8 @@
              this.field_71453_ak.func_74428_b();
          }
@@ -112,7 +113,7 @@
          this.field_71455_al = true;
          this.field_71461_s.func_73720_a(StatCollector.func_74838_a("menu.loadingLevel"));
  
-@@ -1984,6 +2025,12 @@
+@@ -1984,28 +2025,34 @@
  
      public static void main(String[] p_main_0_)
      {
@@ -121,7 +122,36 @@
 +
 +    public static void fmlReentry(ArgsWrapper wrapper)
 +    {
-+        String[] p_main_0_ = wrapper.args;
++        String[] par0ArrayOfStr = wrapper.args;
          HashMap var1 = new HashMap();
          boolean var2 = false;
          boolean var3 = true;
+         boolean var4 = false;
+         String var5 = "Player" + func_71386_F() % 1000L;
+ 
+-        if (p_main_0_.length > 0)
++        if (par0ArrayOfStr.length > 0)
+         {
+-            var5 = p_main_0_[0];
++            var5 = par0ArrayOfStr[0];
+         }
+ 
+         String var6 = "-";
+ 
+-        if (p_main_0_.length > 1)
++        if (par0ArrayOfStr.length > 1)
+         {
+-            var6 = p_main_0_[1];
++            var6 = par0ArrayOfStr[1];
+         }
+ 
+-        for (int var7 = 2; var7 < p_main_0_.length; ++var7)
++        for (int var7 = 2; var7 < par0ArrayOfStr.length; ++var7)
+         {
+-            String var8 = p_main_0_[var7];
+-            String var9 = var7 == p_main_0_.length - 1 ? null : p_main_0_[var7 + 1];
++            String var8 = par0ArrayOfStr[var7];
++            String var9 = var7 == par0ArrayOfStr.length - 1 ? null : par0ArrayOfStr[var7 + 1];
+             boolean var10 = false;
+ 
+             if (!var8.equals("-demo") && !var8.equals("--demo"))

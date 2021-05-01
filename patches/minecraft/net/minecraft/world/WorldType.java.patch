@@ -24,15 +24,15 @@
      public static final WorldType[] field_77139_a = new WorldType[16];
      public static final WorldType field_77137_b = (new WorldType(0, "default", 1)).func_77129_f();
      public static final WorldType field_77138_c = new WorldType(1, "flat");
-@@ -15,6 +30,8 @@
-     private final int field_77134_g;
+@@ -16,6 +31,8 @@
      private boolean field_77140_h;
      private boolean field_77141_i;
-+
-+    protected BiomeGenBase[] biomesForWorldType;
  
++    protected BiomeGenBase[] biomesForWorldType;
++
      public WorldType(int p_i3737_1_, String p_i3737_2_)
      {
+         this(p_i3737_1_, p_i3737_2_, 0);
 @@ -28,6 +45,15 @@
          this.field_77140_h = true;
          this.field_82748_f = p_i3738_1_;

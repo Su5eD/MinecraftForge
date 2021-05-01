@@ -16,15 +16,15 @@
          field_71306_a.info("Loading properties");
          this.field_71340_o = new PropertyManager(new File("server.properties"));
  
-@@ -125,6 +128,8 @@
-             field_71306_a.warning("While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.");
+@@ -126,6 +129,8 @@
              field_71306_a.warning("To change this, set \"online-mode\" to \"true\" in the server.properties file.");
          }
-+
-+        FMLCommonHandler.instance().onServerStarted();
  
++        FMLCommonHandler.instance().onServerStarted();
++
          this.func_71210_a(new DedicatedPlayerList(this));
          long var4 = System.nanoTime();
+ 
 @@ -167,6 +172,7 @@
          this.func_71191_d((this.func_71207_Z() + 8) / 16 * 16);
          this.func_71191_d(MathHelper.func_76125_a(this.func_71207_Z(), 64, 256));

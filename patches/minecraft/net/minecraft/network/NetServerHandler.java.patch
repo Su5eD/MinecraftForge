@@ -1,0 +1,85 @@
+--- ../src-base/minecraft/net/minecraft/network/NetServerHandler.java
++++ ../src-work/minecraft/net/minecraft/network/NetServerHandler.java
+@@ -7,6 +7,8 @@
+ import java.util.Iterator;
+ import java.util.Random;
+ import java.util.logging.Logger;
++
++import cpw.mods.fml.common.network.FMLNetworkHandler;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.item.EntityItem;
+ import net.minecraft.entity.player.EntityPlayerMP;
+@@ -21,33 +23,7 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.ItemWritableBook;
+ import net.minecraft.nbt.NBTTagString;
+-import net.minecraft.network.packet.NetHandler;
+-import net.minecraft.network.packet.Packet;
+-import net.minecraft.network.packet.Packet0KeepAlive;
+-import net.minecraft.network.packet.Packet101CloseWindow;
+-import net.minecraft.network.packet.Packet102WindowClick;
+-import net.minecraft.network.packet.Packet103SetSlot;
+-import net.minecraft.network.packet.Packet106Transaction;
+-import net.minecraft.network.packet.Packet107CreativeSetSlot;
+-import net.minecraft.network.packet.Packet108EnchantItem;
+-import net.minecraft.network.packet.Packet10Flying;
+-import net.minecraft.network.packet.Packet130UpdateSign;
+-import net.minecraft.network.packet.Packet13PlayerLookMove;
+-import net.minecraft.network.packet.Packet14BlockDig;
+-import net.minecraft.network.packet.Packet15Place;
+-import net.minecraft.network.packet.Packet16BlockItemSwitch;
+-import net.minecraft.network.packet.Packet18Animation;
+-import net.minecraft.network.packet.Packet19EntityAction;
+-import net.minecraft.network.packet.Packet202PlayerAbilities;
+-import net.minecraft.network.packet.Packet203AutoComplete;
+-import net.minecraft.network.packet.Packet204ClientInfo;
+-import net.minecraft.network.packet.Packet205ClientCommand;
+-import net.minecraft.network.packet.Packet250CustomPayload;
+-import net.minecraft.network.packet.Packet255KickDisconnect;
+-import net.minecraft.network.packet.Packet3Chat;
+-import net.minecraft.network.packet.Packet53BlockChange;
+-import net.minecraft.network.packet.Packet7UseEntity;
+-import net.minecraft.network.packet.Packet9Respawn;
++import net.minecraft.network.packet.*;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.management.BanEntry;
+ import net.minecraft.tileentity.TileEntity;
+@@ -627,6 +603,7 @@
+ 
+     public void func_72481_a(Packet3Chat p_72481_1_)
+     {
++        p_72481_1_ = FMLNetworkHandler.handleChatMessage(this, p_72481_1_);
+         if (this.field_72574_e.func_71126_v() == 2)
+         {
+             this.func_72567_b(new Packet3Chat("Cannot send chat message."));
+@@ -995,6 +972,11 @@
+ 
+     public void func_72501_a(Packet250CustomPayload p_72501_1_)
+     {
++        FMLNetworkHandler.handlePacket250Packet(p_72501_1_, field_72575_b, this);
++    }
++    
++    public void handleVanilla250Packet(Packet250CustomPayload p_72501_1_)
++    {
+         DataInputStream var2;
+         ItemStack var3;
+         ItemStack var4;
+@@ -1157,5 +1139,18 @@
+                 }
+             }
+         }
++    }
++    
++    @Override
++    public void func_72494_a(Packet131MapData par1Packet131MapData)
++    {
++        FMLNetworkHandler.handlePacket131Packet(this, par1Packet131MapData);
++    }
++    
++    // modloader compat -- yuk!
++    @Override
++    public EntityPlayerMP getPlayer()
++    {
++        return field_72574_e;
+     }
+ }

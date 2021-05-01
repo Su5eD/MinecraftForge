@@ -86,10 +86,11 @@
          if ("MC|TPack".equals(p_72501_1_.field_73630_a))
          {
              String[] var2 = (new String(p_72501_1_.field_73629_c)).split("\u0000");
-@@ -1396,4 +1415,20 @@
+@@ -1395,5 +1414,21 @@
+     public INetworkManager func_72548_f()
      {
          return this.field_72555_g;
-     }
++    }
 +
 +    @Override
 +    public EntityPlayer getPlayer()
@@ -105,5 +106,5 @@
 +    public static byte getConnectionCompatibilityLevel()
 +    {
 +        return connectionCompatibilityLevel;
-+    }
+     }
  }

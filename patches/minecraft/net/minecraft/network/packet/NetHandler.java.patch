@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraft/network/packet/NetHandler.java
++++ ../src-work/minecraft/net/minecraft/network/packet/NetHandler.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.network.packet;
+ 
++import net.minecraft.entity.player.EntityPlayer;
++
+ public abstract class NetHandler
+ {
+     public abstract boolean func_72489_a();
+@@ -352,4 +354,8 @@
+     {
+         return false;
+     }
++    
++    public abstract void handleVanilla250Packet(Packet250CustomPayload payload);
++    
++    public abstract EntityPlayer getPlayer();
+ }
