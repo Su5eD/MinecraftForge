@@ -236,7 +236,7 @@ project(':forge') {
         runs {
             forge_client {
                 taskName 'forge_client'
-                workingDirectory('run')
+                workingDirectory(file('run'))
                 main 'mcp.client.Start'
 
                 //environment 'tweakClass',       'net.minecraftforge.fml.common.launcher.FMLTweaker'
@@ -786,7 +786,7 @@ project(':forge') {
     license {
         header = file("$rootDir/LICENSE-header.txt")
 
-        include 'net/minecraftforge/'
+        include 'cpw/mods/fml/'
         /*
         exclude 'net/minecraftforge/server/terminalconsole/'
         exclude 'net/minecraftforge/api/' // exclude API here because it's validated in the SPI build
