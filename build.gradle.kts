@@ -291,7 +291,7 @@ project(":forge") {
                 environment(
                     mapOf(
                         "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        //"tweakClass" to "net.minecraftforge.fml.common.launcher.FMLTweaker"
+                        "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker",
                         "assetIndex" to "{asset_index}",
                         "assetDirectory" to tasks.getByName<DownloadAssets>("downloadAssets").output.absolutePath,
                         "MC_VERSION" to minecraftVersion,
@@ -312,7 +312,7 @@ project(":forge") {
                 environment(
                     mapOf(
                         "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        //"tweakClass" to "net.minecraftforge.fml.common.launcher.FMLServerTweaker",
+                        "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker", // TODO Server tweaker
                         "MC_VERSION" to minecraftVersion,
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -380,6 +380,14 @@ project(":forge") {
         }
 
         afterEvaluate {
+            named<GenerateBinPatches>("genClientBinPatches") {
+                cleanJar = net.minecraftforge.gradle.common.util.MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
+            }
+            
+            named<GenerateBinPatches>("genServerBinPatches") {
+                cleanJar = net.minecraftforge.gradle.common.util.MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
+            }
+            
             tasks.named<GenerateBinPatches>("genRuntimeBinPatches") {
                 val genClientBinPatches = getByName<GenerateBinPatches>("genClientBinPatches")
 
@@ -594,7 +602,7 @@ project(":forge") {
                         "--uuid", "\${auth_uuid}",
                         "--accessToken", "\${auth_access_token}",
                         "--userType", "\${user_type}",
-                        //"--tweakClass", "net.minecraftforge.fml.common.launcher.FMLTweaker",
+                        "--tweakClass", "cpw.mods.fml.relauncher.tweaker.FMLTweaker",
                         "--versionType", "Forge"
                     ).joinToString(separator = " "))
                     putJsonArray("libraries") {
@@ -718,7 +726,7 @@ project(":forge") {
             from(extraTxts)
             dependsOn(deobfDataLzma)
             from(deobfDataLzma.property("output") as File) {
-                rename { "deobfuscation_data-$minecraftVersion.lzma" }
+                rename { "deobfuscation_data.lzma" }
             }
             dependsOn(genRuntimeBinPatches)
             from(genRuntimeBinPatches.output) {
@@ -736,7 +744,7 @@ project(":forge") {
                         values += mutableMapOf(
                             "Main-Class" to "net.minecraftforge.fml.relauncher.ServerLaunchWrapper", // TODO Change to MinecraftServer
                             "Class-Path" to classpath.toString(),
-                            "Tweak-Class" to "net.minecraftforge.fml.common.launcher.FMLTweaker"
+                            "Tweak-Class" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker"
                         )
                         manifest.attributes(values)
                     } else {
@@ -836,7 +844,7 @@ project(":forge") {
                     environment(
                         mapOf(
                             "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            //"tweakClass" to "net.minecraftforge.fml.common.launcher.FMLTweaker"
+                            "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker",
                             "assetIndex" to "{asset_index}",
                             "assetDirectory" to "{assets_root}",
                             "nativesDirectory" to "{natives}",
@@ -855,7 +863,7 @@ project(":forge") {
                     environment(
                         mapOf(
                             "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            //"tweakClass" to "net.minecraftforge.fml.common.launcher.FMLServerTweaker"
+                            "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker", // TODO Server tweaker
                             "MC_VERSION" to minecraftVersion,
                             "MCP_MAPPINGS" to "{mcp_mappings}",
                             "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -970,6 +978,8 @@ project(":forge") {
         installer("net.sf.jopt-simple:jopt-simple:5.0.3")
         installer("org.apache.logging.log4j:log4j-api:2.8.1")
         installer("org.apache.logging.log4j:log4j-core:2.8.1")
+        installer("com.google.guava:guava:14.0")
+        installer("com.google.code.gson:gson:2.3")
 
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
         testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
@@ -977,7 +987,6 @@ project(":forge") {
         testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
 
         implementation("net.sourceforge.argo:argo:2.26")
-        implementation("com.google.guava:guava:12.0")
         implementation("org.bouncycastle:bcprov-jdk15on:1.47")
         implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
         implementation("org.apache.logging.log4j:log4j-core:2.5")

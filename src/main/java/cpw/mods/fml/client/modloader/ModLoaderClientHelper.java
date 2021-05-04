@@ -14,39 +14,10 @@
 
 package cpw.mods.fml.client.modloader;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.NetHandler;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.src.BaseMod;
-import net.minecraft.client.*;
-import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.multiplayer.NetClientHandler;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-
-import com.google.common.base.Equivalences;
+import com.google.common.base.Equivalence;
 import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.MapDifference;
+import com.google.common.collect.*;
 import com.google.common.collect.MapDifference.ValueDifference;
-import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-
-import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLLog;
@@ -57,6 +28,24 @@ import cpw.mods.fml.common.modloader.ModLoaderHelper;
 import cpw.mods.fml.common.modloader.ModLoaderModContainer;
 import cpw.mods.fml.common.network.EntitySpawnPacket;
 import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.multiplayer.NetClientHandler;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.NetHandler;
+import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.src.BaseMod;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
 
 public class ModLoaderClientHelper implements IModLoaderSidedHelper
 {
@@ -87,7 +76,7 @@ public class ModLoaderClientHelper implements IModLoaderSidedHelper
             FMLLog.log(mc.getModId(), Level.SEVERE, e, "A severe problem was detected with the mod %s during the addRenderer call. Continuing, but expect odd results", mc.getModId());
         }
 
-        MapDifference<Class<? extends Entity>, Render> difference = Maps.difference(RenderManager.instance.entityRenderMap, renderers, Equivalences.identity());
+        MapDifference<Class<? extends Entity>, Render> difference = Maps.difference(RenderManager.instance.entityRenderMap, renderers, Equivalence.identity());
 
         for ( Entry<Class<? extends Entity>, Render> e : difference.entriesOnlyOnLeft().entrySet())
         {
