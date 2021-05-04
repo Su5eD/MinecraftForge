@@ -1,6 +1,6 @@
-package cpw.mods.fml.relauncher.tweaker;
+package cpw.mods.fml.common.asm.transformers;
 
-import cpw.mods.fml.relauncher.tweaker.patcher.ClassPatchManager;
+import cpw.mods.fml.common.patcher.ClassPatchManager;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class PatchingTransformer implements IClassTransformer {

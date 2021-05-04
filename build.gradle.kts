@@ -291,7 +291,7 @@ project(":forge") {
                 environment(
                     mapOf(
                         "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker",
+                        "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker",
                         "assetIndex" to "{asset_index}",
                         "assetDirectory" to tasks.getByName<DownloadAssets>("downloadAssets").output.absolutePath,
                         "MC_VERSION" to minecraftVersion,
@@ -312,7 +312,7 @@ project(":forge") {
                 environment(
                     mapOf(
                         "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker", // TODO Server tweaker
+                        "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker", // TODO Server tweaker
                         "MC_VERSION" to minecraftVersion,
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -602,7 +602,7 @@ project(":forge") {
                         "--uuid", "\${auth_uuid}",
                         "--accessToken", "\${auth_access_token}",
                         "--userType", "\${user_type}",
-                        "--tweakClass", "cpw.mods.fml.relauncher.tweaker.FMLTweaker",
+                        "--tweakClass", "cpw.mods.fml.common.launcher.FMLTweaker",
                         "--versionType", "Forge"
                     ).joinToString(separator = " "))
                     putJsonArray("libraries") {
@@ -744,7 +744,7 @@ project(":forge") {
                         values += mutableMapOf(
                             "Main-Class" to "net.minecraftforge.fml.relauncher.ServerLaunchWrapper", // TODO Change to MinecraftServer
                             "Class-Path" to classpath.toString(),
-                            "Tweak-Class" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker"
+                            "Tweak-Class" to "cpw.mods.fml.common.launcher.FMLTweaker"
                         )
                         manifest.attributes(values)
                     } else {
@@ -844,7 +844,7 @@ project(":forge") {
                     environment(
                         mapOf(
                             "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker",
+                            "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker",
                             "assetIndex" to "{asset_index}",
                             "assetDirectory" to "{assets_root}",
                             "nativesDirectory" to "{natives}",
@@ -863,7 +863,7 @@ project(":forge") {
                     environment(
                         mapOf(
                             "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            "tweakClass" to "cpw.mods.fml.relauncher.tweaker.FMLTweaker", // TODO Server tweaker
+                            "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker", // TODO Server tweaker
                             "MC_VERSION" to minecraftVersion,
                             "MCP_MAPPINGS" to "{mcp_mappings}",
                             "MCP_TO_SRG" to "{mcp_to_srg}",

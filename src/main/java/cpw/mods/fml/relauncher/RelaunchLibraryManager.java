@@ -14,13 +14,12 @@
 
 package cpw.mods.fml.relauncher;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
+import com.google.common.base.Throwables;
+import cpw.mods.fml.common.CertificateHelper;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,18 +28,10 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
-
-import cpw.mods.fml.common.CertificateHelper;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
 public class RelaunchLibraryManager
 {
@@ -49,7 +40,7 @@ public class RelaunchLibraryManager
     private static Map<IFMLLoadingPlugin, File> pluginLocations;
     private static List<IFMLLoadingPlugin> loadPlugins;
     private static List<ILibrarySet> libraries;
-    public static void handleLaunch(File mcDir, RelaunchClassLoader actualClassLoader)
+    public static void handleLaunch(File mcDir, LaunchClassLoader actualClassLoader)
     {
         pluginLocations = new HashMap<IFMLLoadingPlugin, File>();
         loadPlugins = new ArrayList<IFMLLoadingPlugin>();
@@ -313,7 +304,7 @@ public class RelaunchLibraryManager
         return group + "/" + parts[1] + "/" + parts[2] + "/" + parts[1] + "-" + parts[2] + classifier + ".jar";
     }
 
-    private static void discoverCoreMods(File mcDir, RelaunchClassLoader classLoader, List<IFMLLoadingPlugin> loadPlugins, List<ILibrarySet> libraries)
+    private static void discoverCoreMods(File mcDir, LaunchClassLoader classLoader, List<IFMLLoadingPlugin> loadPlugins, List<ILibrarySet> libraries)
     {
         downloadMonitor.updateProgressString("Discovering coremods");
         File coreMods = setupCoreModDir(mcDir);

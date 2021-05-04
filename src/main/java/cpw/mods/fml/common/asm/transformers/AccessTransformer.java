@@ -34,6 +34,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -48,8 +49,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
-
-import cpw.mods.fml.relauncher.IClassTransformer;
 
 public class AccessTransformer implements IClassTransformer
 {
@@ -157,7 +156,7 @@ public class AccessTransformer implements IClassTransformer
 
     @SuppressWarnings("unchecked")
     @Override
-    public byte[] transform(String name, byte[] bytes)
+    public byte[] transform(String name, String transformedName, byte[] bytes)
     {
     	if (bytes == null) { return null; }
         if (!modifiers.containsKey(name)) { return bytes; }
@@ -389,7 +388,7 @@ public class AccessTransformer implements IClassTransformer
 
                     for (AccessTransformer trans : transformers)
                     {
-                        entryData = trans.transform(name, entryData);
+                        entryData = trans.transform(name, name, entryData);
                     }
                 }
 

@@ -14,9 +14,9 @@
 
 package cpw.mods.fml.common.asm.transformers;
 
-import java.util.Iterator;
-import java.util.List;
-
+import cpw.mods.fml.relauncher.FMLRelauncher;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -25,9 +25,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import cpw.mods.fml.relauncher.FMLRelauncher;
-import cpw.mods.fml.relauncher.IClassTransformer;
-import cpw.mods.fml.relauncher.SideOnly;
+import java.util.Iterator;
+import java.util.List;
 
 public class SideTransformer implements IClassTransformer
 {
@@ -35,7 +34,7 @@ public class SideTransformer implements IClassTransformer
     private static final boolean DEBUG = false;
     @SuppressWarnings("unchecked")
     @Override
-    public byte[] transform(String name, byte[] bytes)
+    public byte[] transform(String name, String transformedName, byte[] bytes)
     {
     	if (bytes == null) { return null; }
 

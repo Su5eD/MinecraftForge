@@ -1,4 +1,4 @@
-package cpw.mods.fml.relauncher.tweaker.patcher;
+package cpw.mods.fml.common.patcher;
 
 import LZMA.LzmaInputStream;
 import com.google.common.base.Joiner;
@@ -24,7 +24,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
-import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 public class ClassPatchManager {

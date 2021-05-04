@@ -1,4 +1,4 @@
-package cpw.mods.fml.relauncher.tweaker.patcher;
+package cpw.mods.fml.common.patcher;
 
 public class ClassPatch
 {

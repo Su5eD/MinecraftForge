@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
+import cpw.mods.fml.relauncher.FMLRelauncher;
 import net.minecraft.crash.CallableMinecraftVersion;
 
 import com.google.common.base.CharMatcher;

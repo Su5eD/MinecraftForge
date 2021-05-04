@@ -14,36 +14,37 @@
 
 package cpw.mods.fml.relauncher;
 
+import net.minecraft.launchwrapper.LaunchClassLoader;
+
+import javax.swing.*;
 import java.applet.Applet;
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
-
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-
 public class FMLRelauncher
 {
     private static FMLRelauncher INSTANCE;
     public static String logFileNamePattern;
     private static String side;
-    private RelaunchClassLoader classLoader;
+    private LaunchClassLoader launchClassLoader;
     private Object newApplet;
     private Class<? super Object> appletClass;
 
     JDialog popupWindow;
+    
+    public static void configure(String side) {
+        FMLRelauncher.side = side;
+    }
 
     public static void handleClientRelaunch(ArgsWrapper wrap)
     {
         logFileNamePattern = "ForgeModLoader-client-%g.log";
-        side = "CLIENT";
         instance().relaunchClient(wrap);
     }
 
     public static void handleServerRelaunch(ArgsWrapper wrap)
     {
         logFileNamePattern = "ForgeModLoader-server-%g.log";
-        side = "SERVER";
+        side = "SERVER"; // TODO Server
         instance().relaunchServer(wrap);
     }
 
@@ -59,10 +60,7 @@ public class FMLRelauncher
 
     private FMLRelauncher()
     {
-        URLClassLoader ucl = (URLClassLoader) getClass().getClassLoader();
-
-        classLoader = new RelaunchClassLoader(ucl.getURLs());
-
+        launchClassLoader = (LaunchClassLoader) getClass().getClassLoader();
     }
 
     private void showWindow(boolean showIt)
@@ -133,7 +131,7 @@ public class FMLRelauncher
 
     private Class<? super Object> setupNewClientHome(File minecraftHome)
     {
-        Class<? super Object> client = ReflectionHelper.getClass(classLoader, "net.minecraft.client.Minecraft");
+        Class<? super Object> client = ReflectionHelper.getClass(launchClassLoader, "net.minecraft.client.Minecraft");
         ReflectionHelper.setPrivateValue(client, null, minecraftHome, "minecraftDir", "an", "minecraftDir");
         return client;
     }
@@ -146,7 +144,7 @@ public class FMLRelauncher
         File minecraftHome = new File(".");
         setupHome(minecraftHome);
 
-        server = ReflectionHelper.getClass(classLoader, "net.minecraft.server.MinecraftServer");
+        server = ReflectionHelper.getClass(launchClassLoader, "net.minecraft.server.MinecraftServer");
         try
         {
             ReflectionHelper.findMethod(server, null, new String[] { "fmlReentry" }, ArgsWrapper.class).invoke(null, wrap);
@@ -159,14 +157,14 @@ public class FMLRelauncher
 
     private void setupHome(File minecraftHome)
     {
-        FMLInjectionData.build(minecraftHome, classLoader);
+        FMLInjectionData.build(minecraftHome, launchClassLoader);
         FMLRelaunchLog.minecraftHome = minecraftHome;
         FMLRelaunchLog.info("Forge Mod Loader version %s.%s.%s.%s for Minecraft %s loading", FMLInjectionData.major, FMLInjectionData.minor,
                 FMLInjectionData.rev, FMLInjectionData.build, FMLInjectionData.mccversion, FMLInjectionData.mcpversion);
 
         try
         {
-            RelaunchLibraryManager.handleLaunch(minecraftHome, classLoader);
+            RelaunchLibraryManager.handleLaunch(minecraftHome, launchClassLoader);
         }
         catch (Throwable t)
         {
@@ -230,8 +228,8 @@ public class FMLRelauncher
     {
         showWindow(true);
 
-        appletClass = ReflectionHelper.getClass(classLoader, "net.minecraft.client.MinecraftApplet");
-        if (minecraftApplet.getClass().getClassLoader() == classLoader)
+        appletClass = ReflectionHelper.getClass(launchClassLoader, "net.minecraft.client.MinecraftApplet");
+        if (minecraftApplet.getClass().getClassLoader() == launchClassLoader)
         {
             if (popupWindow != null)
             {
@@ -299,7 +297,7 @@ public class FMLRelauncher
 
     private void startApplet(Applet applet)
     {
-        if (applet.getClass().getClassLoader() == classLoader)
+        if (applet.getClass().getClassLoader() == launchClassLoader)
         {
             if (popupWindow != null)
             {

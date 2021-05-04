@@ -14,27 +14,16 @@
 
 package cpw.mods.fml.common.asm;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream.GetField;
-import java.io.StringReader;
-import java.net.JarURLConnection;
-import java.nio.charset.Charset;
 import java.security.CodeSource;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXCertPathValidatorResult;
-import java.security.cert.PKIXParameters;
-import java.security.cert.TrustAnchor;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import cpw.mods.fml.common.patcher.ClassPatchManager;
+import cpw.mods.fml.relauncher.FMLRelauncher;
+import cpw.mods.fml.relauncher.Side;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -43,7 +32,6 @@ import org.objectweb.asm.Opcodes;
 import cpw.mods.fml.common.CertificateHelper;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.IFMLCallHook;
-import cpw.mods.fml.relauncher.RelaunchClassLoader;
 
 public class FMLSanityChecker implements IFMLCallHook
 {
@@ -68,7 +56,7 @@ public class FMLSanityChecker implements IFMLCallHook
         }
     }
 
-    private RelaunchClassLoader cl;
+    private LaunchClassLoader cl;
 
     @Override
     public Void call() throws Exception
@@ -137,7 +125,7 @@ public class FMLSanityChecker implements IFMLCallHook
     @Override
     public void injectData(Map<String, Object> data)
     {
-        cl = (RelaunchClassLoader) data.get("classLoader");
+        cl = (LaunchClassLoader) data.get("classLoader");
     }
 
 }

@@ -1,4 +1,4 @@
-package cpw.mods.fml.relauncher.tweaker.patcher;
+package cpw.mods.fml.common.patcher;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
