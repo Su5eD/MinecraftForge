@@ -99,8 +99,7 @@ project(":clean") {
 
     repositories {
         maven {
-            url = uri("http://192.168.50.181/releases/")
-            isAllowInsecureProtocol = true
+            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
         }
         maven {
             name = "artifactory"
@@ -223,8 +222,7 @@ project(":forge") {
 
     repositories {
         maven {
-            url = uri("http://192.168.50.181/releases")
-            isAllowInsecureProtocol = true
+            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
         }
         maven {
             name = "artifactory"
