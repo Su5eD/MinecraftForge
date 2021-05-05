@@ -28,28 +28,37 @@ public class FMLRelauncher
     private static FMLRelauncher INSTANCE;
     public static String logFileNamePattern;
     private static String side;
-    private final LaunchClassLoader launchClassLoader;
+    private LaunchClassLoader launchClassLoader;
     private Object newApplet;
     private Class<? super Object> appletClass;
 
     JDialog popupWindow;
     
-    public static void configureClient(String side, File minecraftHome, LaunchClassLoader classLoader) {
-        FMLRelauncher.side = side;
+    public static void configureClient(File minecraftHome, LaunchClassLoader classLoader) {
+        side = "CLIENT";
         logFileNamePattern = "ForgeModLoader-client-%g.log";
-        instance(classLoader).setupHome(minecraftHome);
+        
+        FMLRelauncher instance = instance();
+        instance.launchClassLoader = classLoader;
+        instance.setupHome(minecraftHome);
+    }
+    
+    public static void configureServer(File minecraftHome, LaunchClassLoader classLoader) {
+        side = "SERVER";
+        logFileNamePattern = "ForgeModLoader-server-%g.log";
+        
+        FMLRelauncher instance = instance();
+        instance.launchClassLoader = classLoader;
+        instance.setupHome(minecraftHome);
     }
 
     public static void handleClientRelaunch(ArgsWrapper wrap)
     {
-        FMLRelauncher instance = instance();
-        instance.relaunchClient(wrap);
+        instance().relaunchClient(wrap);
     }
 
     public static void handleServerRelaunch(ArgsWrapper wrap)
     {
-        logFileNamePattern = "ForgeModLoader-server-%g.log";
-        side = "SERVER"; // TODO Server
         instance().relaunchServer(wrap);
     }
     
@@ -57,26 +66,12 @@ public class FMLRelauncher
     {
         if (INSTANCE == null)
         {
-            LaunchClassLoader classLoader = new LaunchClassLoader(((URLClassLoader) FMLRelauncher.class.getClassLoader()).getURLs());
-            INSTANCE = new FMLRelauncher(classLoader);
-            new FMLTweaker().injectIntoClassLoader(classLoader); //FIXME Hack to launch in dev env
-        }
-        return INSTANCE;
-    }
-    
-    static FMLRelauncher instance(LaunchClassLoader classLoader)
-    {
-        if (INSTANCE == null)
-        {
-            INSTANCE = new FMLRelauncher(classLoader);
+            INSTANCE = new FMLRelauncher();
         }
         return INSTANCE;
     }
 
-    private FMLRelauncher(LaunchClassLoader classLoader)
-    {
-        launchClassLoader = classLoader;
-    }
+    private FMLRelauncher() {}
 
     private void showWindow(boolean showIt)
     {

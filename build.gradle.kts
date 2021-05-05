@@ -286,7 +286,7 @@ project(":forge") {
             named("forge_client") {
                 taskName = "forge_client"
                 workingDirectory = project.file("run").absolutePath
-                main = "mcp.client.Start"
+                main = "net.minecraftforge.legacydev.MainClient"
 
                 environment(
                     mapOf(
@@ -294,6 +294,7 @@ project(":forge") {
                         "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker",
                         "assetIndex" to "{asset_index}",
                         "assetDirectory" to tasks.getByName<DownloadAssets>("downloadAssets").output.absolutePath,
+                        "nativesDirectory" to tasks.getByName<ExtractNatives>("extractNatives").output.absolutePath,
                         "MC_VERSION" to minecraftVersion,
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -301,8 +302,6 @@ project(":forge") {
                         "FORGE_VERSION" to (project.version as String).substring(minecraftVersion.length + 1)
                     )
                 )
-
-                property("java.library.path", tasks.getByName<ExtractNatives>("extractNatives").output.absolutePath)
             }
 
             named("forge_server") {
@@ -312,7 +311,7 @@ project(":forge") {
                 environment(
                     mapOf(
                         "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker", // TODO Server tweaker
+                        "tweakClass" to "cpw.mods.fml.common.launcher.FMLServerTweaker",
                         "MC_VERSION" to minecraftVersion,
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -385,7 +384,7 @@ project(":forge") {
             }
             
             named<GenerateBinPatches>("genServerBinPatches") {
-                cleanJar = net.minecraftforge.gradle.common.util.MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
+                cleanJar = net.minecraftforge.gradle.common.util.MavenArtifactDownloader.generate(project, "net.minecraft:server:$minecraftVersion", true)
             }
             
             tasks.named<GenerateBinPatches>("genRuntimeBinPatches") {
@@ -726,7 +725,7 @@ project(":forge") {
             from(extraTxts)
             dependsOn(deobfDataLzma)
             from(deobfDataLzma.property("output") as File) {
-                rename { "deobfuscation_data.lzma" }
+                rename { "deobfuscation_data.lzma" } //TODO Remove this
             }
             dependsOn(genRuntimeBinPatches)
             from(genRuntimeBinPatches.output) {
@@ -736,15 +735,14 @@ project(":forge") {
                 val classpath = StringBuilder()
                 val artifacts = getArtifacts(project.configurations.getByName("installer"), false)
                 artifacts.forEach { (_, lib) ->
-                    classpath.append("libraries/${lib.jsonObject["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")} ")
+                    classpath.append("libraries/${lib.jsonObject["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")?.jsonPrimitive?.content} ")
                 }
                 classpath.append("minecraft_server.$minecraftVersion.jar")
                 manifests.forEach { (pkg, values) ->
                     if (pkg == "/") {
                         values += mutableMapOf(
-                            "Main-Class" to "net.minecraftforge.fml.relauncher.ServerLaunchWrapper", // TODO Change to MinecraftServer
-                            "Class-Path" to classpath.toString(),
-                            "Tweak-Class" to "cpw.mods.fml.common.launcher.FMLTweaker"
+                            "Main-Class" to "cpw.mods.fml.relauncher.ServerLaunchWrapper",
+                            "Class-Path" to classpath.toString()
                         )
                         manifest.attributes(values)
                     } else {
@@ -814,7 +812,7 @@ project(":forge") {
             
             from(rootProject.file("mdk/")){ 
                 rootProject.file("mdk/gitignore.txt").forEachLine { 
-                    if (!it.trim().isEmpty() && !it.trim().startsWith('#'))
+                    if (it.trim().isNotEmpty() && !it.trim().startsWith('#'))
                         exclude(it)
                 }
                 filter(org.apache.tools.ant.filters.ReplaceTokens::class, mapOf(
@@ -863,7 +861,7 @@ project(":forge") {
                     environment(
                         mapOf(
                             "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker", // TODO Server tweaker
+                            "tweakClass" to "cpw.mods.fml.common.launcher.FMLServerTweaker",
                             "MC_VERSION" to minecraftVersion,
                             "MCP_MAPPINGS" to "{mcp_mappings}",
                             "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -1007,7 +1005,6 @@ project(":forge") {
                 }
                 
                 artifact("installerJar")
-                //TODO: installer-win
                 artifact("makeMdk")
                 artifact("userdevJar")
                 artifact("sourcesJar")

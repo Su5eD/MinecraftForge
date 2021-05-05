@@ -32,11 +32,15 @@ public class FMLTweaker implements ITweaker {
         classLoader.addTransformerExclusion("cpw.mods.fml.common.asm.transformers.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.patcher.");
         
-        FMLRelauncher.configureClient("CLIENT", getGameDir(), classLoader);
+        configureTweaker(classLoader);
+    }
+    
+    protected void configureTweaker(LaunchClassLoader classLoader) {
+        FMLRelauncher.configureClient(getGameDir(), classLoader);
         ClassPatchManager.INSTANCE.setup(Side.CLIENT);
     }
     
-    private File getGameDir() {
+    protected File getGameDir() {
         return gameDir == null ? new File(".") : gameDir;
     }
 
