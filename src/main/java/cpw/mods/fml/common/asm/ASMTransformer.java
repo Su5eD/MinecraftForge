@@ -14,19 +14,18 @@
 
 package cpw.mods.fml.common.asm;
 
+import cpw.mods.fml.common.registry.BlockProxy;
+import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
-import cpw.mods.fml.common.registry.BlockProxy;
-import cpw.mods.fml.relauncher.IClassTransformer;
-
 public class ASMTransformer implements IClassTransformer
 {
     @Override
-    public byte[] transform(String name, byte[] bytes)
+    public byte[] transform(String name, String transformedName, byte[] bytes)
     {
         if ("net.minecraft.src.Block".equals(name))
         {

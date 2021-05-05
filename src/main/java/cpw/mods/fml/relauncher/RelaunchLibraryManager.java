@@ -14,9 +14,10 @@
 
 package cpw.mods.fml.relauncher;
 
-import com.google.common.base.Throwables;
 import cpw.mods.fml.common.CertificateHelper;
+import cpw.mods.fml.common.asm.transformers.TransformerCompatLayer;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import java.io.*;
@@ -126,15 +127,17 @@ public class RelaunchLibraryManager
                 for (int i=0; i<lib.getLibraries().length; i++)
                 {
                     boolean download = false;
-                    String libName = getLibName(lib.getLibraries()[i]);
-                    String targFileName = libName.lastIndexOf('/')>=0 ? libName.substring(libName.lastIndexOf('/')) : libName;
+                    MavenArtifact artifact = MavenArtifact.fromString(lib.getLibraries()[i]);
+                    String path = artifact.getPath();
+                    String libFileName = artifact.getFileName();
+                    String targFileName = path.lastIndexOf('/')>=0 ? path.substring(path.lastIndexOf('/')) : path;
                     String checksum = lib.getHashes()[i];
                     File libFile = new File(libDir, targFileName);
                     if (!libFile.exists())
                     {
                         try
                         {
-                            downloadFile(libFile, lib.getRootURL(), libName, checksum);
+                            downloadFile(libFile, lib.getRootURL(), path, libFileName, checksum);
                             download = true;
                         }
                         catch (Throwable e)
@@ -146,7 +149,7 @@ public class RelaunchLibraryManager
 
                     if (libFile.exists() && !libFile.isFile())
                     {
-                        caughtErrors.add(new RuntimeException(String.format("Found a file %s that is not a normal file - you should clear this out of the way", libName)));
+                        caughtErrors.add(new RuntimeException(String.format("Found a file %s that is not a normal file - you should clear this out of the way", libFileName)));
                         continue;
                     }
 
@@ -162,35 +165,35 @@ public class RelaunchLibraryManager
                             // bad checksum and I did not download this file
                             if (!checksum.equals(fileChecksum))
                             {
-                                caughtErrors.add(new RuntimeException(String.format("The file %s was found in your lib directory and has an invalid checksum %s (expecting %s) - it is unlikely to be the correct download, please move it out of the way and try again.", libName, fileChecksum, checksum)));
+                                caughtErrors.add(new RuntimeException(String.format("The file %s was found in your lib directory and has an invalid checksum %s (expecting %s) - it is unlikely to be the correct download, please move it out of the way and try again.", libFileName, fileChecksum, checksum)));
                                 continue;
                             }
                         }
                         catch (Exception e)
                         {
-                            FMLRelaunchLog.log(Level.SEVERE, e, "The library file %s could not be validated", libFile.getName());
-                            caughtErrors.add(new RuntimeException(String.format("The library file %s could not be validated", libFile.getName()),e));
+                            FMLRelaunchLog.log(Level.SEVERE, e, "The library file %s could not be validated", libFileName);
+                            caughtErrors.add(new RuntimeException(String.format("The library file %s could not be validated", libFileName),e));
                             continue;
                         }
                     }
 
                     if (!download)
                     {
-                        downloadMonitor.updateProgressString("Found library file %s present and correct in lib dir", libName);
+                        downloadMonitor.updateProgressString("Found library file %s present and correct in lib dir", libFileName);
                     }
                     else
                     {
-                        downloadMonitor.updateProgressString("Library file %s was downloaded and verified successfully", libName);
+                        downloadMonitor.updateProgressString("Library file %s was downloaded and verified successfully", libFileName);
                     }
 
                     try
                     {
                         actualClassLoader.addURL(libFile.toURI().toURL());
-                        loadedLibraries.add(libName);
+                        loadedLibraries.add(path);
                     }
                     catch (MalformedURLException e)
                     {
-                        caughtErrors.add(new RuntimeException(String.format("Should never happen - %s is broken - probably a somehow corrupted download. Delete it and try again.", libFile.getName()), e));
+                        caughtErrors.add(new RuntimeException(String.format("Should never happen - %s is broken - probably a somehow corrupted download. Delete it and try again.", libFileName), e));
                     }
                 }
             }
@@ -240,7 +243,16 @@ public class RelaunchLibraryManager
             {
                 for (String xformClass : plug.getASMTransformerClass())
                 {
-                    actualClassLoader.registerTransformer(xformClass);
+                    try {
+                        Object transformer = actualClassLoader.loadClass(xformClass).newInstance();
+                        // Prevent LaunchWrapper from printing unnecessary errors. We will use a compat layer for non-LW transformers
+                        if (transformer instanceof IClassTransformer) actualClassLoader.registerTransformer(xformClass);
+                        else if (transformer instanceof cpw.mods.fml.relauncher.IClassTransformer) {
+                            TransformerCompatLayer.registerTransformer((cpw.mods.fml.relauncher.IClassTransformer) transformer);
+                        }
+                    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                        FMLRelaunchLog.log(Level.SEVERE, e, "Error initializing transformer "+xformClass);
+                    }
                 }
             }
         }
@@ -295,13 +307,6 @@ public class RelaunchLibraryManager
             System.out.println("A CRITICAL PROBLEM OCCURED INITIALIZING MINECRAFT - LIKELY YOU HAVE AN INCORRECT VERSION FOR THIS FML");
             throw new RuntimeException(e);
         }
-    }
-    
-    private static String getLibName(String mavenPath) {
-        String[] parts = mavenPath.split(":");
-        String group = parts[0].replace(".", "/");
-        String classifier = parts.length > 3 ? "-" + parts[3] : "";
-        return group + "/" + parts[1] + "/" + parts[2] + "/" + parts[1] + "-" + parts[2] + classifier + ".jar";
     }
 
     private static void discoverCoreMods(File mcDir, LaunchClassLoader classLoader, List<IFMLLoadingPlugin> loadPlugins, List<ILibrarySet> libraries)
@@ -464,13 +469,13 @@ public class RelaunchLibraryManager
         return coreModDir;
     }
 
-    private static void downloadFile(File libFile, String rootUrl,String realFilePath, String hash)
+    private static void downloadFile(File libFile, String rootUrl, String realFilePath, String libName, String hash)
     {
         try
         {
             URL libDownload = new URL(String.format(rootUrl,realFilePath));
-            downloadMonitor.updateProgressString("Downloading file %s", libDownload.toString());
-            FMLRelaunchLog.info("Downloading file %s", libDownload.toString());
+            downloadMonitor.updateProgressString("Downloading file %s", libName);
+            FMLRelaunchLog.info("Downloading file %s", libName);
             URLConnection connection = libDownload.openConnection();
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
@@ -490,7 +495,7 @@ public class RelaunchLibraryManager
             if (e instanceof RuntimeException) throw (RuntimeException)e;
             FMLRelaunchLog.severe("There was a problem downloading the file %s automatically. Perhaps you " +
             		"have an environment without internet access. You will need to download " +
-            		"the file manually or restart and let it try again\n", libFile.getName());
+            		"the file manually or restart and let it try again\n", libName);
             libFile.delete();
             throw new RuntimeException("A download error occured", e);
         }
@@ -565,13 +570,39 @@ public class RelaunchLibraryManager
             if (e instanceof RuntimeException) throw (RuntimeException)e;
             throw new RuntimeException(e);
         }
-
-
-
     }
 
     private static String generateChecksum(ByteBuffer buffer)
     {
         return CertificateHelper.getFingerprint(buffer);
+    }
+    
+    private static class MavenArtifact {
+        public final String group;
+        public final String name;
+        public final String version;
+        public final String classifier;
+        
+        public MavenArtifact(String group, String name, String version, String classifier) {
+            this.group = group;
+            this.name = name;
+            this.version = version;
+            this.classifier = classifier;
+        }
+        
+        public static MavenArtifact fromString(String path) {
+            String[] parts = path.split(":");
+            String group = parts[0].replace(".", "/");
+            return new MavenArtifact(group, parts[1], parts[2], parts.length > 3 ? parts[3] : "");
+        }
+        
+        public String getFileName() {
+            String classifier = !this.classifier.isEmpty() ? "-" + this.classifier : "";
+            return name + "-" + version + classifier + ".jar";
+        }
+        
+        public String getPath() {
+            return String.format("%s/%s/%s/%s", group, name, version, getFileName());
+        }
     }
 }

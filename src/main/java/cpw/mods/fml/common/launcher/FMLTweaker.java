@@ -10,8 +10,12 @@ import java.io.File;
 import java.util.List;
 
 public class FMLTweaker implements ITweaker {
+    private File gameDir;
+    
     @Override
-    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {}
+    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
+        this.gameDir = gameDir;
+    }
 
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
@@ -21,18 +25,19 @@ public class FMLTweaker implements ITweaker {
         classLoader.addClassLoaderExclusion("LZMA.");
         classLoader.addClassLoaderExclusion("net.minecraftforge.classloading.");
         classLoader.addClassLoaderExclusion("cpw.mods.fml.common.asm.transformers");
+        classLoader.addClassLoaderExclusion("cpw.mods.fml.relauncher");
         
         classLoader.addTransformerExclusion("cpw.mods.fml.repackage.");
         classLoader.addTransformerExclusion("cpw.mods.fml.relauncher.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.asm.transformers.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.patcher.");
         
-        FMLRelauncher.configure("CLIENT");
+        FMLRelauncher.configureClient("CLIENT", getGameDir(), classLoader);
         ClassPatchManager.INSTANCE.setup(Side.CLIENT);
-        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.PatchingTransformer");
-        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.AccessTransformer");
-        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.MarkerTransformer");
-        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.SideTransformer");
+    }
+    
+    private File getGameDir() {
+        return gameDir == null ? new File(".") : gameDir;
     }
 
     @Override
