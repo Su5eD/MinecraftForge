@@ -1,9 +1,7 @@
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import lzma.streams.LzmaOutputStream
 import net.minecraftforge.gradle.common.task.*
-import net.minecraftforge.gradle.common.util.MappingFile
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.task.DownloadMCPConfigTask
 import net.minecraftforge.gradle.patcher.PatcherExtension
@@ -13,7 +11,6 @@ import net.minecraftforge.gradle.patcher.task.TaskGeneratePatches
 import net.minecraftforge.gradle.patcher.task.TaskGenerateUserdevConfig
 import net.minecraftforge.gradle.patcher.task.TaskReobfuscateJar
 import net.minecraftforge.gradle.mcp.task.GenerateSRG
-import org.ajoberstar.grgit.Grgit
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.FieldVisitor
@@ -21,6 +18,9 @@ import org.objectweb.asm.MethodVisitor
 import java.nio.file.Files
 import java.time.LocalDateTime
 import java.util.*
+import org.eclipse.jgit.errors.RepositoryNotFoundException
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ObjectId
 
 buildscript {
     repositories {
@@ -34,7 +34,7 @@ buildscript {
         classpath("net.minecraftforge.gradle:ForgeGradle:4.1.7")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
-        classpath("com.github.jponge:lzma-java:1.3") //Needed to compress deobf data
+        classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
         
         classpath(kotlin("gradle-plugin", version = "1.5.0"))
         classpath(kotlin("serialization", version = "1.5.0"))
@@ -56,7 +56,6 @@ buildscript {
 
 plugins {
     id("net.minecrell.licenser") version "0.4"
-    id("org.ajoberstar.grgit") version "3.1.1"
     id("de.undercouch.download") version "3.3.0"
     id("com.github.ben-manes.versions") version "0.22.0"
     eclipse
@@ -233,43 +232,14 @@ project(":forge") {
         }
         mavenCentral()
     }
-
-    val legacyMajor = 14     // Legacy versions have a API change prefix
-    val legacyBuild = 2848   // Base build number to not conflict with existing build numbers
-    var buildNumber = 0      // LEGACY_BUILD + commit offset, used to mimic unique build from old versions
+    
     var specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
     val mcpArtifact = project(":mcp").extensions.getByName<MCPExtension>("mcp").config
     val versionJson = project(":mcp").file("build/mcp/downloadJson/version.json")
     val binpatchTool = "net.minecraftforge:binarypatcher:1.1.1:fatjar"
+    val gitInfo = gitInfo()
 
-    fun getVersion(): String {
-        //TAG-offset-hash
-        val grgit = extra["grgit"] as Grgit
-        val options = mapOf(
-            "longDescr" to true,
-            "tags" to true
-        )
-        val raw = grgit.describe(options)
-        val desc = (if (raw == null) "0.0-0-unknown" else grgit.describe(options)).split('-') as MutableList
-        val offset = desc.removeAt(desc.size - 1)
-        val tag = desc.joinToString(separator = "-")
-        var branch = grgit.branch.current().name
-
-        if (branch in listOf("master", "HEAD", minecraftVersion, "$minecraftVersion.0") ||
-            branch != null && branch.endsWith(".x") && minecraftVersion.startsWith(
-                branch.substring(
-                    0,
-                    branch.length - 2
-                )
-            )
-        ) //1.13.x
-            branch = null
-        specVersion = tag
-        if (offset != "unknown") buildNumber = legacyBuild + offset.toInt()
-        return "$minecraftVersion-$legacyMajor.$tag.$buildNumber${if (branch != null) "-$branch" else ""}" //Bake the response instead of making it dynamic
-    }
-
-    version = getVersion()
+    version = getVersion(gitInfo)
 
     configure<PatcherExtension> {
         exc(file("$rootDir/src/main/resources/fml.exc"))
@@ -326,8 +296,8 @@ project(":forge") {
     val manifests = mutableMapOf(
         "/" to mutableMapOf<String, Any>(
             "Timestamp" to LocalDateTime.now(),
-            "GitCommit" to (extra["grgit"] as Grgit).head().abbreviatedId,
-            "Git-Branch" to (extra["grgit"] as Grgit).branch.current().name
+            "GitCommit" to gitInfo["abbreviatedId"]!!,
+            "Git-Branch" to gitInfo["branch"]!!
         ),
         "net/minecraftforge/common/" to mutableMapOf(
             "Specification-Title" to "Forge",
@@ -685,48 +655,9 @@ project(":forge") {
             config = project(":mcp").tasks.getByName<DownloadMCPConfigTask>("downloadConfig").output
         }
         
-        register("deobfDataLzma") {
-            val extractObf2Srg = getByName<ExtractMCPData>("extractObf2Srg")
-            dependsOn(extractObf2Srg)
-            
-            val outputSrg = file("build/deobfDataLzma/data.srg")
-            val output = file("build/deobfDataLzma/data.lzma")
-            
-            configure<ExtraPropertiesExtension> {
-                set("output", output)
-            }
-            
-            inputs.file(extractObf2Srg.output)
-            outputs.file(output)
-            
-            doLast { 
-                MappingFile.load(extractObf2Srg.output)
-                    .write(MappingFile.Format.SRG, outputSrg)
-                
-                outputSrg.inputStream().let { ins ->
-                    output.outputStream().let { outs ->
-                        val lz = LzmaOutputStream.Builder(outs).useEndMarkerMode(true).build()
-                        
-                        val buf = ByteArray(0x100)
-                        var i: Int
-                        while (run { i = ins.read(buf); i } != -1) {
-                            lz.write(buf, 0, i)
-                        }
-                        
-                        lz.close()
-                    }
-                }
-            }
-        }
-        
         named<Jar>("universalJar") {
-            val deobfDataLzma = getByName("deobfDataLzma")
             val genRuntimeBinPatches = getByName<GenerateBinPatches>("genRuntimeBinPatches")
             from(extraTxts)
-            dependsOn(deobfDataLzma)
-            from(deobfDataLzma.property("output") as File) {
-                rename { "deobfuscation_data.lzma" } //TODO Remove this
-            }
             dependsOn(genRuntimeBinPatches)
             from(genRuntimeBinPatches.output) {
                 rename { "binpatches.pack.lzma" }
@@ -781,8 +712,7 @@ project(":forge") {
             register<SignJar>("sign${t.name.capitalize()}") {
                 dependsOn(t)
                 onlyIf {
-                    val failure: Throwable? = t.state.failure
-                    jarSigner.isNotEmpty() && failure == null
+                    jarSigner.isNotEmpty() && t.state.failure == null
                 }
                 setAlias("forge")
                 setStorePass(jarSigner["storepass"])
@@ -1160,4 +1090,50 @@ fun artifactTree(project: Project, artifact: String): Map<String, JsonObject> {
     val dep = project.dependencies.create(artifact)
     cfg.dependencies.add(dep)
     return getArtifacts(cfg, true)
+}
+
+fun gitInfo(): Map<String, String> {
+    val legacyBuild = 565 // Base build number to not conflict with existing build numbers
+    val git: Git
+    try {
+        git = Git.open(rootProject.file("."))
+    } catch (e: RepositoryNotFoundException) {
+        return mapOf(
+            "tag" to "0.0",
+            "offset" to "0",
+            "hash" to "00000000",
+            "branch" to "master",
+            "commit" to "0000000000000000000000",
+            "abbreviatedId" to "00000000"
+        )
+    }
+    val desc = git.describe().setLong(true).setTags(true).call().split("-", limit = 3)
+    val head = git.repository.resolve("HEAD")
+
+    val ret: MutableMap<String, String> = kotlin.collections.HashMap()
+    ret["tag"] = desc[0]
+    ret["offset"] = (desc[1].toInt() + legacyBuild).toString()
+    ret["hash"] = desc[2]
+    ret["branch"] = git.repository.branch
+    ret["commit"] = ObjectId.toString(head)
+    ret["abbreviatedId"] = head.abbreviate(8).name()
+
+    return ret
+}
+
+fun getVersion(info: Map<String, String>): String {
+    var branch = info["branch"]
+    if (branch != null && branch.startsWith("pulls/"))
+        branch = "pr" + branch.split("/", limit = 2)[1]
+    if (branch in setOf(
+            null,
+            "master",
+            "HEAD",
+            minecraftVersion,
+            "$minecraftVersion.0",
+            minecraftVersion.substring(0, minecraftVersion.lastIndexOf(".")) + ".x"
+        )
+    )
+        return "${minecraftVersion}-${info["tag"]}.${info["offset"]}"
+    return "${minecraftVersion}-${info["tag"]}.${info["offset"]}-${branch}"
 }
