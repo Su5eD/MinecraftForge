@@ -14,18 +14,18 @@
 
 package cpw.mods.fml.common.event;
 
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.FMLModContainer;
+import cpw.mods.fml.common.LoaderState.ModState;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.discovery.ASMDataTable;
+
 import java.io.File;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.LoaderState.ModState;
-import cpw.mods.fml.common.FMLModContainer;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.discovery.ASMDataTable;
 
 public class FMLPreInitializationEvent extends FMLStateEvent
 {

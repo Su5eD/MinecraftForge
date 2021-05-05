@@ -14,12 +14,12 @@
 
 package cpw.mods.fml.common;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
 import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindFieldException;
+
+import java.util.Arrays;
+import java.util.logging.Level;
 
 /**
  * Some reflection helper code.

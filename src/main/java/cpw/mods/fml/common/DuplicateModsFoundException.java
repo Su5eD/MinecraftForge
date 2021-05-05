@@ -14,10 +14,9 @@
 
 package cpw.mods.fml.common;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.collect.SetMultimap;
+
+import java.io.File;
 
 public class DuplicateModsFoundException extends LoaderException {
 

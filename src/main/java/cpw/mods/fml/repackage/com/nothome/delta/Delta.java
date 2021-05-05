@@ -34,21 +34,10 @@
 
 package cpw.mods.fml.repackage.com.nothome.delta;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+ import java.io.*;
+ import java.nio.ByteBuffer;
+ import java.nio.channels.Channels;
+ import java.nio.channels.ReadableByteChannel;
 
 /**
  * Class for computing deltas against a source.

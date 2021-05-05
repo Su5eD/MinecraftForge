@@ -14,19 +14,16 @@
 
 package cpw.mods.fml.client.modloader;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-
-import org.lwjgl.input.Mouse;
-
 import com.google.common.collect.ObjectArrays;
 import com.google.common.primitives.Booleans;
-
-import net.minecraft.client.settings.KeyBinding;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.modloader.ModLoaderModContainer;
+import net.minecraft.client.settings.KeyBinding;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author cpw

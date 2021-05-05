@@ -14,12 +14,12 @@
 
 package cpw.mods.fml.client;
 
+import cpw.mods.fml.common.network.ModMissingPacket;
+import cpw.mods.fml.common.versioning.ArtifactVersion;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSmallButton;
 import net.minecraft.util.StringTranslate;
-import cpw.mods.fml.common.network.ModMissingPacket;
-import cpw.mods.fml.common.versioning.ArtifactVersion;
 
 public class GuiModsMissingForServer extends GuiScreen
 {

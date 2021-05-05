@@ -14,23 +14,20 @@
 
 package cpw.mods.fml.client.registry;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Set;
-
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Set;
 
 public class KeyBindingRegistry
 {

@@ -14,14 +14,13 @@
 
 package cpw.mods.fml.common.discovery;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.collect.Lists;
-
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.discovery.asm.ASMModParser;
+
+import java.io.File;
+import java.util.List;
 
 
 public class ModCandidate

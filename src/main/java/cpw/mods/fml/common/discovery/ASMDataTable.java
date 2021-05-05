@@ -14,20 +14,13 @@
 
 package cpw.mods.fml.common.discovery;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.*;
+import cpw.mods.fml.common.ModContainer;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
-
-import cpw.mods.fml.common.ModContainer;
 
 public class ASMDataTable
 {

@@ -14,15 +14,13 @@
 
 package cpw.mods.fml.common.modloader;
 
-import java.util.Set;
-
+import com.google.common.collect.Sets;
+import cpw.mods.fml.common.network.IGuiHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.world.World;
 
-import com.google.common.collect.Sets;
-
-import cpw.mods.fml.common.network.IGuiHandler;
+import java.util.Set;
 
 public class ModLoaderGuiHelper implements IGuiHandler
 {

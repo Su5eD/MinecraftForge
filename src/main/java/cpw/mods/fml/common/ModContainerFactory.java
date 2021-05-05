@@ -14,15 +14,14 @@
 
 package cpw.mods.fml.common;
 
-import java.io.File;
-import java.util.regex.Pattern;
-
-import org.objectweb.asm.Type;
-
 import cpw.mods.fml.common.discovery.ModCandidate;
 import cpw.mods.fml.common.discovery.asm.ASMModParser;
 import cpw.mods.fml.common.discovery.asm.ModAnnotation;
 import cpw.mods.fml.common.modloader.ModLoaderModContainer;
+import org.objectweb.asm.Type;
+
+import java.io.File;
+import java.util.regex.Pattern;
 
 public class ModContainerFactory
 {

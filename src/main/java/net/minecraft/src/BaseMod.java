@@ -12,13 +12,11 @@
  */
 package net.minecraft.src;
 
-import static cpw.mods.fml.relauncher.Side.CLIENT;
-
-import java.util.Map;
-import java.util.Random;
-
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.client.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -37,10 +35,11 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.Map;
+import java.util.Random;
+
+import static cpw.mods.fml.relauncher.Side.CLIENT;
 
 public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModProxy
 {

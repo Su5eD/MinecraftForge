@@ -15,8 +15,8 @@
 package cpw.mods.fml.common;
 
 import com.google.common.collect.ImmutableList;
-import cpw.mods.fml.common.modloader.BaseModProxy;
 import cpw.mods.fml.common.asm.transformers.AccessTransformer;
+import cpw.mods.fml.common.modloader.BaseModProxy;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import java.io.File;

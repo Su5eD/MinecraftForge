@@ -14,23 +14,20 @@
 
 package cpw.mods.fml.common;
 
-import java.security.cert.Certificate;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-
+import com.google.common.eventbus.EventBus;
+import cpw.mods.fml.common.registry.GameData;
+import cpw.mods.fml.common.registry.ItemData;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
-import com.google.common.eventbus.EventBus;
-
-import cpw.mods.fml.common.registry.GameData;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.ItemData;
+import java.security.cert.Certificate;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author cpw

@@ -14,24 +14,19 @@
 
 package cpw.mods.fml.common.asm;
 
-import java.security.CodeSource;
-import java.security.cert.Certificate;
-import java.util.Map;
-
-import javax.swing.JOptionPane;
-
-import cpw.mods.fml.common.patcher.ClassPatchManager;
-import cpw.mods.fml.relauncher.FMLRelauncher;
-import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.common.CertificateHelper;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.relauncher.IFMLCallHook;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 
-import cpw.mods.fml.common.CertificateHelper;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.IFMLCallHook;
+import javax.swing.*;
+import java.security.CodeSource;
+import java.security.cert.Certificate;
+import java.util.Map;
 
 public class FMLSanityChecker implements IFMLCallHook
 {

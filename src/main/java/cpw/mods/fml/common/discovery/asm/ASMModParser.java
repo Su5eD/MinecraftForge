@@ -14,25 +14,22 @@
 
 package cpw.mods.fml.common.discovery.asm;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.LoaderException;
+import cpw.mods.fml.common.discovery.ASMDataTable;
+import cpw.mods.fml.common.discovery.ModCandidate;
+import net.minecraft.src.BaseMod;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
-
-import net.minecraft.src.BaseMod;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.LoaderException;
-import cpw.mods.fml.common.discovery.ASMDataTable;
-import cpw.mods.fml.common.discovery.ModCandidate;
 
 public class ASMModParser
 {

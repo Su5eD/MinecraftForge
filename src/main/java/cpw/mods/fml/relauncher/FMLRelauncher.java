@@ -14,14 +14,12 @@
 
 package cpw.mods.fml.relauncher;
 
-import cpw.mods.fml.common.launcher.FMLTweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import javax.swing.*;
 import java.applet.Applet;
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 
 public class FMLRelauncher
 {

@@ -14,9 +14,9 @@
 
 package cpw.mods.fml.common.registry;
 
-import java.util.BitSet;
-
 import net.minecraft.block.Block;
+
+import java.util.BitSet;
 
 class BlockTracker
 {

@@ -14,22 +14,21 @@
 
 package cpw.mods.fml.common;
 
-import java.util.List;
-
 import com.google.common.collect.MapDifference;
-
+import cpw.mods.fml.common.network.EntitySpawnAdjustmentPacket;
+import cpw.mods.fml.common.network.EntitySpawnPacket;
+import cpw.mods.fml.common.network.ModMissingPacket;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
+import cpw.mods.fml.common.registry.ItemData;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.server.MinecraftServer;
-import cpw.mods.fml.common.network.EntitySpawnAdjustmentPacket;
-import cpw.mods.fml.common.network.EntitySpawnPacket;
-import cpw.mods.fml.common.network.ModMissingPacket;
-import cpw.mods.fml.common.registry.ItemData;
-import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
-import cpw.mods.fml.relauncher.Side;
+
+import java.util.List;
 
 public interface IFMLSidedHandler
 {

@@ -14,13 +14,11 @@
 
 package cpw.mods.fml.common.registry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Collection;
-import java.util.Collections;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import cpw.mods.fml.common.FMLLog;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.item.Item;
 import net.minecraft.util.Tuple;
@@ -28,12 +26,7 @@ import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.gen.structure.ComponentVillageStartPiece;
 import net.minecraft.world.gen.structure.StructureVillagePieceWeight;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-
-import cpw.mods.fml.common.FMLLog;
+import java.util.*;
 
 /**
  * Registry for villager trading control

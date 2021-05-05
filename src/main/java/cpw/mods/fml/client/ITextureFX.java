@@ -14,10 +14,10 @@
 
 package cpw.mods.fml.client;
 
-import java.awt.Dimension;
-
 import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.client.texturepacks.ITexturePack;
+
+import java.awt.*;
 
 public interface ITextureFX
 {

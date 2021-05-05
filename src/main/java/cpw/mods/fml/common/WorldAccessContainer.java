@@ -14,10 +14,12 @@
 
 package cpw.mods.fml.common;
 
-import java.util.Map;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.storage.SaveHandler;
+import net.minecraft.world.storage.WorldInfo;
 
-import net.minecraft.nbt.*;
-import net.minecraft.world.storage.*;
+import java.util.Map;
 
 
 public interface WorldAccessContainer

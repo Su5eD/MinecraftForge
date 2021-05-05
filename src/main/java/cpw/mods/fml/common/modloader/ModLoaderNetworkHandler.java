@@ -14,9 +14,6 @@
 
 package cpw.mods.fml.common.modloader;
 
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.discovery.ASMDataTable;
-import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkModHandler;
 
 public class ModLoaderNetworkHandler extends NetworkModHandler

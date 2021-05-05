@@ -14,17 +14,16 @@
 
 package cpw.mods.fml.common;
 
+import com.google.common.eventbus.EventBus;
+import cpw.mods.fml.common.versioning.ArtifactVersion;
+import cpw.mods.fml.common.versioning.DefaultArtifactVersion;
+import cpw.mods.fml.common.versioning.VersionRange;
+
 import java.io.File;
 import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.eventbus.EventBus;
-
-import cpw.mods.fml.common.versioning.ArtifactVersion;
-import cpw.mods.fml.common.versioning.DefaultArtifactVersion;
-import cpw.mods.fml.common.versioning.VersionRange;
 
 public class DummyModContainer implements ModContainer
 {

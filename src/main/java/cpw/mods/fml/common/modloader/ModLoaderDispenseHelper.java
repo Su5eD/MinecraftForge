@@ -14,13 +14,11 @@
 
 package cpw.mods.fml.common.modloader;
 
-import java.util.Random;
-
+import cpw.mods.fml.common.IDispenserHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import cpw.mods.fml.common.IDispenseHandler;
-import cpw.mods.fml.common.IDispenserHandler;
+import java.util.Random;
 
 public class ModLoaderDispenseHelper implements IDispenserHandler
 {

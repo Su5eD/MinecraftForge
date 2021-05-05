@@ -25,31 +25,10 @@
 
 package cpw.mods.fml.repackage.com.nothome.delta;
 
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_INT_INT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_INT_UBYTE;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_INT_USHORT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_LONG_INT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_USHORT_INT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_USHORT_UBYTE;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.COPY_USHORT_USHORT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.DATA_INT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.DATA_MAX;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.DATA_USHORT;
-import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.EOF;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
+
+import static cpw.mods.fml.repackage.com.nothome.delta.GDiffWriter.*;
 
 /**
  * This class patches an input file with a GDIFF patch fil�e.

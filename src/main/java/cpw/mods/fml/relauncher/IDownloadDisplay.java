@@ -14,8 +14,6 @@
 
 package cpw.mods.fml.relauncher;
 
-import javax.swing.JDialog;
-
 public interface IDownloadDisplay
 {
 

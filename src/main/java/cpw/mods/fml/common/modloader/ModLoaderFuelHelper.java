@@ -14,8 +14,8 @@
 
 package cpw.mods.fml.common.modloader;
 
-import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.IFuelHandler;
+import net.minecraft.item.ItemStack;
 
 public class ModLoaderFuelHelper implements IFuelHandler
 {

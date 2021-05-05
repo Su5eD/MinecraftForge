@@ -14,19 +14,18 @@
 
 package cpw.mods.fml.common.network;
 
-import static cpw.mods.fml.common.network.FMLPacket.Type.MOD_IDENTIFIERS;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.NetHandler;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.NetHandler;
-
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
+import static cpw.mods.fml.common.network.FMLPacket.Type.MOD_IDENTIFIERS;
 
 public class ModIdentifiersPacket extends FMLPacket
 {

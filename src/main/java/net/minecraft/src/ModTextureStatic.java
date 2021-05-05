@@ -14,18 +14,16 @@
 
 package net.minecraft.src;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.client.FMLTextureFX;
+import net.minecraft.client.renderer.RenderEngine;
+import org.lwjgl.opengl.GL11;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
-import net.minecraft.client.renderer.RenderEngine;
-
-import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.client.FMLTextureFX;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 
 public class ModTextureStatic extends FMLTextureFX
 {

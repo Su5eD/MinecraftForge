@@ -14,17 +14,16 @@
 
 package cpw.mods.fml.common.modloader;
 
-import java.util.List;
-import java.util.Random;
-
 import com.google.common.collect.Lists;
-
+import cpw.mods.fml.common.registry.VillagerRegistry;
+import cpw.mods.fml.common.registry.VillagerRegistry.IVillageTradeHandler;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.item.Item;
 import net.minecraft.src.TradeEntry;
 import net.minecraft.village.MerchantRecipeList;
-import cpw.mods.fml.common.registry.VillagerRegistry;
-import cpw.mods.fml.common.registry.VillagerRegistry.IVillageTradeHandler;
+
+import java.util.List;
+import java.util.Random;
 
 public class ModLoaderVillageTradeHandler implements IVillageTradeHandler
 {

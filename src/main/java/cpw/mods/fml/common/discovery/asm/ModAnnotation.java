@@ -14,16 +14,14 @@
 
 package cpw.mods.fml.common.discovery.asm;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.objectweb.asm.Type;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import cpw.mods.fml.common.discovery.asm.ASMModParser.AnnotationType;
+import org.objectweb.asm.Type;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class ModAnnotation
 {

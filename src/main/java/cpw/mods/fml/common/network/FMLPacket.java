@@ -14,20 +14,18 @@
 
 package cpw.mods.fml.common.network;
 
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
-
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.NetHandler;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.MapMaker;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.UnsignedBytes;
-
 import cpw.mods.fml.common.FMLLog;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.NetHandler;
+
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
 
 public abstract class FMLPacket
 {

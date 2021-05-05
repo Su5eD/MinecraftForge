@@ -14,22 +14,21 @@
 
 package cpw.mods.fml.common.discovery;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.LoaderException;
+import cpw.mods.fml.common.ModClassLoader;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.relauncher.RelaunchLibraryManager;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.LoaderException;
-import cpw.mods.fml.common.ModClassLoader;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.relauncher.RelaunchLibraryManager;
 
 public class ModDiscoverer
 {

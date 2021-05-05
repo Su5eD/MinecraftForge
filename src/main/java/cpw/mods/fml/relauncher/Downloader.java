@@ -14,21 +14,15 @@
 
 package cpw.mods.fml.relauncher;
 
+import cpw.mods.fml.common.FMLLog;
+
+import javax.swing.*;
 import java.awt.Dialog.ModalityType;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.swing.Box;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
-
-import cpw.mods.fml.common.FMLLog;
 
 public class Downloader extends JOptionPane implements IDownloadDisplay
 {

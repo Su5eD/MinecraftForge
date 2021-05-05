@@ -14,9 +14,10 @@
 
 package cpw.mods.fml.common.modloader;
 
-import net.minecraft.network.NetServerHandler;
-import net.minecraft.network.packet.*;
 import cpw.mods.fml.common.network.IChatListener;
+import net.minecraft.network.NetServerHandler;
+import net.minecraft.network.packet.NetHandler;
+import net.minecraft.network.packet.Packet3Chat;
 
 public class ModLoaderChatListener implements IChatListener
 {

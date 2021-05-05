@@ -14,14 +14,13 @@
 
 package cpw.mods.fml.common.modloader;
 
-import java.util.Random;
-
+import cpw.mods.fml.common.IWorldGenerator;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderGenerate;
 import net.minecraft.world.gen.ChunkProviderHell;
 
-import cpw.mods.fml.common.IWorldGenerator;
+import java.util.Random;
 
 public class ModLoaderWorldGenerator implements IWorldGenerator
 {

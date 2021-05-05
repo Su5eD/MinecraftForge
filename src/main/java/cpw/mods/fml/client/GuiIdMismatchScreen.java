@@ -14,19 +14,16 @@
 
 package cpw.mods.fml.client;
 
-import java.util.List;
-import java.util.Map.Entry;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.MapDifference.ValueDifference;
+import cpw.mods.fml.common.registry.ItemData;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.util.StringTranslate;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.MapDifference.ValueDifference;
-
-import cpw.mods.fml.common.registry.ItemData;
-import cpw.mods.fml.common.versioning.ArtifactVersion;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class GuiIdMismatchScreen extends GuiYesNo {
     private List<String> missingIds = Lists.newArrayList();

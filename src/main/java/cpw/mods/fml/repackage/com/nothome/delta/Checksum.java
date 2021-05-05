@@ -25,11 +25,11 @@
 
 package cpw.mods.fml.repackage.com.nothome.delta;
 
+import com.google.common.collect.Maps;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * Checksum computation class.

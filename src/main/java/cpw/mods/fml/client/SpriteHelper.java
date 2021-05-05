@@ -14,12 +14,12 @@
 
 package cpw.mods.fml.client;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLLog;
+
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.logging.Level;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
 
 /**
  * @author cpw
