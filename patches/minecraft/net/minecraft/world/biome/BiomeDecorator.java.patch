@@ -1,0 +1,293 @@
+--- ../src-base/minecraft/net/minecraft/world/biome/BiomeDecorator.java
++++ ../src-work/minecraft/net/minecraft/world/biome/BiomeDecorator.java
+@@ -16,44 +16,49 @@
+ import net.minecraft.world.gen.feature.WorldGenWaterlily;
+ import net.minecraft.world.gen.feature.WorldGenerator;
+ 
++import static net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.*;
++import static net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.*;
++import net.minecraftforge.common.*;
++import net.minecraftforge.event.terraingen.*;
++
+ public class BiomeDecorator
+ {
+-    public World field_76815_a;
+-    public Random field_76813_b;
+-    public int field_76814_c;
+-    public int field_76811_d;
+-    public BiomeGenBase field_76812_e;
+-    public WorldGenerator field_76809_f = new WorldGenClay(4);
+-    public WorldGenerator field_76810_g;
+-    public WorldGenerator field_76822_h;
+-    public WorldGenerator field_76823_i;
+-    public WorldGenerator field_76820_j;
+-    public WorldGenerator field_76821_k;
+-    public WorldGenerator field_76818_l;
+-    public WorldGenerator field_76819_m;
+-    public WorldGenerator field_76816_n;
+-    public WorldGenerator field_76817_o;
+-    public WorldGenerator field_76831_p;
+-    public WorldGenerator field_76830_q;
+-    public WorldGenerator field_76829_r;
+-    public WorldGenerator field_76828_s;
+-    public WorldGenerator field_76827_t;
+-    public WorldGenerator field_76826_u;
+-    public WorldGenerator field_76825_v;
+-    public WorldGenerator field_76824_w;
+-    public WorldGenerator field_76834_x;
+-    public int field_76833_y;
+-    public int field_76832_z;
+-    public int field_76802_A;
+-    public int field_76803_B;
+-    public int field_76804_C;
+-    public int field_76798_D;
+-    public int field_76799_E;
+-    public int field_76800_F;
+-    public int field_76801_G;
+-    public int field_76805_H;
+-    public int field_76806_I;
+-    public int field_76807_J;
++    protected World field_76815_a;
++    protected Random field_76813_b;
++    protected int field_76814_c;
++    protected int field_76811_d;
++    protected BiomeGenBase field_76812_e;
++    protected WorldGenerator field_76809_f = new WorldGenClay(4);
++    protected WorldGenerator field_76810_g;
++    protected WorldGenerator field_76822_h;
++    protected WorldGenerator field_76823_i;
++    protected WorldGenerator field_76820_j;
++    protected WorldGenerator field_76821_k;
++    protected WorldGenerator field_76818_l;
++    protected WorldGenerator field_76819_m;
++    protected WorldGenerator field_76816_n;
++    protected WorldGenerator field_76817_o;
++    protected WorldGenerator field_76831_p;
++    protected WorldGenerator field_76830_q;
++    protected WorldGenerator field_76829_r;
++    protected WorldGenerator field_76828_s;
++    protected WorldGenerator field_76827_t;
++    protected WorldGenerator field_76826_u;
++    protected WorldGenerator field_76825_v;
++    protected WorldGenerator field_76824_w;
++    protected WorldGenerator field_76834_x;
++    protected int field_76833_y;
++    protected int field_76832_z;
++    protected int field_76802_A;
++    protected int field_76803_B;
++    protected int field_76804_C;
++    protected int field_76798_D;
++    protected int field_76799_E;
++    protected int field_76800_F;
++    protected int field_76801_G;
++    protected int field_76805_H;
++    protected int field_76806_I;
++    protected int field_76807_J;
+     public boolean field_76808_K;
+ 
+     public BiomeDecorator(BiomeGenBase p_i3750_1_)
+@@ -112,26 +117,31 @@
+ 
+     protected void func_76794_a()
+     {
++        MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(field_76815_a, field_76813_b, field_76814_c, field_76811_d));
++                
+         this.func_76797_b();
+         int var1;
+         int var2;
+         int var3;
+ 
+-        for (var1 = 0; var1 < this.field_76805_H; ++var1)
++        boolean doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, SAND);
++        for (var1 = 0; doGen && var1 < this.field_76805_H; ++var1)
+         {
+             var2 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var3 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+             this.field_76810_g.func_76484_a(this.field_76815_a, this.field_76813_b, var2, this.field_76815_a.func_72825_h(var2, var3), var3);
+         }
+ 
+-        for (var1 = 0; var1 < this.field_76806_I; ++var1)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, CLAY);
++        for (var1 = 0; doGen && var1 < this.field_76806_I; ++var1)
+         {
+             var2 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var3 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+             this.field_76809_f.func_76484_a(this.field_76815_a, this.field_76813_b, var2, this.field_76815_a.func_72825_h(var2, var3), var3);
+         }
+ 
+-        for (var1 = 0; var1 < this.field_76801_G; ++var1)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, SAND_PASS2);
++        for (var1 = 0; doGen && var1 < this.field_76801_G; ++var1)
+         {
+             var2 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var3 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+@@ -147,7 +157,8 @@
+ 
+         int var4;
+ 
+-        for (var2 = 0; var2 < var1; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, TREE);
++        for (var2 = 0; doGen && var2 < var1; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+@@ -156,7 +167,8 @@
+             var5.func_76484_a(this.field_76815_a, this.field_76813_b, var3, this.field_76815_a.func_72976_f(var3, var4), var4);
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76807_J; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, BIG_SHROOM);
++        for (var2 = 0; doGen && var2 < this.field_76807_J; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+@@ -165,7 +177,8 @@
+ 
+         int var7;
+ 
+-        for (var2 = 0; var2 < this.field_76802_A; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, FLOWERS);
++        for (var2 = 0; doGen && var2 < this.field_76802_A; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76813_b.nextInt(128);
+@@ -181,7 +194,8 @@
+             }
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76803_B; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, GRASS);
++        for (var2 = 0; doGen && var2 < this.field_76803_B; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76813_b.nextInt(128);
+@@ -190,7 +204,8 @@
+             var6.func_76484_a(this.field_76815_a, this.field_76813_b, var3, var4, var7);
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76804_C; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, DEAD_BUSH);
++        for (var2 = 0; doGen && var2 < this.field_76804_C; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76813_b.nextInt(128);
+@@ -198,7 +213,8 @@
+             (new WorldGenDeadBush(Block.field_71961_Y.field_71990_ca)).func_76484_a(this.field_76815_a, this.field_76813_b, var3, var4, var7);
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76833_y; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, LILYPAD);
++        for (var2 = 0; doGen && var2 < this.field_76833_y; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+@@ -211,7 +227,8 @@
+             this.field_76834_x.func_76484_a(this.field_76815_a, this.field_76813_b, var3, var7, var4);
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76798_D; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, SHROOM);
++        for (var2 = 0; doGen && var2 < this.field_76798_D; ++var2)
+         {
+             if (this.field_76813_b.nextInt(4) == 0)
+             {
+@@ -230,7 +247,7 @@
+             }
+         }
+ 
+-        if (this.field_76813_b.nextInt(4) == 0)
++        if (doGen && this.field_76813_b.nextInt(4) == 0)
+         {
+             var2 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var3 = this.field_76813_b.nextInt(128);
+@@ -238,7 +255,7 @@
+             this.field_76828_s.func_76484_a(this.field_76815_a, this.field_76813_b, var2, var3, var4);
+         }
+ 
+-        if (this.field_76813_b.nextInt(8) == 0)
++        if (doGen && this.field_76813_b.nextInt(8) == 0)
+         {
+             var2 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var3 = this.field_76813_b.nextInt(128);
+@@ -246,7 +263,8 @@
+             this.field_76827_t.func_76484_a(this.field_76815_a, this.field_76813_b, var2, var3, var4);
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76799_E; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, REED);
++        for (var2 = 0; doGen && var2 < this.field_76799_E; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76811_d + this.field_76813_b.nextInt(16) + 8;
+@@ -254,7 +272,7 @@
+             this.field_76825_v.func_76484_a(this.field_76815_a, this.field_76813_b, var3, var7, var4);
+         }
+ 
+-        for (var2 = 0; var2 < 10; ++var2)
++        for (var2 = 0; doGen && var2 < 10; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76813_b.nextInt(128);
+@@ -262,7 +280,8 @@
+             this.field_76825_v.func_76484_a(this.field_76815_a, this.field_76813_b, var3, var4, var7);
+         }
+ 
+-        if (this.field_76813_b.nextInt(32) == 0)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, PUMPKIN);
++        if (doGen && this.field_76813_b.nextInt(32) == 0)
+         {
+             var2 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var3 = this.field_76813_b.nextInt(128);
+@@ -270,7 +289,8 @@
+             (new WorldGenPumpkin()).func_76484_a(this.field_76815_a, this.field_76813_b, var2, var3, var4);
+         }
+ 
+-        for (var2 = 0; var2 < this.field_76800_F; ++var2)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, CACTUS);
++        for (var2 = 0; doGen && var2 < this.field_76800_F; ++var2)
+         {
+             var3 = this.field_76814_c + this.field_76813_b.nextInt(16) + 8;
+             var4 = this.field_76813_b.nextInt(128);
+@@ -278,7 +298,8 @@
+             this.field_76824_w.func_76484_a(this.field_76815_a, this.field_76813_b, var3, var4, var7);
+         }
+ 
+-        if (this.field_76808_K)
++        doGen = TerrainGen.decorate(field_76815_a, field_76813_b, field_76814_c, field_76811_d, LAKE);
++        if (doGen && this.field_76808_K)
+         {
+             for (var2 = 0; var2 < 50; ++var2)
+             {
+@@ -296,6 +317,8 @@
+                 (new WorldGenLiquids(Block.field_71944_C.field_71990_ca)).func_76484_a(this.field_76815_a, this.field_76813_b, var3, var4, var7);
+             }
+         }
++        
++        MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Post(field_76815_a, field_76813_b, field_76814_c, field_76811_d));
+     }
+ 
+     protected void func_76795_a(int p_76795_1_, WorldGenerator p_76795_2_, int p_76795_3_, int p_76795_4_)
+@@ -322,13 +345,23 @@
+ 
+     protected void func_76797_b()
+     {
++        MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Pre(field_76815_a, field_76813_b, field_76814_c, field_76811_d));
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76823_i, field_76814_c, field_76811_d, DIRT))
+         this.func_76795_a(20, this.field_76823_i, 0, 128);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76820_j, field_76814_c, field_76811_d, GRAVEL))
+         this.func_76795_a(10, this.field_76820_j, 0, 128);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76821_k, field_76814_c, field_76811_d, COAL))
+         this.func_76795_a(20, this.field_76821_k, 0, 128);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76818_l, field_76814_c, field_76811_d, IRON))
+         this.func_76795_a(20, this.field_76818_l, 0, 64);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76819_m, field_76814_c, field_76811_d, GOLD))
+         this.func_76795_a(2, this.field_76819_m, 0, 32);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76816_n, field_76814_c, field_76811_d, REDSTONE))
+         this.func_76795_a(8, this.field_76816_n, 0, 16);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76817_o, field_76814_c, field_76811_d, DIAMOND))
+         this.func_76795_a(1, this.field_76817_o, 0, 16);
++        if (TerrainGen.generateOre(field_76815_a, field_76813_b, field_76831_p, field_76814_c, field_76811_d, LAPIS))
+         this.func_76793_b(1, this.field_76831_p, 16, 16);
++        MinecraftForge.ORE_GEN_BUS.post(new OreGenEvent.Post(field_76815_a, field_76813_b, field_76814_c, field_76811_d));
+     }
+ }

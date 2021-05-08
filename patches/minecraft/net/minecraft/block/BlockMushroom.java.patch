@@ -1,0 +1,22 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockMushroom.java
++++ ../src-work/minecraft/net/minecraft/block/BlockMushroom.java
+@@ -4,6 +4,8 @@
+ import net.minecraft.world.World;
+ import net.minecraft.world.gen.feature.WorldGenBigMushroom;
+ 
++import net.minecraftforge.common.ForgeDirection;
++
+ public class BlockMushroom extends BlockFlower
+ {
+     protected BlockMushroom(int p_i3971_1_, int p_i3971_2_)
+@@ -83,7 +85,9 @@
+         if (p_71854_3_ >= 0 && p_71854_3_ < 256)
+         {
+             int var5 = p_71854_1_.func_72798_a(p_71854_2_, p_71854_3_ - 1, p_71854_4_);
+-            return var5 == Block.field_71994_by.field_71990_ca || p_71854_1_.func_72883_k(p_71854_2_, p_71854_3_, p_71854_4_) < 13 && this.func_72263_d_(var5);
++            Block soil = Block.field_71973_m[var5];
++            return (var5 == Block.field_71994_by.field_71990_ca || p_71854_1_.func_72883_k(p_71854_2_, p_71854_3_, p_71854_4_) < 13) &&
++                    (soil != null && soil.canSustainPlant(p_71854_1_, p_71854_2_, p_71854_3_ - 1, p_71854_4_, ForgeDirection.UP, this));
+         }
+         else
+         {

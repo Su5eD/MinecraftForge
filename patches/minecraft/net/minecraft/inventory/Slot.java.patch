@@ -1,0 +1,61 @@
+--- ../src-base/minecraft/net/minecraft/inventory/Slot.java
++++ ../src-work/minecraft/net/minecraft/inventory/Slot.java
+@@ -12,6 +12,12 @@
+     public int field_75222_d;
+     public int field_75223_e;
+     public int field_75221_f;
++    
++    /** Position within background texture file, normally -1 which causes no background to be drawn. */
++    protected int backgroundIconIndex = -1;
++    
++    /** Background texture file assigned to this slot, if any. Vanilla "/gui/items.png" is used if this is null. */
++    protected String texture = "/gui/items.png";
+ 
+     public Slot(IInventory p_i3616_1_, int p_i3616_2_, int p_i3616_3_, int p_i3616_4_)
+     {
+@@ -99,6 +105,44 @@
+     @SideOnly(Side.CLIENT)
+     public int func_75212_b()
+     {
+-        return -1;
++        return backgroundIconIndex;
++    }
++    
++    /**
++     * Gets the path of the texture file to use for the background image of this slot when drawing the GUI.
++     * @return String: The texture file that will be used in GuiContainer.drawSlotInventory for the slot background.  
++     */
++    public String getBackgroundIconTexture()
++    {
++        return (texture == null ? "/gui/items.png" : texture);
++    }
++    
++    /**
++     * Sets which icon index to use as the background image of the slot when it's empty.
++     * @param iconIndex int: The index into the texture file, 0-255, or -1 for no background.  
++     */
++    public void setBackgroundIconIndex(int iconIndex)
++    {
++        backgroundIconIndex = iconIndex;
++    }
++    
++    /**
++     * Sets the texture file to use for the background image of the slot when it's empty.
++     * @param textureFilename String: Path of texture file to use, or null to use "/gui/items.png"
++     */
++    public void setBackgroundIconTexture(String textureFilename)
++    {
++        texture = textureFilename;
++    }
++    
++    /**
++     * Retrieves the index in the inventory for this slot, this value should typically not 
++     * be used, but can be useful for some occasions.
++     * 
++     * @return Index in associated inventory for this slot.
++     */
++    public int getSlotIndex()
++    {
++        return field_75225_a;
+     }
+ }

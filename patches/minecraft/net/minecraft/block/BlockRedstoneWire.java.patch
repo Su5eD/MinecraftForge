@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockRedstoneWire.java
++++ ../src-work/minecraft/net/minecraft/block/BlockRedstoneWire.java
+@@ -491,7 +491,7 @@
+         }
+         else if (var5 != Block.field_72010_bh.field_71990_ca && var5 != Block.field_72011_bi.field_71990_ca)
+         {
+-            return Block.field_71973_m[var5].func_71853_i() && p_72173_4_ != -1;
++            return (Block.field_71973_m[var5] != null && Block.field_71973_m[var5].canConnectRedstone(p_72173_0_, p_72173_1_, p_72173_2_, p_72173_3_, p_72173_4_));
+         }
+         else
+         {

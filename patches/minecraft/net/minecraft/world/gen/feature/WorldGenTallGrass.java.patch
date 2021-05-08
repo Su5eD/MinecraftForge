@@ -1,0 +1,22 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenTallGrass.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenTallGrass.java
+@@ -19,10 +19,16 @@
+     {
+         int var11;
+ 
+-        for (boolean var6 = false; ((var11 = p_76484_1_.func_72798_a(p_76484_3_, p_76484_4_, p_76484_5_)) == 0 || var11 == Block.field_71952_K.field_71990_ca) && p_76484_4_ > 0; --p_76484_4_)
++        Block block = null;
++        do 
+         {
+-            ;
+-        }
++            block = Block.field_71973_m[p_76484_1_.func_72798_a(p_76484_3_,  p_76484_4_, p_76484_5_)];
++            if (block != null && !block.isLeaves(p_76484_1_, p_76484_3_, p_76484_4_, p_76484_5_))
++            {
++                break;
++            }
++            p_76484_4_--;
++        } while (p_76484_4_ > 0);
+ 
+         for (int var7 = 0; var7 < 128; ++var7)
+         {

@@ -1,0 +1,13 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
+@@ -102,7 +102,9 @@
+                     {
+                         int var6 = this.field_70331_k.func_72798_a(var4, var2, var5);
+ 
+-                        if (var6 != Block.field_72076_bV.field_71990_ca && var6 != Block.field_72105_ah.field_71990_ca && var6 != Block.field_72071_ax.field_71990_ca && var6 != Block.field_72083_ai.field_71990_ca)
++                        Block block = Block.field_71973_m[var6];
++                        
++                        if (block == null || !block.isBeaconBase(field_70331_k, var4, var2, var5, field_70329_l, field_70330_m, field_70327_n))
+                         {
+                             var3 = false;
+                             break;

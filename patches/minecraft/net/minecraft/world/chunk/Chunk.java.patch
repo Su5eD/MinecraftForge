@@ -1,0 +1,470 @@
+--- ../src-base/minecraft/net/minecraft/world/chunk/Chunk.java
++++ ../src-work/minecraft/net/minecraft/world/chunk/Chunk.java
+@@ -24,6 +24,9 @@
+ import net.minecraft.world.biome.BiomeGenBase;
+ import net.minecraft.world.biome.WorldChunkManager;
+ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.entity.EntityEvent;
++import net.minecraftforge.event.world.ChunkEvent;
+ 
+ public class Chunk
+ {
+@@ -91,7 +94,9 @@
+             {
+                 for (int var8 = 0; var8 < var5; ++var8)
+                 {
+-                    byte var9 = p_i3772_2_[var6 << 11 | var7 << 7 | var8];
++                    /* FORGE: The following change, a cast from unsigned byte to int,
++                     * fixes a vanilla bug when generating new chunks that contain a block ID > 127 */
++                    int var9 = p_i3772_2_[var6 << 11 | var7 << 7 | var8] & 0xFF;
+ 
+                     if (var9 != 0)
+                     {
+@@ -108,6 +113,90 @@
+             }
+         }
+     }
++    
++    /**
++     * Metadata sensitive Chunk constructor for use in new ChunkProviders that
++     * use metadata sensitive blocks during generation.
++     *
++     * @param world The world this chunk belongs to
++     * @param ids A ByteArray containing all the BlockID's to set this chunk to
++     * @param metadata A ByteArray containing all the metadata to set this chunk to
++     * @param chunkX The chunk's X position
++     * @param chunkZ The Chunk's Z position
++     */
++    public Chunk(World world, byte[] ids, byte[] metadata, int chunkX, int chunkZ)
++    {
++        this(world, chunkX, chunkZ);
++        int var5 = ids.length / 256;
++    
++        for (int x = 0; x < 16; ++x)
++        {
++            for (int z = 0; z < 16; ++z)
++            {
++                for (int y = 0; y < var5; ++y)
++                {
++                    int idx = x << 11 | z << 7 | y;
++                   int id = ids[idx] & 0xFF;
++                    int meta = metadata[idx];
++    
++                    if (id != 0)
++                    {
++                        int var10 = y >> 4;
++    
++                        if (this.field_76652_q[var10] == null)
++                        {
++                            this.field_76652_q[var10] = new ExtendedBlockStorage(var10 << 4, !world.field_73011_w.field_76576_e);
++                        }
++    
++                        this.field_76652_q[var10].func_76655_a(x, y & 15, z, id);
++                        this.field_76652_q[var10].func_76654_b(x, y & 15, z, meta);
++                    }
++                }
++            }
++        }
++    }
++    
++    /**
++     * A Chunk Constructor which handles shorts to allow block ids > 256 (full 4096 range)
++     * Meta data sensitive
++     * NOTE: The x,y,z order of the array is different from the native Chunk constructor to allow for generation > y127
++     * NOTE: This is possibly more efficient than the standard constructor due to less memory skipping
++     *
++     * @param world The world this chunk belongs to
++     * @param ids A ShortArray containing all the BlockID's to set this chunk to (x is low order, z is mid, y is high)
++     * @param metadata A ByteArray containing all the metadata to set this chunk to
++     * @param chunkX The chunk's X position
++     * @param chunkZ The Chunk's Z position
++     */
++    public Chunk(World world, short[] ids, byte[] metadata, int chunkX, int chunkZ)
++    {
++        this(world, chunkX, chunkZ);
++        int max = ids.length / 256;
++    
++        for (int y = 0; y < max; ++y)
++        {
++            for (int z = 0; z < 16; ++z)
++            {
++                for (int x = 0; x < 16; ++x)
++                {
++                    int idx = y << 8 | z << 4 | x;
++                    int id = ids[idx] & 0xFFFFFF;
++                    int meta = metadata[idx];
++    
++                    if (id != 0) {
++                        int storageBlock = y >> 4;
++    
++                        if (this.field_76652_q[storageBlock] == null) {
++                                this.field_76652_q[storageBlock] = new ExtendedBlockStorage(storageBlock << 4, !world.field_73011_w.field_76576_e);
++                        }
++        
++                        this.field_76652_q[storageBlock].func_76655_a(x, y & 15, z, id);
++                        this.field_76652_q[storageBlock].func_76654_b(x, y & 15, z, meta);
++                    }
++                }
++            }
++        }
++    }
+ 
+     public boolean func_76600_a(int p_76600_1_, int p_76600_2_)
+     {
+@@ -157,7 +246,7 @@
+                     {
+                         int var5 = this.func_76610_a(var2, var4 - 1, var3);
+ 
+-                        if (Block.field_71971_o[var5] == 0)
++                        if (func_76596_b(var2, var4 - 1, var3) == 0)
+                         {
+                             --var4;
+                             continue;
+@@ -448,12 +537,15 @@
+ 
+     public int func_76596_b(int p_76596_1_, int p_76596_2_, int p_76596_3_)
+     {
+-        return Block.field_71971_o[this.func_76610_a(p_76596_1_, p_76596_2_, p_76596_3_)];
++        int x = (field_76635_g << 4) + p_76596_1_;
++        int z = (field_76647_h << 4) + p_76596_3_;
++        Block block = Block.field_71973_m[func_76610_a(p_76596_1_, p_76596_2_, p_76596_3_)];
++        return (block == null ? 0 : block.getLightOpacity(field_76637_e, x, p_76596_2_, z));
+     }
+ 
+     public int func_76610_a(int p_76610_1_, int p_76610_2_, int p_76610_3_)
+     {
+-        if (p_76610_2_ >> 4 >= this.field_76652_q.length)
++        if (p_76610_2_ >> 4 >= this.field_76652_q.length || p_76610_2_ >> 4 < 0)
+         {
+             return 0;
+         }
+@@ -466,7 +558,7 @@
+ 
+     public int func_76628_c(int p_76628_1_, int p_76628_2_, int p_76628_3_)
+     {
+-        if (p_76628_2_ >> 4 >= this.field_76652_q.length)
++        if (p_76628_2_ >> 4 >= this.field_76652_q.length || p_76628_2_ >> 4 < 0)
+         {
+             return 0;
+         }
+@@ -501,6 +593,11 @@
+         }
+         else
+         {
++            if (p_76592_2_ >> 4 >= field_76652_q.length || p_76592_2_ >> 4 < 0)
++            {
++                return false;
++            }
++            
+             ExtendedBlockStorage var10 = this.field_76652_q[p_76592_2_ >> 4];
+             boolean var11 = false;
+ 
+@@ -531,9 +628,13 @@
+                 {
+                     Block.field_71973_m[var8].func_71852_a(this.field_76637_e, var12, p_76592_2_, var13, var8, var9);
+                 }
+-                else if (Block.field_71973_m[var8] instanceof BlockContainer && var8 != p_76592_4_)
++                else if (Block.field_71973_m[var8] != null && Block.field_71973_m[var8].hasTileEntity(var9))
+                 {
+-                    this.field_76637_e.func_72932_q(var12, p_76592_2_, var13);
++                    TileEntity te = field_76637_e.func_72796_p(var12, p_76592_2_, var13);
++                    if (te != null && te.shouldRefresh(var8, p_76592_4_, var9, p_76592_5_, field_76637_e, var12, p_76592_2_, var13))
++                    {
++                        this.field_76637_e.func_72932_q(var12, p_76592_2_, var13);
++                    }
+                 }
+             }
+ 
+@@ -551,7 +652,7 @@
+                 }
+                 else
+                 {
+-                    if (Block.field_71971_o[p_76592_4_ & 4095] > 0)
++                    if (func_76596_b(p_76592_1_, p_76592_2_, p_76592_3_) > 0)
+                     {
+                         if (p_76592_2_ >= var7)
+                         {
+@@ -575,29 +676,21 @@
+                         Block.field_71973_m[p_76592_4_].func_71861_g(this.field_76637_e, var12, p_76592_2_, var13);
+                     }
+ 
+-                    if (Block.field_71973_m[p_76592_4_] instanceof BlockContainer)
++                    if (Block.field_71973_m[p_76592_4_] != null && Block.field_71973_m[p_76592_4_].hasTileEntity(p_76592_5_))
+                     {
+                         var14 = this.func_76597_e(p_76592_1_, p_76592_2_, p_76592_3_);
+ 
+                         if (var14 == null)
+                         {
+-                            var14 = ((BlockContainer)Block.field_71973_m[p_76592_4_]).func_72274_a(this.field_76637_e);
++                            var14 = Block.field_71973_m[p_76592_4_].createTileEntity(this.field_76637_e, p_76592_5_);
+                             this.field_76637_e.func_72837_a(var12, p_76592_2_, var13, var14);
+                         }
+ 
+                         if (var14 != null)
+                         {
+                             var14.func_70321_h();
++                            var14.field_70325_p = p_76592_5_;
+                         }
+-                    }
+-                }
+-                else if (var8 > 0 && Block.field_71973_m[var8] instanceof BlockContainer)
+-                {
+-                    var14 = this.func_76597_e(p_76592_1_, p_76592_2_, p_76592_3_);
+-
+-                    if (var14 != null)
+-                    {
+-                        var14.func_70321_h();
+                     }
+                 }
+ 
+@@ -609,7 +702,7 @@
+ 
+     public boolean func_76589_b(int p_76589_1_, int p_76589_2_, int p_76589_3_, int p_76589_4_)
+     {
+-        ExtendedBlockStorage var5 = this.field_76652_q[p_76589_2_ >> 4];
++        ExtendedBlockStorage var5 = (p_76589_2_ >> 4 >= field_76652_q.length || p_76589_2_ >> 4 < 0 ? null : field_76652_q[p_76589_2_ >> 4]);
+ 
+         if (var5 == null)
+         {
+@@ -629,7 +722,7 @@
+                 var5.func_76654_b(p_76589_1_, p_76589_2_ & 15, p_76589_3_, p_76589_4_);
+                 int var7 = var5.func_76656_a(p_76589_1_, p_76589_2_ & 15, p_76589_3_);
+ 
+-                if (var7 > 0 && Block.field_71973_m[var7] instanceof BlockContainer)
++                if (var7 > 0 && Block.field_71973_m[var7] != null && Block.field_71973_m[var7].hasTileEntity(p_76589_4_))
+                 {
+                     TileEntity var8 = this.func_76597_e(p_76589_1_, p_76589_2_, p_76589_3_);
+ 
+@@ -647,12 +740,17 @@
+ 
+     public int func_76614_a(EnumSkyBlock p_76614_1_, int p_76614_2_, int p_76614_3_, int p_76614_4_)
+     {
+-        ExtendedBlockStorage var5 = this.field_76652_q[p_76614_3_ >> 4];
++        ExtendedBlockStorage var5 = (p_76614_3_ >> 4 >= field_76652_q.length || p_76614_3_ >> 4 < 0 ? null : field_76652_q[p_76614_3_ >> 4]);
+         return var5 == null ? (this.func_76619_d(p_76614_2_, p_76614_3_, p_76614_4_) ? p_76614_1_.field_77198_c : 0) : (p_76614_1_ == EnumSkyBlock.Sky ? (this.field_76637_e.field_73011_w.field_76576_e ? 0 : var5.func_76670_c(p_76614_2_, p_76614_3_ & 15, p_76614_4_)) : (p_76614_1_ == EnumSkyBlock.Block ? var5.func_76674_d(p_76614_2_, p_76614_3_ & 15, p_76614_4_) : p_76614_1_.field_77198_c));
+     }
+ 
+     public void func_76633_a(EnumSkyBlock p_76633_1_, int p_76633_2_, int p_76633_3_, int p_76633_4_, int p_76633_5_)
+     {
++        if (p_76633_3_ >> 4 >= field_76652_q.length || p_76633_3_ >> 4 < 0)
++        {
++            return;
++        }
++        
+         ExtendedBlockStorage var6 = this.field_76652_q[p_76633_3_ >> 4];
+ 
+         if (var6 == null)
+@@ -678,7 +776,7 @@
+ 
+     public int func_76629_c(int p_76629_1_, int p_76629_2_, int p_76629_3_, int p_76629_4_)
+     {
+-        ExtendedBlockStorage var5 = this.field_76652_q[p_76629_2_ >> 4];
++        ExtendedBlockStorage var5 = (p_76629_2_ >> 4 >= field_76652_q.length || p_76629_2_ >> 4 < 0 ? null : field_76652_q[p_76629_2_ >> 4]);
+ 
+         if (var5 == null)
+         {
+@@ -729,6 +827,7 @@
+             var4 = this.field_76645_j.length - 1;
+         }
+ 
++        MinecraftForge.EVENT_BUS.post(new EntityEvent.EnteringChunk(p_76612_1_, this.field_76635_g, this.field_76647_h, p_76612_1_.field_70176_ah, p_76612_1_.field_70164_aj));
+         p_76612_1_.field_70175_ag = true;
+         p_76612_1_.field_70176_ah = this.field_76635_g;
+         p_76612_1_.field_70162_ai = var4;
+@@ -765,34 +864,34 @@
+     {
+         ChunkPosition var4 = new ChunkPosition(p_76597_1_, p_76597_2_, p_76597_3_);
+         TileEntity var5 = (TileEntity)this.field_76648_i.get(var4);
++        
++        if (var5 != null && var5.func_70320_p())
++        {
++            field_76648_i.remove(var4);
++            var5 = null;
++        }
+ 
+         if (var5 == null)
+         {
+             int var6 = this.func_76610_a(p_76597_1_, p_76597_2_, p_76597_3_);
+ 
+-            if (var6 <= 0 || !Block.field_71973_m[var6].func_71887_s())
++            int meta = this.func_76628_c(p_76597_1_, p_76597_2_, p_76597_3_);
++            
++            if (var6 <= 0 || !Block.field_71973_m[var6].hasTileEntity(meta))
+             {
+                 return null;
+             }
+ 
+             if (var5 == null)
+             {
+-                var5 = ((BlockContainer)Block.field_71973_m[var6]).func_72274_a(this.field_76637_e);
++                var5 = Block.field_71973_m[var6].createTileEntity(this.field_76637_e, meta);
+                 this.field_76637_e.func_72837_a(this.field_76635_g * 16 + p_76597_1_, p_76597_2_, this.field_76647_h * 16 + p_76597_3_, var5);
+             }
+ 
+             var5 = (TileEntity)this.field_76648_i.get(var4);
+         }
+ 
+-        if (var5 != null && var5.func_70320_p())
+-        {
+-            this.field_76648_i.remove(var4);
+-            return null;
+-        }
+-        else
+-        {
+-            return var5;
+-        }
++        return var5;
+     }
+ 
+     public void func_76620_a(TileEntity p_76620_1_)
+@@ -804,7 +903,7 @@
+ 
+         if (this.field_76636_d)
+         {
+-            this.field_76637_e.field_73009_h.add(p_76620_1_);
++            this.field_76637_e.addTileEntity(p_76620_1_);
+         }
+     }
+ 
+@@ -816,8 +915,14 @@
+         p_76604_4_.field_70330_m = p_76604_2_;
+         p_76604_4_.field_70327_n = this.field_76647_h * 16 + p_76604_3_;
+ 
+-        if (this.func_76610_a(p_76604_1_, p_76604_2_, p_76604_3_) != 0 && Block.field_71973_m[this.func_76610_a(p_76604_1_, p_76604_2_, p_76604_3_)] instanceof BlockContainer)
++        Block block = Block.field_71973_m[func_76610_a(p_76604_1_, p_76604_2_, p_76604_3_)];
++        if (block != null && block.hasTileEntity(func_76628_c(p_76604_1_, p_76604_2_, p_76604_3_)))
+         {
++            TileEntity old = (TileEntity)field_76648_i.get(var5);
++            if (old != null)
++            {
++                old.func_70313_j();
++            }
+             p_76604_4_.func_70312_q();
+             this.field_76648_i.put(var5, p_76604_4_);
+         }
+@@ -847,6 +952,7 @@
+         {
+             this.field_76637_e.func_72868_a(this.field_76645_j[var1]);
+         }
++        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(this));
+     }
+ 
+     public void func_76623_d()
+@@ -864,6 +970,7 @@
+         {
+             this.field_76637_e.func_72828_b(this.field_76645_j[var3]);
+         }
++        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Unload(this));
+     }
+ 
+     public void func_76630_e()
+@@ -873,18 +980,26 @@
+ 
+     public void func_76588_a(Entity p_76588_1_, AxisAlignedBB p_76588_2_, List p_76588_3_)
+     {
+-        int var4 = MathHelper.func_76128_c((p_76588_2_.field_72338_b - 2.0D) / 16.0D);
+-        int var5 = MathHelper.func_76128_c((p_76588_2_.field_72337_e + 2.0D) / 16.0D);
++        int var4 = MathHelper.func_76128_c((p_76588_2_.field_72338_b - World.MAX_ENTITY_RADIUS) / 16.0D);
++        int var5 = MathHelper.func_76128_c((p_76588_2_.field_72337_e + World.MAX_ENTITY_RADIUS) / 16.0D);
+ 
+         if (var4 < 0)
+         {
+             var4 = 0;
++        }
++        else if (var4 >= this.field_76645_j.length) //BugFix: Collision above the world
++        {
++            var4 = this.field_76645_j.length - 1;
+         }
+ 
+         if (var5 >= this.field_76645_j.length)
+         {
+             var5 = this.field_76645_j.length - 1;
+         }
++        else if (var5 < 0) //BugFix: Collision below the world
++        {
++            var5 = 0;
++        }
+ 
+         for (int var6 = var4; var6 <= var5; ++var6)
+         {
+@@ -918,8 +1033,8 @@
+ 
+     public void func_76618_a(Class p_76618_1_, AxisAlignedBB p_76618_2_, List p_76618_3_, IEntitySelector p_76618_4_)
+     {
+-        int var5 = MathHelper.func_76128_c((p_76618_2_.field_72338_b - 2.0D) / 16.0D);
+-        int var6 = MathHelper.func_76128_c((p_76618_2_.field_72337_e + 2.0D) / 16.0D);
++        int var5 = MathHelper.func_76128_c((p_76618_2_.field_72338_b - World.MAX_ENTITY_RADIUS) / 16.0D);
++        int var6 = MathHelper.func_76128_c((p_76618_2_.field_72337_e + World.MAX_ENTITY_RADIUS) / 16.0D);
+ 
+         if (var5 < 0)
+         {
+@@ -1082,6 +1197,15 @@
+     @SideOnly(Side.CLIENT)
+     public void func_76607_a(byte[] p_76607_1_, int p_76607_2_, int p_76607_3_, boolean p_76607_4_)
+     {
++        Iterator iterator = field_76648_i.values().iterator();
++        while(iterator.hasNext())
++        {
++            TileEntity tileEntity = (TileEntity)iterator.next();
++            tileEntity.func_70321_h();
++            tileEntity.func_70322_n();
++            tileEntity.func_70311_o();
++        }
++        
+         int var5 = 0;
+         boolean var6 = !this.field_76637_e.field_73011_w.field_76576_e;
+         int var7;
+@@ -1182,12 +1306,25 @@
+         }
+ 
+         this.func_76590_a();
+-        Iterator var11 = this.field_76648_i.values().iterator();
+-
+-        while (var11.hasNext())
+-        {
+-            TileEntity var10 = (TileEntity)var11.next();
+-            var10.func_70321_h();
++        List<TileEntity> invalidList = new ArrayList<TileEntity>();
++        iterator = field_76648_i.values().iterator();
++        while (iterator.hasNext())
++        {
++            TileEntity tileEntity = (TileEntity)iterator.next();
++            int x = tileEntity.field_70329_l & 15;
++            int y = tileEntity.field_70330_m;
++            int z = tileEntity.field_70327_n & 15;
++            Block block = tileEntity.func_70311_o();
++            if (block == null || block.field_71990_ca != func_76610_a(x, y, z) || tileEntity.func_70322_n() != func_76628_c(x, y, z))
++            {
++                invalidList.add(tileEntity);
++            }
++            tileEntity.func_70321_h();
++        }
++        
++        for (TileEntity tileEntity : invalidList)
++        {
++            tileEntity.func_70313_j();
+         }
+     }
+ 
+@@ -1274,6 +1411,20 @@
+ 
+                     this.field_76637_e.func_72969_x(var5, var8, var6);
+                 }
++            }
++        }
++    }
++    
++    /** FORGE: Used to remove only invalid TileEntities */
++    public void cleanChunkBlockTileEntity(int x, int y, int z)
++    {
++        ChunkPosition position = new ChunkPosition(x, y, z);
++        if (field_76636_d)
++        {
++            TileEntity entity = (TileEntity)field_76648_i.get(position);
++            if (entity != null && entity.func_70320_p())
++            {
++                field_76648_i.remove(position);
+             }
+         }
+     }

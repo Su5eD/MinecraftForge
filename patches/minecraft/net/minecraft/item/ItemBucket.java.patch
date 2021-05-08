@@ -1,0 +1,45 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemBucket.java
++++ ../src-work/minecraft/net/minecraft/item/ItemBucket.java
+@@ -8,6 +8,9 @@
+ import net.minecraft.util.EnumMovingObjectType;
+ import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.Event;
++import net.minecraftforge.event.entity.player.FillBucketEvent;
+ 
+ public class ItemBucket extends Item
+ {
+@@ -36,6 +39,32 @@
+         }
+         else
+         {
++            FillBucketEvent event = new FillBucketEvent(p_77659_3_, p_77659_1_, p_77659_2_, var12);
++            if (MinecraftForge.EVENT_BUS.post(event))
++            {
++                return p_77659_1_;
++            }
++            
++            if (event.getResult() == Event.Result.ALLOW)
++            {
++                if (p_77659_3_.field_71075_bZ.field_75098_d)
++                {
++                    return p_77659_1_;
++                }
++            
++                if (--p_77659_1_.field_77994_a <= 0)
++                {
++                    return event.result;
++                }
++            
++                if (!p_77659_3_.field_71071_by.func_70441_a(event.result))
++                {
++                    p_77659_3_.func_71021_b(event.result);
++                }
++            
++                return p_77659_1_;
++            }
++            
+             if (var12.field_72313_a == EnumMovingObjectType.TILE)
+             {
+                 int var13 = var12.field_72311_b;

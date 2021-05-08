@@ -1,0 +1,74 @@
+--- ../src-base/minecraft/net/minecraft/client/renderer/WorldRenderer.java
++++ ../src-work/minecraft/net/minecraft/client/renderer/WorldRenderer.java
+@@ -15,6 +15,7 @@
+ import net.minecraft.world.ChunkCache;
+ import net.minecraft.world.World;
+ import net.minecraft.world.chunk.Chunk;
++import net.minecraftforge.client.ForgeHooksClient;
+ import org.lwjgl.opengl.GL11;
+ 
+ @SideOnly(Side.CLIENT)
+@@ -22,7 +23,7 @@
+ {
+     public World field_78924_a;
+     private int field_78942_y = -1;
+-    private static Tessellator field_78941_z = Tessellator.field_78398_a;
++    //private static Tessellator tessellator = Tessellator.instance;
+     public static int field_78922_b = 0;
+     public int field_78923_c;
+     public int field_78920_d;
+@@ -147,15 +148,16 @@
+                                         GL11.glTranslatef(-8.0F, -8.0F, -8.0F);
+                                         GL11.glScalef(var19, var19, var19);
+                                         GL11.glTranslatef(8.0F, 8.0F, 8.0F);
+-                                        field_78941_z.func_78382_b();
+-                                        field_78941_z.func_78373_b((double)(-this.field_78923_c), (double)(-this.field_78920_d), (double)(-this.field_78921_e));
++                                        ForgeHooksClient.beforeRenderPass(var11);
++                                        Tessellator.field_78398_a.func_78382_b();
++                                        Tessellator.field_78398_a.func_78373_b((double)(-this.field_78923_c), (double)(-this.field_78920_d), (double)(-this.field_78921_e));
+                                     }
+ 
+                                     Block var23 = Block.field_71973_m[var18];
+ 
+                                     if (var23 != null)
+                                     {
+-                                        if (var11 == 0 && var23.func_71887_s())
++                                        if (var11 == 0 && var23.hasTileEntity(var9.func_72805_g(var17, var15, var16)))
+                                         {
+                                             TileEntity var20 = var9.func_72796_p(var17, var15, var16);
+ 
+@@ -167,14 +169,17 @@
+ 
+                                         int var24 = var23.func_71856_s_();
+ 
+-                                        if (var24 != var11)
++                                        if (var24 > var11)
+                                         {
+                                             var12 = true;
+                                         }
+-                                        else if (var24 == var11)
++                                        if (!var23.canRenderInPass(var11))
+                                         {
+-                                            var13 |= var10.func_78612_b(var23, var17, var15, var16);
++                                            continue;
+                                         }
++                                        ForgeHooksClient.beforeBlockRender(var23, var10);
++                                        var13 |= var10.func_78612_b(var23, var17, var15, var16);
++                                        ForgeHooksClient.afterBlockRender(var23, var10);
+                                     }
+                                 }
+                             }
+@@ -183,10 +188,11 @@
+ 
+                     if (var14)
+                     {
+-                        this.field_78917_C += field_78941_z.func_78381_a();
++                        ForgeHooksClient.afterRenderPass(var11);
++                        this.field_78917_C += Tessellator.field_78398_a.func_78381_a();
+                         GL11.glPopMatrix();
+                         GL11.glEndList();
+-                        field_78941_z.func_78373_b(0.0D, 0.0D, 0.0D);
++                        Tessellator.field_78398_a.func_78373_b(0.0D, 0.0D, 0.0D);
+                     }
+                     else
+                     {

@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockSapling.java
++++ ../src-work/minecraft/net/minecraft/block/BlockSapling.java
+@@ -13,6 +13,7 @@
+ import net.minecraft.world.gen.feature.WorldGenTaiga2;
+ import net.minecraft.world.gen.feature.WorldGenTrees;
+ import net.minecraft.world.gen.feature.WorldGenerator;
++import net.minecraftforge.event.terraingen.TerrainGen;
+ 
+ public class BlockSapling extends BlockFlower
+ {
+@@ -56,6 +57,8 @@
+ 
+     public void func_72269_c(World p_72269_1_, int p_72269_2_, int p_72269_3_, int p_72269_4_, Random p_72269_5_)
+     {
++        if (!TerrainGen.saplingGrowTree(p_72269_1_, p_72269_5_, p_72269_2_, p_72269_3_, p_72269_4_)) return;
++        
+         int var6 = p_72269_1_.func_72805_g(p_72269_2_, p_72269_3_, p_72269_4_) & 3;
+         Object var7 = null;
+         int var8 = 0;

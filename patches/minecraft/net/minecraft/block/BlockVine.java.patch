@@ -1,0 +1,58 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockVine.java
++++ ../src-work/minecraft/net/minecraft/block/BlockVine.java
+@@ -2,6 +2,8 @@
+ 
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
++
++import java.util.ArrayList;
+ import java.util.Random;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.creativetab.CreativeTabs;
+@@ -15,7 +17,9 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
+-public class BlockVine extends Block
++import net.minecraftforge.common.IShearable;
++
++public class BlockVine extends Block implements IShearable
+ {
+     public BlockVine(int p_i4019_1_)
+     {
+@@ -381,14 +385,26 @@
+ 
+     public void func_71893_a(World p_71893_1_, EntityPlayer p_71893_2_, int p_71893_3_, int p_71893_4_, int p_71893_5_, int p_71893_6_)
+     {
+-        if (!p_71893_1_.field_72995_K && p_71893_2_.func_71045_bC() != null && p_71893_2_.func_71045_bC().field_77993_c == Item.field_77745_be.field_77779_bT)
+-        {
+-            p_71893_2_.func_71064_a(StatList.field_75934_C[this.field_71990_ca], 1);
+-            this.func_71929_a(p_71893_1_, p_71893_3_, p_71893_4_, p_71893_5_, new ItemStack(Block.field_71998_bu, 1, 0));
+-        }
+-        else
+-        {
+-            super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
+-        }
++        super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
++    }
++    
++    @Override
++    public boolean isShearable(ItemStack item, World world, int x, int y, int z)
++    {
++        return true;
++    }
++    
++    @Override
++    public ArrayList<ItemStack> onSheared(ItemStack item, World world, int x, int y, int z, int fortune)
++    {
++        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
++        ret.add(new ItemStack(this, 1, 0));
++        return ret;
++    }
++    
++    @Override
++    public boolean isLadder(World world, int x, int y, int z)
++    {
++        return true;
+     }
+ }

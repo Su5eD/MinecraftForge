@@ -1,0 +1,239 @@
+--- ../src-base/minecraft/net/minecraft/world/WorldServer.java
++++ ../src-work/minecraft/net/minecraft/world/WorldServer.java
+@@ -2,6 +2,8 @@
+ 
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
++
++import java.io.File;
+ import java.util.ArrayList;
+ import java.util.HashSet;
+ import java.util.Iterator;
+@@ -45,12 +47,19 @@
+ import net.minecraft.world.biome.WorldChunkManager;
+ import net.minecraft.world.chunk.Chunk;
+ import net.minecraft.world.chunk.IChunkProvider;
++import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+ import net.minecraft.world.chunk.storage.IChunkLoader;
+ import net.minecraft.world.gen.ChunkProviderServer;
+ import net.minecraft.world.gen.feature.WorldGeneratorBonusChest;
+ import net.minecraft.world.storage.ISaveHandler;
+ 
++import net.minecraftforge.common.ChestGenHooks;
++import static net.minecraftforge.common.ChestGenHooks.*;
++import net.minecraftforge.common.DimensionManager;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.world.WorldEvent;
++
+ public class WorldServer extends World
+ {
+     private final MinecraftServer field_73061_a;
+@@ -67,6 +76,10 @@
+     private int field_73070_R = 0;
+     public static final WeightedRandomChestContent[] field_73069_S = new WeightedRandomChestContent[] {new WeightedRandomChestContent(Item.field_77669_D.field_77779_bT, 0, 1, 3, 10), new WeightedRandomChestContent(Block.field_71988_x.field_71990_ca, 0, 1, 3, 10), new WeightedRandomChestContent(Block.field_71951_J.field_71990_ca, 0, 1, 3, 10), new WeightedRandomChestContent(Item.field_77719_y.field_77779_bT, 0, 1, 1, 3), new WeightedRandomChestContent(Item.field_77712_u.field_77779_bT, 0, 1, 1, 5), new WeightedRandomChestContent(Item.field_77720_x.field_77779_bT, 0, 1, 1, 3), new WeightedRandomChestContent(Item.field_77713_t.field_77779_bT, 0, 1, 1, 5), new WeightedRandomChestContent(Item.field_77706_j.field_77779_bT, 0, 2, 3, 5), new WeightedRandomChestContent(Item.field_77684_U.field_77779_bT, 0, 2, 3, 3)};
+     private IntHashMap field_73066_T;
++    
++    /** Stores the recently processed (lighting) chunks */
++    protected Set<ChunkCoordIntPair> doneChunks = new HashSet<ChunkCoordIntPair>();
++    public List<Teleporter> customTeleporters = new ArrayList<Teleporter>();
+ 
+     public WorldServer(MinecraftServer p_i3395_1_, ISaveHandler p_i3395_2_, String p_i3395_3_, int p_i3395_4_, WorldSettings p_i3395_5_, Profiler p_i3395_6_)
+     {
+@@ -91,6 +104,7 @@
+         }
+ 
+         this.field_85177_Q = new Teleporter(this);
++        DimensionManager.setWorld(p_i3395_4_, this);
+     }
+ 
+     public void func_72835_b()
+@@ -151,6 +165,10 @@
+         this.field_72983_E.func_75528_a();
+         this.field_72984_F.func_76318_c("portalForcer");
+         this.field_85177_Q.func_85189_a(this.func_82737_E());
++        for (Teleporter tele : customTeleporters)
++        {
++            tele.func_85189_a(func_82737_E());
++        }
+         this.field_72984_F.func_76319_b();
+         this.func_73055_Q();
+     }
+@@ -198,10 +216,7 @@
+ 
+     private void func_73051_P()
+     {
+-        this.field_72986_A.func_76080_g(0);
+-        this.field_72986_A.func_76084_b(false);
+-        this.field_72986_A.func_76090_f(0);
+-        this.field_72986_A.func_76069_a(false);
++        field_73011_w.resetRainAndThunder();
+     }
+ 
+     public boolean func_73056_e()
+@@ -264,6 +279,14 @@
+         int var1 = 0;
+         int var2 = 0;
+         Iterator var3 = this.field_72993_I.iterator();
++        
++        doneChunks.retainAll(field_72993_I);
++        if (doneChunks.size() == field_72993_I.size())
++        {
++            doneChunks.clear();
++        }
++        
++        final long startTime = System.nanoTime();
+ 
+         while (var3.hasNext())
+         {
+@@ -274,14 +297,18 @@
+             Chunk var7 = this.func_72964_e(var4.field_77276_a, var4.field_77275_b);
+             this.func_72941_a(var5, var6, var7);
+             this.field_72984_F.func_76318_c("tickChunk");
+-            var7.func_76586_k();
++            //Limits and evenly distributes the lighting update time
++            if (System.nanoTime() - startTime <= 4000000 && doneChunks.add(var4)) 
++            { 
++                var7.func_76586_k();
++            }
+             this.field_72984_F.func_76318_c("thunder");
+             int var8;
+             int var9;
+             int var10;
+             int var11;
+ 
+-            if (this.field_73012_v.nextInt(100000) == 0 && this.func_72896_J() && this.func_72911_I())
++            if (field_73011_w.canDoLightning(var7) && this.field_73012_v.nextInt(100000) == 0 && this.func_72896_J() && this.func_72911_I())
+             {
+                 this.field_73005_l = this.field_73005_l * 3 + 1013904223;
+                 var8 = this.field_73005_l >> 2;
+@@ -298,7 +325,7 @@
+             this.field_72984_F.func_76318_c("iceandsnow");
+             int var13;
+ 
+-            if (this.field_73012_v.nextInt(16) == 0)
++            if (field_73011_w.canDoRainSnowIce(var7) && this.field_73012_v.nextInt(16) == 0)
+             {
+                 this.field_73005_l = this.field_73005_l * 3 + 1013904223;
+                 var8 = this.field_73005_l >> 2;
+@@ -374,7 +401,8 @@
+     public void func_82740_a(int p_82740_1_, int p_82740_2_, int p_82740_3_, int p_82740_4_, int p_82740_5_, int p_82740_6_)
+     {
+         NextTickListEntry var7 = new NextTickListEntry(p_82740_1_, p_82740_2_, p_82740_3_, p_82740_4_);
+-        byte var8 = 8;
++        boolean isForced = getPersistentChunks().containsKey(new ChunkCoordIntPair(var7.field_77183_a >> 4, var7.field_77182_c >> 4));
++        byte var8 = isForced ? (byte)0 : 8;
+ 
+         if (this.field_72999_e && p_82740_4_ > 0)
+         {
+@@ -430,7 +458,7 @@
+ 
+     public void func_72939_s()
+     {
+-        if (this.field_73010_i.isEmpty())
++        if (this.field_73010_i.isEmpty() && getPersistentChunks().isEmpty())
+         {
+             if (this.field_80004_Q++ >= 1200)
+             {
+@@ -476,7 +504,8 @@
+ 
+                 this.field_73065_O.remove(var4);
+                 this.field_73064_N.remove(var4);
+-                byte var5 = 8;
++                boolean isForced = getPersistentChunks().containsKey(new ChunkCoordIntPair(var4.field_77183_a >> 4, var4.field_77182_c >> 4));
++                byte var5 = isForced ? (byte)0 : 8;
+ 
+                 if (this.func_72904_c(var4.field_77183_a - var5, var4.field_77181_b - var5, var4.field_77182_c - var5, var4.field_77183_a + var5, var4.field_77181_b + var5, var4.field_77182_c + var5))
+                 {
+@@ -582,13 +611,26 @@
+     {
+         ArrayList var7 = new ArrayList();
+ 
+-        for (int var8 = 0; var8 < this.field_73009_h.size(); ++var8)
++        for(int x = (p_73049_1_ >> 4); x <= (p_73049_4_ >> 4); x++)
+         {
+-            TileEntity var9 = (TileEntity)this.field_73009_h.get(var8);
+-
+-            if (var9.field_70329_l >= p_73049_1_ && var9.field_70330_m >= p_73049_2_ && var9.field_70327_n >= p_73049_3_ && var9.field_70329_l < p_73049_4_ && var9.field_70330_m < p_73049_5_ && var9.field_70327_n < p_73049_6_)
++            for(int z = (p_73049_3_ >> 4); z <= (p_73049_6_ >> 4); z++)
+             {
+-                var7.add(var9);
++                Chunk chunk = func_72964_e(x, z);
++                if (chunk != null)
++                {
++                    for(Object obj : chunk.field_76648_i.values())
++                    {
++                        TileEntity entity = (TileEntity)obj;
++                        if (!entity.func_70320_p())
++                        {
++                            if (entity.field_70329_l >= p_73049_1_ && entity.field_70330_m >= p_73049_2_ && entity.field_70327_n >= p_73049_3_ &&
++                                    entity.field_70329_l <= p_73049_4_ && entity.field_70330_m <= p_73049_5_ && entity.field_70327_n <= p_73049_6_)
++                            {
++                                var7.add(entity);
++                            }
++                        }
++                    }
++                }
+             }
+         }
+ 
+@@ -597,15 +639,20 @@
+ 
+     public boolean func_72962_a(EntityPlayer p_72962_1_, int p_72962_2_, int p_72962_3_, int p_72962_4_)
+     {
+-        int var5 = MathHelper.func_76130_a(p_72962_2_ - this.field_72986_A.func_76079_c());
+-        int var6 = MathHelper.func_76130_a(p_72962_4_ - this.field_72986_A.func_76074_e());
++        return super.func_72962_a(p_72962_1_, p_72962_2_, p_72962_3_, p_72962_4_);
++    }
++    
++    public boolean canMineBlockBody(EntityPlayer par1EntityPlayer, int par2, int par3, int par4)
++    {
++        int var5 = MathHelper.func_76130_a(par2 - this.field_72986_A.func_76079_c());
++        int var6 = MathHelper.func_76130_a(par4 - this.field_72986_A.func_76074_e());
+ 
+         if (var5 > var6)
+         {
+             var6 = var5;
+         }
+ 
+-        return var6 > 16 || this.field_73061_a.func_71203_ab().func_72353_e(p_72962_1_.field_71092_bJ) || this.field_73061_a.func_71264_H();
++        return var6 > field_73061_a.func_82357_ak() || this.field_73061_a.func_71203_ab().func_72353_e(par1EntityPlayer.field_71092_bJ) || this.field_73061_a.func_71264_H();
+     }
+ 
+     protected void func_72963_a(WorldSettings p_72963_1_)
+@@ -682,7 +729,7 @@
+ 
+     protected void func_73047_i()
+     {
+-        WorldGeneratorBonusChest var1 = new WorldGeneratorBonusChest(field_73069_S, 10);
++        WorldGeneratorBonusChest var1 = new WorldGeneratorBonusChest(ChestGenHooks.getItems(BONUS_CHEST, field_73012_v), ChestGenHooks.getCount(BONUS_CHEST, field_73012_v));
+ 
+         for (int var2 = 0; var2 < 10; ++var2)
+         {
+@@ -719,6 +766,7 @@
+             }
+ 
+             this.field_73020_y.func_73151_a(p_73044_1_, p_73044_2_);
++            MinecraftForge.EVENT_BUS.post(new WorldEvent.Save(this));
+         }
+     }
+ 
+@@ -727,6 +775,7 @@
+         this.func_72906_B();
+         this.field_73019_z.func_75755_a(this.field_72986_A, this.field_73061_a.func_71203_ab().func_72378_q());
+         this.field_72988_C.func_75744_a();
++        this.perWorldStorage.func_75744_a();
+     }
+ 
+     protected void func_72923_a(Entity p_72923_1_)
+@@ -908,5 +957,10 @@
+     public Teleporter func_85176_s()
+     {
+         return this.field_85177_Q;
++    }
++    
++    public File getChunkSaveLocation()
++    {
++        return ((AnvilChunkLoader)field_73059_b.field_73247_e).field_75825_d;
+     }
+ }

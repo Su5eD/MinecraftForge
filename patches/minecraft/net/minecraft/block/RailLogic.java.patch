@@ -1,0 +1,68 @@
+--- ../src-base/minecraft/net/minecraft/block/RailLogic.java
++++ ../src-work/minecraft/net/minecraft/block/RailLogic.java
+@@ -15,6 +15,7 @@
+     private List field_73654_g;
+ 
+     final BlockRail field_73659_a;
++    private final boolean canMakeSlopes;
+ 
+     public RailLogic(BlockRail p_i3983_1_, World p_i3983_2_, int p_i3983_3_, int p_i3983_4_, int p_i3983_5_)
+     {
+@@ -25,17 +26,10 @@
+         this.field_73655_d = p_i3983_4_;
+         this.field_73656_e = p_i3983_5_;
+         int var6 = p_i3983_2_.func_72798_a(p_i3983_3_, p_i3983_4_, p_i3983_5_);
+-        int var7 = p_i3983_2_.func_72805_g(p_i3983_3_, p_i3983_4_, p_i3983_5_);
+-
+-        if (BlockRail.func_72179_a((BlockRail)Block.field_71973_m[var6]))
+-        {
+-            this.field_73653_f = true;
+-            var7 &= -9;
+-        }
+-        else
+-        {
+-            this.field_73653_f = false;
+-        }
++        BlockRail target = (BlockRail)Block.field_71973_m[var6];
++        int var7 = target.getBasicRailMetadata(p_i3983_2_, null, p_i3983_3_, p_i3983_4_, p_i3983_5_);
++        field_73653_f = !target.isFlexibleRail(p_i3983_2_, p_i3983_3_, p_i3983_4_, p_i3983_5_);
++        canMakeSlopes = target.canMakeSlopes(p_i3983_2_, p_i3983_3_, p_i3983_4_, p_i3983_5_);
+ 
+         this.func_73645_a(var7);
+     }
+@@ -243,7 +237,7 @@
+             }
+         }
+ 
+-        if (var6 == 0)
++        if (var6 == 0 && canMakeSlopes)
+         {
+             if (BlockRail.func_72180_d_(this.field_73657_b, this.field_73658_c, this.field_73655_d + 1, this.field_73656_e - 1))
+             {
+@@ -256,7 +250,7 @@
+             }
+         }
+ 
+-        if (var6 == 1)
++        if (var6 == 1 && canMakeSlopes)
+         {
+             if (BlockRail.func_72180_d_(this.field_73657_b, this.field_73658_c + 1, this.field_73655_d + 1, this.field_73656_e))
+             {
+@@ -401,7 +395,7 @@
+             }
+         }
+ 
+-        if (var7 == 0)
++        if (var7 == 0 && canMakeSlopes)
+         {
+             if (BlockRail.func_72180_d_(this.field_73657_b, this.field_73658_c, this.field_73655_d + 1, this.field_73656_e - 1))
+             {
+@@ -414,7 +408,7 @@
+             }
+         }
+ 
+-        if (var7 == 1)
++        if (var7 == 1 && canMakeSlopes)
+         {
+             if (BlockRail.func_72180_d_(this.field_73657_b, this.field_73658_c + 1, this.field_73655_d + 1, this.field_73656_e))
+             {

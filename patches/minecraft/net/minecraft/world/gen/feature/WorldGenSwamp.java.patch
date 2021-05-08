@@ -1,0 +1,44 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenSwamp.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenSwamp.java
+@@ -47,7 +47,7 @@
+                         {
+                             var12 = p_76484_1_.func_72798_a(var10, var8, var11);
+ 
+-                            if (var12 != 0 && var12 != Block.field_71952_K.field_71990_ca)
++                            if (var12 != 0 && (Block.field_71973_m[var12] != null && !Block.field_71973_m[var12].isLeaves(p_76484_1_, var10, var8, var11)))
+                             {
+                                 if (var12 != Block.field_71943_B.field_71990_ca && var12 != Block.field_71942_A.field_71990_ca)
+                                 {
+@@ -94,7 +94,10 @@
+                             {
+                                 int var15 = var14 - p_76484_5_;
+ 
+-                                if ((Math.abs(var13) != var11 || Math.abs(var15) != var11 || p_76484_2_.nextInt(2) != 0 && var10 != 0) && !Block.field_71970_n[p_76484_1_.func_72798_a(var12, var16, var14)])
++                                Block block = Block.field_71973_m[p_76484_1_.func_72798_a(var12, var16, var14)];
++                                
++                                if ((Math.abs(var13) != var11 || Math.abs(var15) != var11 || p_76484_2_.nextInt(2) != 0 && var10 != 0) && 
++                                        (block == null || block.canBeReplacedByLeaves(p_76484_1_, var12, var16, var14)))
+                                 {
+                                     this.func_76486_a(p_76484_1_, var12, var16, var14, Block.field_71952_K.field_71990_ca);
+                                 }
+@@ -106,7 +109,9 @@
+                     {
+                         var10 = p_76484_1_.func_72798_a(p_76484_3_, p_76484_4_ + var16, p_76484_5_);
+ 
+-                        if (var10 == 0 || var10 == Block.field_71952_K.field_71990_ca || var10 == Block.field_71942_A.field_71990_ca || var10 == Block.field_71943_B.field_71990_ca)
++                        Block block = Block.field_71973_m[var10];
++                        
++                        if (var10 == 0 || (block != null && block.isLeaves(p_76484_1_, p_76484_3_, p_76484_4_ + var16, p_76484_5_)) || var10 == Block.field_71942_A.field_71990_ca || var10 == Block.field_71943_B.field_71990_ca)
+                         {
+                             this.func_76486_a(p_76484_1_, p_76484_3_, p_76484_4_ + var16, p_76484_5_, Block.field_71951_J.field_71990_ca);
+                         }
+@@ -121,7 +126,8 @@
+                         {
+                             for (var13 = p_76484_5_ - var11; var13 <= p_76484_5_ + var11; ++var13)
+                             {
+-                                if (p_76484_1_.func_72798_a(var12, var16, var13) == Block.field_71952_K.field_71990_ca)
++                                Block block = Block.field_71973_m[p_76484_1_.func_72798_a(var12, var16, var13)];
++                                if (block != null && block.isLeaves(p_76484_1_, var12, var16, var13))
+                                 {
+                                     if (p_76484_2_.nextInt(4) == 0 && p_76484_1_.func_72798_a(var12 - 1, var16, var13) == 0)
+                                     {

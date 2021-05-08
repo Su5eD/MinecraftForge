@@ -1,0 +1,42 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/MapGenStronghold.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/MapGenStronghold.java
+@@ -1,11 +1,6 @@
+ package net.minecraft.world.gen.structure;
+ 
+-import java.util.ArrayList;
+-import java.util.Collections;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Random;
++import java.util.*;
+ import java.util.Map.Entry;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.ChunkCoordIntPair;
+@@ -14,6 +9,8 @@
+ 
+ public class MapGenStronghold extends MapGenStructure
+ {
++    public static ArrayList<BiomeGenBase> allowedBiomes = new ArrayList<BiomeGenBase>(Arrays.asList(BiomeGenBase.field_76769_d, BiomeGenBase.field_76767_f, BiomeGenBase.field_76770_e, BiomeGenBase.field_76780_h, BiomeGenBase.field_76768_g, BiomeGenBase.field_76774_n, BiomeGenBase.field_76775_o, BiomeGenBase.field_76786_s, BiomeGenBase.field_76785_t, BiomeGenBase.field_76783_v, BiomeGenBase.field_76782_w, BiomeGenBase.field_76792_x)); 
++    
+     private BiomeGenBase[] field_75058_e;
+     private boolean field_75056_f;
+     private ChunkCoordIntPair[] field_75057_g;
+@@ -22,7 +19,7 @@
+ 
+     public MapGenStronghold()
+     {
+-        this.field_75058_e = new BiomeGenBase[] {BiomeGenBase.field_76769_d, BiomeGenBase.field_76767_f, BiomeGenBase.field_76770_e, BiomeGenBase.field_76780_h, BiomeGenBase.field_76768_g, BiomeGenBase.field_76774_n, BiomeGenBase.field_76775_o, BiomeGenBase.field_76786_s, BiomeGenBase.field_76785_t, BiomeGenBase.field_76783_v, BiomeGenBase.field_76782_w, BiomeGenBase.field_76792_x};
++        this.field_75058_e = allowedBiomes.toArray(new BiomeGenBase[0]);
+         this.field_75057_g = new ChunkCoordIntPair[3];
+         this.field_82671_h = 32.0D;
+         this.field_82672_i = 3;
+@@ -30,7 +27,7 @@
+ 
+     public MapGenStronghold(Map p_i5096_1_)
+     {
+-        this.field_75058_e = new BiomeGenBase[] {BiomeGenBase.field_76769_d, BiomeGenBase.field_76767_f, BiomeGenBase.field_76770_e, BiomeGenBase.field_76780_h, BiomeGenBase.field_76768_g, BiomeGenBase.field_76774_n, BiomeGenBase.field_76775_o, BiomeGenBase.field_76786_s, BiomeGenBase.field_76785_t, BiomeGenBase.field_76783_v, BiomeGenBase.field_76782_w, BiomeGenBase.field_76792_x};
++        this.field_75058_e = allowedBiomes.toArray(new BiomeGenBase[0]);
+         this.field_75057_g = new ChunkCoordIntPair[3];
+         this.field_82671_h = 32.0D;
+         this.field_82672_i = 3;

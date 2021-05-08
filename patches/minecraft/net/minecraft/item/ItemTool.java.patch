@@ -1,0 +1,27 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemTool.java
++++ ../src-work/minecraft/net/minecraft/item/ItemTool.java
+@@ -7,6 +7,7 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.ForgeHooks;
+ 
+ public class ItemTool extends Item
+ {
+@@ -80,5 +81,16 @@
+     public boolean func_82789_a(ItemStack p_82789_1_, ItemStack p_82789_2_)
+     {
+         return this.field_77862_b.func_82844_f() == p_82789_2_.field_77993_c ? true : super.func_82789_a(p_82789_1_, p_82789_2_);
++    }
++    
++    /** FORGE: Overridden to allow custom tool effectiveness */
++    @Override
++    public float getStrVsBlock(ItemStack stack, Block block, int meta) 
++    {
++        if (ForgeHooks.isToolEffective(stack, block, meta))
++        {
++            return field_77864_a;
++        }
++        return func_77638_a(stack, block);
+     }
+ }

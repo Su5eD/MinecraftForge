@@ -1,0 +1,219 @@
+--- ../src-base/minecraft/net/minecraft/client/renderer/RenderGlobal.java
++++ ../src-work/minecraft/net/minecraft/client/renderer/RenderGlobal.java
+@@ -59,6 +59,8 @@
+ import net.minecraft.util.ReportedException;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.IWorldAccess;
++import net.minecraftforge.client.IRenderHandler;
++import net.minecraftforge.client.MinecraftForgeClient;
+ import org.lwjgl.opengl.ARBOcclusionQuery;
+ import org.lwjgl.opengl.GL11;
+ 
+@@ -340,50 +342,57 @@
+ 
+     public void func_72713_a(Vec3 p_72713_1_, ICamera p_72713_2_, float p_72713_3_)
+     {
++        int pass = MinecraftForgeClient.getRenderPass();
+         if (this.field_72740_G > 0)
+         {
++            if(pass > 0)
++                return;
++            
+             --this.field_72740_G;
+         }
+         else
+         {
+             this.field_72769_h.field_72984_F.func_76320_a("prepare");
+-            TileEntityRenderer.field_76963_a.func_76953_a(this.field_72769_h, this.field_72770_i, this.field_72777_q.field_71466_p, this.field_72777_q.field_71451_h, p_72713_3_);
+-            RenderManager.field_78727_a.func_78718_a(this.field_72769_h, this.field_72770_i, this.field_72777_q.field_71466_p, this.field_72777_q.field_71451_h, this.field_72777_q.field_71474_y, p_72713_3_);
+-            this.field_72748_H = 0;
+-            this.field_72749_I = 0;
+-            this.field_72750_J = 0;
+-            EntityLiving var4 = this.field_72777_q.field_71451_h;
+-            RenderManager.field_78725_b = var4.field_70142_S + (var4.field_70165_t - var4.field_70142_S) * (double)p_72713_3_;
+-            RenderManager.field_78726_c = var4.field_70137_T + (var4.field_70163_u - var4.field_70137_T) * (double)p_72713_3_;
+-            RenderManager.field_78723_d = var4.field_70136_U + (var4.field_70161_v - var4.field_70136_U) * (double)p_72713_3_;
+-            TileEntityRenderer.field_76961_b = var4.field_70142_S + (var4.field_70165_t - var4.field_70142_S) * (double)p_72713_3_;
+-            TileEntityRenderer.field_76962_c = var4.field_70137_T + (var4.field_70163_u - var4.field_70137_T) * (double)p_72713_3_;
+-            TileEntityRenderer.field_76959_d = var4.field_70136_U + (var4.field_70161_v - var4.field_70136_U) * (double)p_72713_3_;
++            List var5 = this.field_72769_h.func_72910_y();
++            if(pass == 0)
++            {
++                TileEntityRenderer.field_76963_a.func_76953_a(this.field_72769_h, this.field_72770_i, this.field_72777_q.field_71466_p, this.field_72777_q.field_71451_h, p_72713_3_);
++                RenderManager.field_78727_a.func_78718_a(this.field_72769_h, this.field_72770_i, this.field_72777_q.field_71466_p, this.field_72777_q.field_71451_h, this.field_72777_q.field_71474_y, p_72713_3_);
++                this.field_72748_H = 0;
++                this.field_72749_I = 0;
++                this.field_72750_J = 0;
++                EntityLiving var4 = this.field_72777_q.field_71451_h;
++                RenderManager.field_78725_b = var4.field_70142_S + (var4.field_70165_t - var4.field_70142_S) * (double)p_72713_3_;
++                RenderManager.field_78726_c = var4.field_70137_T + (var4.field_70163_u - var4.field_70137_T) * (double)p_72713_3_;
++                RenderManager.field_78723_d = var4.field_70136_U + (var4.field_70161_v - var4.field_70136_U) * (double)p_72713_3_;
++                TileEntityRenderer.field_76961_b = var4.field_70142_S + (var4.field_70165_t - var4.field_70142_S) * (double)p_72713_3_;
++                TileEntityRenderer.field_76962_c = var4.field_70137_T + (var4.field_70163_u - var4.field_70137_T) * (double)p_72713_3_;
++                TileEntityRenderer.field_76959_d = var4.field_70136_U + (var4.field_70161_v - var4.field_70136_U) * (double)p_72713_3_;
++                this.field_72748_H = var5.size();
++            }
+             this.field_72777_q.field_71460_t.func_78463_b((double)p_72713_3_);
+             this.field_72769_h.field_72984_F.func_76318_c("global");
+-            List var5 = this.field_72769_h.func_72910_y();
+-            this.field_72748_H = var5.size();
+             int var6;
+             Entity var7;
+ 
+             for (var6 = 0; var6 < this.field_72769_h.field_73007_j.size(); ++var6)
+             {
+                 var7 = (Entity)this.field_72769_h.field_73007_j.get(var6);
+-                ++this.field_72749_I;
+-
+-                if (var7.func_70102_a(p_72713_1_))
++                
++                if (var7.shouldRenderInPass(pass) && var7.func_70102_a(p_72713_1_))
+                 {
++                    ++this.field_72749_I;
+                     RenderManager.field_78727_a.func_78720_a(var7, p_72713_3_);
+                 }
+             }
+-
++            
+             this.field_72769_h.field_72984_F.func_76318_c("entities");
+-
++            
+             for (var6 = 0; var6 < var5.size(); ++var6)
+             {
+                 var7 = (Entity)var5.get(var6);
+-
+-                if (var7.func_70102_a(p_72713_1_) && (var7.field_70158_ak || p_72713_2_.func_78546_a(var7.field_70121_D) || var7.field_70153_n == this.field_72777_q.field_71439_g) && (var7 != this.field_72777_q.field_71451_h || this.field_72777_q.field_71474_y.field_74320_O != 0 || this.field_72777_q.field_71451_h.func_70608_bn()) && this.field_72769_h.func_72899_e(MathHelper.func_76128_c(var7.field_70165_t), 0, MathHelper.func_76128_c(var7.field_70161_v)))
++            
++                if (var7.shouldRenderInPass(pass) && var7.func_70102_a(p_72713_1_) && (var7.field_70158_ak || p_72713_2_.func_78546_a(var7.field_70121_D) || var7.field_70153_n == this.field_72777_q.field_71439_g) && (var7 != this.field_72777_q.field_71451_h || this.field_72777_q.field_71474_y.field_74320_O != 0 || this.field_72777_q.field_71451_h.func_70608_bn()) && this.field_72769_h.func_72899_e(MathHelper.func_76128_c(var7.field_70165_t), 0, MathHelper.func_76128_c(var7.field_70161_v)))
+                 {
+                     ++this.field_72749_I;
+                     RenderManager.field_78727_a.func_78720_a(var7, p_72713_3_);
+@@ -393,9 +402,12 @@
+             this.field_72769_h.field_72984_F.func_76318_c("tileentities");
+             RenderHelper.func_74519_b();
+ 
++            TileEntity te;
+             for (var6 = 0; var6 < this.field_72762_a.size(); ++var6)
+             {
+-                TileEntityRenderer.field_76963_a.func_76950_a((TileEntity)this.field_72762_a.get(var6), p_72713_3_);
++                te = (TileEntity)this.field_72762_a.get(var6);
++                if(p_72713_2_.func_78546_a(te.getRenderBoundingBox()) && te.shouldRenderInPass(pass))
++                    TileEntityRenderer.field_76963_a.func_76950_a(te, p_72713_3_);
+             }
+ 
+             this.field_72777_q.field_71460_t.func_78483_a((double)p_72713_3_);
+@@ -807,6 +819,12 @@
+ 
+     public void func_72714_a(float p_72714_1_)
+     {
++        IRenderHandler skyProvider = null;
++        if ((skyProvider = this.field_72777_q.field_71441_e.field_73011_w.getSkyRenderer()) != null)
++        {
++            skyProvider.render(p_72714_1_, this.field_72769_h, field_72777_q);
++            return;
++        }
+         if (this.field_72777_q.field_71441_e.field_73011_w.field_76574_g == 1)
+         {
+             GL11.glDisable(GL11.GL_FOG);
+@@ -1045,6 +1063,13 @@
+ 
+     public void func_72718_b(float p_72718_1_)
+     {
++        IRenderHandler renderer = null;
++        if ((renderer = field_72769_h.field_73011_w.getCloudRenderer()) != null)
++        {
++            renderer.render(p_72718_1_, field_72769_h, field_72777_q);
++            return;
++        }
++        
+         if (this.field_72777_q.field_71441_e.field_73011_w.func_76569_d())
+         {
+             if (this.field_72777_q.field_71474_y.field_74347_j)
+@@ -1466,9 +1491,14 @@
+ 
+     public void func_72717_a(Tessellator p_72717_1_, EntityPlayer p_72717_2_, float p_72717_3_)
+     {
+-        double var4 = p_72717_2_.field_70142_S + (p_72717_2_.field_70165_t - p_72717_2_.field_70142_S) * (double)p_72717_3_;
+-        double var6 = p_72717_2_.field_70137_T + (p_72717_2_.field_70163_u - p_72717_2_.field_70137_T) * (double)p_72717_3_;
+-        double var8 = p_72717_2_.field_70136_U + (p_72717_2_.field_70161_v - p_72717_2_.field_70136_U) * (double)p_72717_3_;
++        drawBlockDamageTexture(p_72717_1_, (EntityLiving)p_72717_2_, p_72717_3_);
++    }
++    
++    public void drawBlockDamageTexture(Tessellator par1Tessellator, EntityLiving par2EntityPlayer, float par3)
++    {
++        double var4 = par2EntityPlayer.field_70142_S + (par2EntityPlayer.field_70165_t - par2EntityPlayer.field_70142_S) * (double)par3;
++        double var6 = par2EntityPlayer.field_70137_T + (par2EntityPlayer.field_70163_u - par2EntityPlayer.field_70137_T) * (double)par3;
++        double var8 = par2EntityPlayer.field_70136_U + (par2EntityPlayer.field_70161_v - par2EntityPlayer.field_70136_U) * (double)par3;
+ 
+         if (!this.field_72738_E.isEmpty())
+         {
+@@ -1481,9 +1511,9 @@
+             GL11.glPolygonOffset(-3.0F, -3.0F);
+             GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+             GL11.glEnable(GL11.GL_ALPHA_TEST);
+-            p_72717_1_.func_78382_b();
+-            p_72717_1_.func_78373_b(-var4, -var6, -var8);
+-            p_72717_1_.func_78383_c();
++            par1Tessellator.func_78382_b();
++            par1Tessellator.func_78373_b(-var4, -var6, -var8);
++            par1Tessellator.func_78383_c();
+             Iterator var11 = this.field_72738_E.values().iterator();
+ 
+             while (var11.hasNext())
+@@ -1511,8 +1541,8 @@
+                 }
+             }
+ 
+-            p_72717_1_.func_78381_a();
+-            p_72717_1_.func_78373_b(0.0D, 0.0D, 0.0D);
++            par1Tessellator.func_78381_a();
++            par1Tessellator.func_78373_b(0.0D, 0.0D, 0.0D);
+             GL11.glDisable(GL11.GL_ALPHA_TEST);
+             GL11.glPolygonOffset(0.0F, 0.0F);
+             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
+@@ -1707,6 +1737,7 @@
+             double var17 = this.field_72777_q.field_71451_h.field_70163_u - p_72726_4_;
+             double var19 = this.field_72777_q.field_71451_h.field_70161_v - p_72726_6_;
+             EntityFX var21 = null;
++            Object effectObject = null;
+ 
+             if (p_72726_1_.equals("hugeexplosion"))
+             {
+@@ -1843,6 +1874,7 @@
+                     else if (p_72726_1_.equals("snowballpoof"))
+                     {
+                         var21 = new EntityBreakingFX(this.field_72769_h, p_72726_2_, p_72726_4_, p_72726_6_, Item.field_77768_aD);
++                        effectObject = Item.field_77768_aD;
+                     }
+                     else if (p_72726_1_.equals("dripWater"))
+                     {
+@@ -1859,6 +1891,7 @@
+                     else if (p_72726_1_.equals("slime"))
+                     {
+                         var21 = new EntityBreakingFX(this.field_72769_h, p_72726_2_, p_72726_4_, p_72726_6_, Item.field_77761_aM);
++                        effectObject = Item.field_77761_aM;
+                     }
+                     else if (p_72726_1_.equals("heart"))
+                     {
+@@ -1880,6 +1913,7 @@
+                     {
+                         int var27 = Integer.parseInt(p_72726_1_.substring(p_72726_1_.indexOf("_") + 1));
+                         var21 = new EntityBreakingFX(this.field_72769_h, p_72726_2_, p_72726_4_, p_72726_6_, p_72726_8_, p_72726_10_, p_72726_12_, Item.field_77698_e[var27]);
++                        effectObject = Item.field_77698_e[var27];
+                     }
+                     else if (p_72726_1_.startsWith("tilecrack_"))
+                     {
+@@ -1887,11 +1921,12 @@
+                         int var25 = Integer.parseInt(var28[1]);
+                         int var26 = Integer.parseInt(var28[2]);
+                         var21 = (new EntityDiggingFX(this.field_72769_h, p_72726_2_, p_72726_4_, p_72726_6_, p_72726_8_, p_72726_10_, p_72726_12_, Block.field_71973_m[var25], 0, var26)).func_90019_g(var26);
++                        effectObject = Block.field_71973_m[var25];
+                     }
+ 
+                     if (var21 != null)
+                     {
+-                        this.field_72777_q.field_71452_i.func_78873_a((EntityFX)var21);
++                        this.field_72777_q.field_71452_i.addEffect((EntityFX)var21, effectObject);
+                     }
+ 
+                     return (EntityFX)var21;

@@ -9,7 +9,38 @@
  import net.minecraft.crash.CrashReport;
  import net.minecraft.crash.CrashReportCategory;
  import net.minecraft.entity.EnumCreatureType;
-@@ -210,6 +212,7 @@
+@@ -22,6 +24,8 @@
+ import net.minecraft.world.chunk.EmptyChunk;
+ import net.minecraft.world.chunk.IChunkProvider;
+ import net.minecraft.world.chunk.storage.IChunkLoader;
++import net.minecraftforge.common.DimensionManager;
++import net.minecraftforge.common.ForgeChunkManager;
+ 
+ public class ChunkProviderServer implements IChunkProvider
+ {
+@@ -49,7 +53,7 @@
+ 
+     public void func_73241_b(int p_73241_1_, int p_73241_2_)
+     {
+-        if (this.field_73251_h.field_73011_w.func_76567_e())
++        if (this.field_73251_h.field_73011_w.func_76567_e() && DimensionManager.shouldLoadSpawn(this.field_73251_h.field_73011_w.field_76574_g))
+         {
+             ChunkCoordinates var3 = this.field_73251_h.func_72861_E();
+             int var4 = p_73241_1_ * 16 + 8 - var3.field_71574_a;
+@@ -86,7 +90,11 @@
+ 
+         if (var5 == null)
+         {
+-            var5 = this.func_73239_e(p_73158_1_, p_73158_2_);
++            var5 = ForgeChunkManager.fetchDormantChunk(var3, this.field_73251_h);
++            if (var5 == null)
++            {
++                var5 = this.func_73239_e(p_73158_1_, p_73158_2_);
++            }
+ 
+             if (var5 == null)
+             {
+@@ -210,6 +218,7 @@
              if (this.field_73246_d != null)
              {
                  this.field_73246_d.func_73153_a(p_73153_1_, p_73153_2_, p_73153_3_);
@@ -17,3 +48,27 @@
                  var4.func_76630_e();
              }
          }
+@@ -258,6 +267,11 @@
+     {
+         if (!this.field_73251_h.field_73058_d)
+         {
++            for (ChunkCoordIntPair forced : this.field_73251_h.getPersistentChunks().keySet())
++            {
++                this.field_73248_b.remove(ChunkCoordIntPair.func_77272_a(forced.field_77276_a, forced.field_77275_b));
++            }
++            
+             for (int var1 = 0; var1 < 100; ++var1)
+             {
+                 if (!this.field_73248_b.isEmpty())
+@@ -270,6 +284,11 @@
+                     this.field_73248_b.remove(var2);
+                     this.field_73244_f.func_76159_d(var2.longValue());
+                     this.field_73245_g.remove(var3);
++                    ForgeChunkManager.putDormantChunk(ChunkCoordIntPair.func_77272_a(var3.field_76635_g, var3.field_76647_h), var3);
++                    if(field_73245_g.size() == 0 && ForgeChunkManager.getPersistentChunksFor(this.field_73251_h).size() == 0 && !DimensionManager.shouldLoadSpawn(this.field_73251_h.field_73011_w.field_76574_g)) {
++                        DimensionManager.unloadWorld(this.field_73251_h.field_73011_w.field_76574_g);
++                        return field_73246_d.func_73156_b();
++                    }
+                 }
+             }
+ 

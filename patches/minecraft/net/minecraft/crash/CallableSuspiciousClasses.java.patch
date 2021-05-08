@@ -5,6 +5,6 @@
      public Object call()
      {
 -        return this.func_85085_a();
-+        return "FML is installed";
++        return "FML and Forge are installed";
      }
  }

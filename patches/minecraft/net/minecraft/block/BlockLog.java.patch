@@ -1,0 +1,37 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockLog.java
++++ ../src-work/minecraft/net/minecraft/block/BlockLog.java
+@@ -50,14 +50,9 @@
+                     {
+                         int var12 = p_71852_1_.func_72798_a(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);
+ 
+-                        if (var12 == Block.field_71952_K.field_71990_ca)
++                        if (Block.field_71973_m[var12] != null)
+                         {
+-                            int var13 = p_71852_1_.func_72805_g(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);
+-
+-                            if ((var13 & 8) == 0)
+-                            {
+-                                p_71852_1_.func_72881_d(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11, var13 | 8);
+-                            }
++                            Block.field_71973_m[var12].beginLeavesDecay(p_71852_1_, p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);
+                         }
+                     }
+                 }
+@@ -117,5 +112,17 @@
+     protected ItemStack func_71880_c_(int p_71880_1_)
+     {
+         return new ItemStack(this.field_71990_ca, 1, func_72141_e(p_71880_1_));
++    }
++    
++    @Override
++    public boolean canSustainLeaves(World world, int x, int y, int z)
++    {
++        return true;
++    }
++    
++    @Override
++    public boolean isWood(World world, int x, int y, int z)
++    {
++        return true;
+     }
+ }

@@ -8,7 +8,16 @@
  import net.minecraft.util.Direction;
  import net.minecraft.util.MathHelper;
  import net.minecraft.util.Vec3;
-@@ -217,7 +218,82 @@
+@@ -37,6 +38,8 @@
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GL12;
+ 
++import static net.minecraftforge.common.ForgeDirection.*;
++
+ @SideOnly(Side.CLIENT)
+ public class RenderBlocks
+ {
+@@ -217,7 +220,82 @@
          int var5 = p_78612_1_.func_71857_b();
          p_78612_1_.func_71902_a(this.field_78669_a, p_78612_2_, p_78612_3_, p_78612_4_);
          this.func_83018_a(p_78612_1_);
@@ -92,3 +101,266 @@
      }
  
      public boolean func_78567_v(Block p_78567_1_, int p_78567_2_, int p_78567_3_, int p_78567_4_)
+@@ -263,9 +341,8 @@
+     public boolean func_78574_w(Block p_78574_1_, int p_78574_2_, int p_78574_3_, int p_78574_4_)
+     {
+         Tessellator var5 = Tessellator.field_78398_a;
+-        int var6 = this.field_78669_a.func_72805_g(p_78574_2_, p_78574_3_, p_78574_4_);
+-        int var7 = BlockBed.func_72217_d(var6);
+-        boolean var8 = BlockBed.func_72229_a_(var6);
++        int var7 = p_78574_1_.getBedDirection(field_78669_a, p_78574_2_, p_78574_3_, p_78574_4_);
++        boolean var8 = p_78574_1_.isBedFoot(field_78669_a, p_78574_2_, p_78574_3_, p_78574_4_);
+         float var9 = 0.5F;
+         float var10 = 1.0F;
+         float var11 = 0.8F;
+@@ -274,6 +351,7 @@
+         var5.func_78380_c(var25);
+         var5.func_78386_a(var9, var9, var9);
+         int var27 = p_78574_1_.func_71895_b(this.field_78669_a, p_78574_2_, p_78574_3_, p_78574_4_, 0);
++        if (field_78664_d >= 0) var27 = field_78664_d; //BugFix Proper breaking texture on underside
+         int var28 = (var27 & 15) << 4;
+         int var29 = var27 & 240;
+         double var30 = (double)((float)var28 / 256.0F);
+@@ -292,6 +370,7 @@
+         var5.func_78380_c(p_78574_1_.func_71874_e(this.field_78669_a, p_78574_2_, p_78574_3_ + 1, p_78574_4_));
+         var5.func_78386_a(var10, var10, var10);
+         var27 = p_78574_1_.func_71895_b(this.field_78669_a, p_78574_2_, p_78574_3_, p_78574_4_, 1);
++        if (field_78664_d >= 0) var27 = field_78664_d; //BugFix Proper breaking texture on top
+         var28 = (var27 & 15) << 4;
+         var29 = var27 & 240;
+         var30 = (double)((float)var28 / 256.0F);
+@@ -1970,7 +2049,7 @@
+         double var30;
+         double var32;
+ 
+-        if (!this.field_78669_a.func_72797_t(p_78590_2_, p_78590_3_ - 1, p_78590_4_) && !Block.field_72067_ar.func_72256_d(this.field_78669_a, p_78590_2_, p_78590_3_ - 1, p_78590_4_))
++        if (!this.field_78669_a.func_72797_t(p_78590_2_, p_78590_3_ - 1, p_78590_4_) && !Block.field_72067_ar.canBlockCatchFire(this.field_78669_a, p_78590_2_, p_78590_3_ - 1, p_78590_4_, UP))
+         {
+             float var36 = 0.2F;
+             float var19 = 0.0625F;
+@@ -1990,55 +2069,55 @@
+                 var9 = var20;
+             }
+ 
+-            if (Block.field_72067_ar.func_72256_d(this.field_78669_a, p_78590_2_ - 1, p_78590_3_, p_78590_4_))
+-            {
+-                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
+-                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
+-                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
+-                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
+-            }
+-
+-            if (Block.field_72067_ar.func_72256_d(this.field_78669_a, p_78590_2_ + 1, p_78590_3_, p_78590_4_))
+-            {
+-                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
+-                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
+-                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
+-                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
+-            }
+-
+-            if (Block.field_72067_ar.func_72256_d(this.field_78669_a, p_78590_2_, p_78590_3_, p_78590_4_ - 1))
+-            {
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var11, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var11, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var9, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var9, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var11, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var11, var13);
+-            }
+-
+-            if (Block.field_72067_ar.func_72256_d(this.field_78669_a, p_78590_2_, p_78590_3_, p_78590_4_ + 1))
+-            {
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var9, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var9, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var11, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var11, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var11, var13);
+-                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var11, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var9, var15);
+-                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var9, var13);
+-            }
+-
+-            if (Block.field_72067_ar.func_72256_d(this.field_78669_a, p_78590_2_, p_78590_3_ + 1, p_78590_4_))
++            if (Block.field_72067_ar.canBlockCatchFire(this.field_78669_a, p_78590_2_ - 1, p_78590_3_, p_78590_4_, EAST))
++            {
++                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
++                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
++                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
++                var5.func_78374_a((double)((float)p_78590_2_ + var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
++            }
++
++            if (Block.field_72067_ar.canBlockCatchFire(this.field_78669_a, p_78590_2_ + 1, p_78590_3_, p_78590_4_, WEST))
++            {
++                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
++                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
++                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 1), var11, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1), var11, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 1 - 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
++                var5.func_78374_a((double)((float)(p_78590_2_ + 1) - var36), (double)((float)p_78590_3_ + var17 + var19), (double)(p_78590_4_ + 0), var9, var13);
++            }
++
++            if (Block.field_72067_ar.canBlockCatchFire(this.field_78669_a, p_78590_2_, p_78590_3_, p_78590_4_ - 1, SOUTH))
++            {
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var11, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var11, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var9, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var9, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var9, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 0), var11, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)p_78590_4_ + var36), var11, var13);
++            }
++
++            if (Block.field_72067_ar.canBlockCatchFire(this.field_78669_a, p_78590_2_, p_78590_3_, p_78590_4_ + 1, NORTH))
++            {
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var9, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var9, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var11, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var11, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var11, var13);
++                var5.func_78374_a((double)(p_78590_2_ + 0), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var11, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)(p_78590_3_ + 0) + var19), (double)(p_78590_4_ + 1 - 0), var9, var15);
++                var5.func_78374_a((double)(p_78590_2_ + 1), (double)((float)p_78590_3_ + var17 + var19), (double)((float)(p_78590_4_ + 1) - var36), var9, var13);
++            }
++
++            if (Block.field_72067_ar.canBlockCatchFire(this.field_78669_a, p_78590_2_, p_78590_3_ + 1, p_78590_4_, DOWN))
+             {
+                 var20 = (double)p_78590_2_ + 0.5D + 0.5D;
+                 var22 = (double)p_78590_2_ + 0.5D - 0.5D;
+@@ -4183,7 +4262,7 @@
+             var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 2);
+             this.func_78611_c(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, var27);
+ 
+-            if (field_78667_b && var27 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var27 == 3 && this.field_78664_d < 0)
+             {
+                 this.field_78674_ar *= p_78578_5_;
+                 this.field_78672_as *= p_78578_5_;
+@@ -4306,7 +4385,7 @@
+             var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 3);
+             this.func_78622_d(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 3));
+ 
+-            if (field_78667_b && var27 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var27 == 3 && this.field_78664_d < 0)
+             {
+                 this.field_78674_ar *= p_78578_5_;
+                 this.field_78672_as *= p_78578_5_;
+@@ -4429,7 +4508,7 @@
+             var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 4);
+             this.func_78573_e(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, var27);
+ 
+-            if (field_78667_b && var27 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var27 == 3 && this.field_78664_d < 0)
+             {
+                 this.field_78674_ar *= p_78578_5_;
+                 this.field_78672_as *= p_78578_5_;
+@@ -4552,7 +4631,7 @@
+             var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 5);
+             this.func_78605_f(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, var27);
+ 
+-            if (field_78667_b && var27 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var27 == 3 && this.field_78664_d < 0)
+             {
+                 this.field_78674_ar *= p_78578_5_;
+                 this.field_78672_as *= p_78578_5_;
+@@ -4658,7 +4737,7 @@
+             var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 2);
+             this.func_78611_c(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
+ 
+-            if (field_78667_b && var28 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var28 == 3 && this.field_78664_d < 0)
+             {
+                 var8.func_78386_a(var18 * p_78609_5_, var21 * p_78609_6_, var24 * p_78609_7_);
+                 this.func_78611_c(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
+@@ -4674,7 +4753,7 @@
+             var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 3);
+             this.func_78622_d(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
+ 
+-            if (field_78667_b && var28 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var28 == 3 && this.field_78664_d < 0)
+             {
+                 var8.func_78386_a(var18 * p_78609_5_, var21 * p_78609_6_, var24 * p_78609_7_);
+                 this.func_78622_d(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
+@@ -4690,7 +4769,7 @@
+             var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 4);
+             this.func_78573_e(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
+ 
+-            if (field_78667_b && var28 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var28 == 3 && this.field_78664_d < 0)
+             {
+                 var8.func_78386_a(var19 * p_78609_5_, var22 * p_78609_6_, var25 * p_78609_7_);
+                 this.func_78573_e(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
+@@ -4706,7 +4785,7 @@
+             var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 5);
+             this.func_78605_f(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
+ 
+-            if (field_78667_b && var28 == 3 && this.field_78664_d < 0)
++            if (Tessellator.field_78398_a.defaultTexture && field_78667_b && var28 == 3 && this.field_78664_d < 0)
+             {
+                 var8.func_78386_a(var19 * p_78609_5_, var22 * p_78609_6_, var25 * p_78609_7_);
+                 this.func_78605_f(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
+@@ -6543,6 +6622,10 @@
+                 this.func_83020_a(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+                 this.func_78595_a();
+             }
++            else
++            {
++                FMLRenderAccessLibrary.renderInventoryBlock(this, p_78600_1_, p_78600_2_, var6);
++            }
+         }
+         else
+         {
+@@ -6601,6 +6684,36 @@
+ 
+     public static boolean func_78597_b(int p_78597_0_)
+     {
+-        return p_78597_0_ == 0 ? true : (p_78597_0_ == 31 ? true : (p_78597_0_ == 13 ? true : (p_78597_0_ == 10 ? true : (p_78597_0_ == 11 ? true : (p_78597_0_ == 27 ? true : (p_78597_0_ == 22 ? true : (p_78597_0_ == 21 ? true : (p_78597_0_ == 16 ? true : (p_78597_0_ == 26 ? true : (p_78597_0_ == 32 ? true : (p_78597_0_ == 34 ? true : p_78597_0_ == 35)))))))))));
++        switch (p_78597_0_)
++        {
++            case 0:
++                return true;
++            case 31:
++                return true;
++            case 13:
++                return true;
++            case 10:
++                return true;
++            case 11:
++                return true;
++            case 27:
++                return true;
++            case 22:
++                return true;
++            case 21:
++                return true;
++            case 16:
++                return true;
++            case 26:
++                return true;
++            case 32:
++                return true;
++            case 34:
++                return true;
++            case 35:
++                return true;
++            default:
++                return FMLRenderAccessLibrary.renderItemAsFull3DBlock(p_78597_0_);
++        }
+     }
+ }

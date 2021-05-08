@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/inventory/SlotBrewingStandIngredient.java
++++ ../src-work/minecraft/net/minecraft/inventory/SlotBrewingStandIngredient.java
+@@ -15,7 +15,7 @@
+ 
+     public boolean func_75214_a(ItemStack p_75214_1_)
+     {
+-        return p_75214_1_ != null ? Item.field_77698_e[p_75214_1_.field_77993_c].func_77632_u() : false;
++        return p_75214_1_ != null ? Item.field_77698_e[p_75214_1_.field_77993_c].isPotionIngredient(p_75214_1_) : false;
+     }
+ 
+     public int func_75219_a()

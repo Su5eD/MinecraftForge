@@ -1,0 +1,18 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentVillageStartPiece.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentVillageStartPiece.java
+@@ -9,6 +9,7 @@
+ {
+     public final WorldChunkManager field_74929_a;
+     public final boolean field_74927_b;
++    public final BiomeGenBase biome;
+     public final int field_74928_c;
+     public StructureVillagePieceWeight field_74926_d;
+     public ArrayList field_74931_h;
+@@ -23,6 +24,7 @@
+         this.field_74928_c = p_i3870_7_;
+         BiomeGenBase var8 = p_i3870_1_.func_76935_a(p_i3870_4_, p_i3870_5_);
+         this.field_74927_b = var8 == BiomeGenBase.field_76769_d || var8 == BiomeGenBase.field_76786_s;
++        this.biome = var8;
+         this.field_74897_k = this;
+     }
+ 

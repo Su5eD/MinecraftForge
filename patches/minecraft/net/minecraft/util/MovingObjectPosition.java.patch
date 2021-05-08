@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraft/util/MovingObjectPosition.java
++++ ../src-work/minecraft/net/minecraft/util/MovingObjectPosition.java
+@@ -11,6 +11,9 @@
+     public int field_72310_e;
+     public Vec3 field_72307_f;
+     public Entity field_72308_g;
++    
++    /** Used to determine what sub-segment is hit */
++    public int subHit = -1;
+ 
+     public MovingObjectPosition(int p_i4032_1_, int p_i4032_2_, int p_i4032_3_, int p_i4032_4_, Vec3 p_i4032_5_)
+     {

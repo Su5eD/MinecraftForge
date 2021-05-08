@@ -7,7 +7,81 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import net.minecraft.block.Block;
-@@ -287,7 +288,15 @@
+@@ -7,16 +8,14 @@
+ import net.minecraft.block.material.Material;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.inventory.IInventory;
+-import net.minecraft.item.Item;
+-import net.minecraft.item.ItemHoe;
+-import net.minecraft.item.ItemStack;
+-import net.minecraft.item.ItemSword;
+-import net.minecraft.item.ItemTool;
++import net.minecraft.item.*;
+ import net.minecraft.item.crafting.FurnaceRecipes;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.nbt.NBTTagList;
++import net.minecraftforge.common.ForgeDirection;
++import net.minecraftforge.common.ISidedInventory;
+ 
+-public class TileEntityFurnace extends TileEntity implements IInventory
++public class TileEntityFurnace extends TileEntity implements IInventory, ISidedInventory
+ {
+     private ItemStack[] field_70404_d = new ItemStack[3];
+     public int field_70407_a = 0;
+@@ -188,8 +187,7 @@
+ 
+                         if (this.field_70404_d[1].field_77994_a == 0)
+                         {
+-                            Item var3 = this.field_70404_d[1].func_77973_b().func_77668_q();
+-                            this.field_70404_d[1] = var3 != null ? new ItemStack(var3) : null;
++                            this.field_70404_d[1] = this.field_70404_d[1].func_77973_b().getContainerItemStack(field_70404_d[1]);
+                         }
+                     }
+                 }
+@@ -232,8 +230,12 @@
+         }
+         else
+         {
+-            ItemStack var1 = FurnaceRecipes.func_77602_a().func_77603_b(this.field_70404_d[0].func_77973_b().field_77779_bT);
+-            return var1 == null ? false : (this.field_70404_d[2] == null ? true : (!this.field_70404_d[2].func_77969_a(var1) ? false : (this.field_70404_d[2].field_77994_a < this.func_70297_j_() && this.field_70404_d[2].field_77994_a < this.field_70404_d[2].func_77976_d() ? true : this.field_70404_d[2].field_77994_a < var1.func_77976_d())));
++            ItemStack var1 = FurnaceRecipes.func_77602_a().getSmeltingResult(this.field_70404_d[0]);
++            if (var1 == null) return false;
++            if (this.field_70404_d[2] == null) return true;
++            if (!this.field_70404_d[2].func_77969_a(var1)) return false;
++            int result = field_70404_d[2].field_77994_a + var1.field_77994_a;
++            return (result <= func_70297_j_() && result <= var1.func_77976_d());
+         }
+     }
+ 
+@@ -241,15 +243,15 @@
+     {
+         if (this.func_70402_r())
+         {
+-            ItemStack var1 = FurnaceRecipes.func_77602_a().func_77603_b(this.field_70404_d[0].func_77973_b().field_77779_bT);
++            ItemStack var1 = FurnaceRecipes.func_77602_a().getSmeltingResult(this.field_70404_d[0]);
+ 
+             if (this.field_70404_d[2] == null)
+             {
+                 this.field_70404_d[2] = var1.func_77946_l();
+             }
+-            else if (this.field_70404_d[2].field_77993_c == var1.field_77993_c)
++            else if (this.field_70404_d[2].func_77969_a(var1))
+             {
+-                ++this.field_70404_d[2].field_77994_a;
++                field_70404_d[2].field_77994_a += var1.field_77994_a;
+             }
+ 
+             --this.field_70404_d[0].field_77994_a;
+@@ -272,7 +274,7 @@
+             int var1 = p_70398_0_.func_77973_b().field_77779_bT;
+             Item var2 = p_70398_0_.func_77973_b();
+ 
+-            if (var1 < 256 && Block.field_71973_m[var1] != null)
++            if (p_70398_0_.func_77973_b() instanceof ItemBlock && Block.field_71973_m[var1] != null)
+             {
+                 Block var3 = Block.field_71973_m[var1];
+ 
+@@ -287,7 +289,15 @@
                  }
              }
  
@@ -24,3 +98,23 @@
          }
      }
  
+@@ -307,5 +317,19 @@
+ 
+     public void func_70305_f()
+     {
++    }
++    
++    @Override
++    public int getStartInventorySide(ForgeDirection side)
++    {
++        if (side == ForgeDirection.DOWN) return 1;
++        if (side == ForgeDirection.UP) return 0;
++        return 2;
++    }
++    
++    @Override
++    public int getSizeInventorySide(ForgeDirection side)
++    {
++        return 1;
+     }
+ }

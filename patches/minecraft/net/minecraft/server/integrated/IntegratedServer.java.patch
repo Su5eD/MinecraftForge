@@ -7,7 +7,73 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.File;
-@@ -108,9 +109,10 @@
+@@ -19,6 +20,9 @@
+ import net.minecraft.world.WorldType;
+ import net.minecraft.world.demo.DemoWorldServer;
+ import net.minecraft.world.storage.ISaveHandler;
++import net.minecraftforge.common.DimensionManager;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.world.WorldEvent;
+ 
+ @SideOnly(Side.CLIENT)
+ public class IntegratedServer extends MinecraftServer
+@@ -56,43 +60,22 @@
+     protected void func_71247_a(String p_71247_1_, String p_71247_2_, long p_71247_3_, WorldType p_71247_5_, String p_71247_6_)
+     {
+         this.func_71237_c(p_71247_1_);
+-        this.field_71305_c = new WorldServer[3];
+-        this.field_71312_k = new long[this.field_71305_c.length][100];
+         ISaveHandler var7 = this.func_71254_M().func_75804_a(p_71247_1_, true);
+ 
+-        for (int var8 = 0; var8 < this.field_71305_c.length; ++var8)
++        WorldServer overWorld = (func_71242_L() ? new DemoWorldServer(this, var7, p_71247_2_, 0, field_71304_b) : new WorldServer(this, var7, p_71247_2_, 0, field_71350_m, field_71304_b));
++        for (int dim : DimensionManager.getStaticDimensionIDs())
+         {
+-            byte var9 = 0;
+-
+-            if (var8 == 1)
+-            {
+-                var9 = -1;
+-            }
+-
+-            if (var8 == 2)
+-            {
+-                var9 = 1;
+-            }
+-
+-            if (var8 == 0)
+-            {
+-                if (this.func_71242_L())
+-                {
+-                    this.field_71305_c[var8] = new DemoWorldServer(this, var7, p_71247_2_, var9, this.field_71304_b);
+-                }
+-                else
+-                {
+-                    this.field_71305_c[var8] = new WorldServer(this, var7, p_71247_2_, var9, this.field_71350_m, this.field_71304_b);
+-                }
+-            }
+-            else
+-            {
+-                this.field_71305_c[var8] = new WorldServerMulti(this, var7, p_71247_2_, var9, this.field_71350_m, this.field_71305_c[0], this.field_71304_b);
+-            }
+-
+-            this.field_71305_c[var8].func_72954_a(new WorldManager(this, this.field_71305_c[var8]));
+-            this.func_71203_ab().func_72364_a(this.field_71305_c);
++            WorldServer world = (dim == 0 ? overWorld : new WorldServerMulti(this, var7, p_71247_2_, dim, field_71350_m, overWorld, field_71304_b));
++            world.func_72954_a(new WorldManager(this, world));
++            if (!this.func_71264_H())
++            {
++                world.func_72912_H().func_76060_a(this.func_71265_f());
++            }
++
++            MinecraftForge.EVENT_BUS.post(new WorldEvent.Load(world));
+         }
++        
++        this.func_71203_ab().func_72364_a(new WorldServer[]{ overWorld });
+ 
+         this.func_71226_c(this.func_71232_g());
+         this.func_71222_d();
+@@ -108,9 +91,10 @@
          this.func_71245_h(true);
          field_71306_a.info("Generating keypair");
          this.func_71253_a(CryptManager.func_75891_b());

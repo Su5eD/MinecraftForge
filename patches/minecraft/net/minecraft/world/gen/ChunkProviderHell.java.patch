@@ -1,0 +1,146 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderHell.java
++++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderHell.java
+@@ -18,6 +18,13 @@
+ import net.minecraft.world.gen.feature.WorldGenHellLava;
+ import net.minecraft.world.gen.structure.MapGenNetherBridge;
+ 
++import static net.minecraftforge.event.terraingen.DecorateBiomeEvent.Decorate.EventType.*;
++import static net.minecraftforge.event.terraingen.InitMapGenEvent.EventType.*;
++import static net.minecraftforge.event.terraingen.PopulateChunkEvent.Populate.EventType.*;
++import net.minecraftforge.common.*;
++import net.minecraftforge.event.Event.*;
++import net.minecraftforge.event.terraingen.*;
++
+ public class ChunkProviderHell implements IChunkProvider
+ {
+     private Random field_73181_i;
+@@ -40,6 +47,11 @@
+     double[] field_73167_f;
+     double[] field_73168_g;
+     double[] field_73180_h;
++    
++    {
++        field_73172_c = (MapGenNetherBridge) TerrainGen.getModdedMapGen(field_73172_c, NETHER_BRIDGE);
++        field_73182_t = TerrainGen.getModdedMapGen(field_73182_t, NETHER_CAVE);
++    }
+ 
+     public ChunkProviderHell(World p_i3781_1_, long p_i3781_2_)
+     {
+@@ -52,6 +64,16 @@
+         this.field_73174_n = new NoiseGeneratorOctaves(this.field_73181_i, 4);
+         this.field_73173_a = new NoiseGeneratorOctaves(this.field_73181_i, 10);
+         this.field_73171_b = new NoiseGeneratorOctaves(this.field_73181_i, 16);
++        
++        NoiseGeneratorOctaves[] noiseGens = {field_73178_j, field_73179_k, field_73176_l, field_73177_m, field_73174_n, field_73173_a, field_73171_b};
++        noiseGens = TerrainGen.getModdedNoiseGenerators(p_i3781_1_, this.field_73181_i, noiseGens);
++        this.field_73178_j = noiseGens[0];
++        this.field_73179_k = noiseGens[1];
++        this.field_73176_l = noiseGens[2];
++        this.field_73177_m = noiseGens[3];
++        this.field_73174_n = noiseGens[4];
++        this.field_73173_a = noiseGens[5];
++        this.field_73171_b = noiseGens[6];
+     }
+ 
+     public void func_73165_a(int p_73165_1_, int p_73165_2_, byte[] p_73165_3_)
+@@ -130,6 +152,10 @@
+ 
+     public void func_73166_b(int p_73166_1_, int p_73166_2_, byte[] p_73166_3_)
+     {
++        ChunkProviderEvent.ReplaceBiomeBlocks event = new ChunkProviderEvent.ReplaceBiomeBlocks(this, p_73166_1_, p_73166_2_, p_73166_3_, null);
++        MinecraftForge.EVENT_BUS.post(event);
++        if (event.getResult() == Result.DENY) return;
++        
+         byte var4 = 64;
+         double var5 = 0.03125D;
+         this.field_73185_q = this.field_73177_m.func_76304_a(this.field_73185_q, p_73166_1_ * 16, p_73166_2_ * 16, 0, 16, 16, 1, var5, var5, 1.0D);
+@@ -254,6 +280,10 @@
+ 
+     private double[] func_73164_a(double[] p_73164_1_, int p_73164_2_, int p_73164_3_, int p_73164_4_, int p_73164_5_, int p_73164_6_, int p_73164_7_)
+     {
++        ChunkProviderEvent.InitNoiseField event = new ChunkProviderEvent.InitNoiseField(this, p_73164_1_, p_73164_2_, p_73164_3_, p_73164_4_, p_73164_5_, p_73164_6_, p_73164_7_);
++        MinecraftForge.EVENT_BUS.post(event);
++        if (event.getResult() == Result.DENY) return event.noisefield;
++        
+         if (p_73164_1_ == null)
+         {
+             p_73164_1_ = new double[p_73164_5_ * p_73164_6_ * p_73164_7_];
+@@ -400,6 +430,9 @@
+     public void func_73153_a(IChunkProvider p_73153_1_, int p_73153_2_, int p_73153_3_)
+     {
+         BlockSand.field_72192_a = true;
++        
++        MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Pre(p_73153_1_, field_73175_o, field_73181_i, p_73153_2_, p_73153_3_, false));
++        
+         int var4 = p_73153_2_ * 16;
+         int var5 = p_73153_3_ * 16;
+         this.field_73172_c.func_75051_a(this.field_73175_o, this.field_73181_i, p_73153_2_, p_73153_3_);
+@@ -408,7 +441,8 @@
+         int var8;
+         int var9;
+ 
+-        for (var6 = 0; var6 < 8; ++var6)
++        boolean doGen = TerrainGen.populate(p_73153_1_, field_73175_o, field_73181_i, p_73153_2_, p_73153_3_, false, NETHER_LAVA);
++        for (var6 = 0; doGen && var6 < 8; ++var6)
+         {
+             var7 = var4 + this.field_73181_i.nextInt(16) + 8;
+             var8 = this.field_73181_i.nextInt(120) + 4;
+@@ -419,7 +453,8 @@
+         var6 = this.field_73181_i.nextInt(this.field_73181_i.nextInt(10) + 1) + 1;
+         int var10;
+ 
+-        for (var7 = 0; var7 < var6; ++var7)
++        doGen = TerrainGen.populate(p_73153_1_, field_73175_o, field_73181_i, p_73153_2_, p_73153_3_, false, FIRE);
++        for (var7 = 0; doGen && var7 < var6; ++var7)
+         {
+             var8 = var4 + this.field_73181_i.nextInt(16) + 8;
+             var9 = this.field_73181_i.nextInt(120) + 4;
+@@ -429,7 +464,8 @@
+ 
+         var6 = this.field_73181_i.nextInt(this.field_73181_i.nextInt(10) + 1);
+ 
+-        for (var7 = 0; var7 < var6; ++var7)
++        doGen = TerrainGen.populate(p_73153_1_, field_73175_o, field_73181_i, p_73153_2_, p_73153_3_, false, GLOWSTONE);
++        for (var7 = 0; doGen && var7 < var6; ++var7)
+         {
+             var8 = var4 + this.field_73181_i.nextInt(16) + 8;
+             var9 = this.field_73181_i.nextInt(120) + 4;
+@@ -437,7 +473,7 @@
+             (new WorldGenGlowStone1()).func_76484_a(this.field_73175_o, this.field_73181_i, var8, var9, var10);
+         }
+ 
+-        for (var7 = 0; var7 < 10; ++var7)
++        for (var7 = 0; doGen && var7 < 10; ++var7)
+         {
+             var8 = var4 + this.field_73181_i.nextInt(16) + 8;
+             var9 = this.field_73181_i.nextInt(128);
+@@ -445,7 +481,10 @@
+             (new WorldGenGlowStone2()).func_76484_a(this.field_73175_o, this.field_73181_i, var8, var9, var10);
+         }
+ 
+-        if (this.field_73181_i.nextInt(1) == 0)
++        MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Pre(field_73175_o, field_73181_i, var4, var5));
++                
++        doGen = TerrainGen.decorate(field_73175_o, field_73181_i, var4, var5, SHROOM);
++        if (doGen && this.field_73181_i.nextInt(1) == 0)
+         {
+             var7 = var4 + this.field_73181_i.nextInt(16) + 8;
+             var8 = this.field_73181_i.nextInt(128);
+@@ -453,13 +492,16 @@
+             (new WorldGenFlowers(Block.field_72109_af.field_71990_ca)).func_76484_a(this.field_73175_o, this.field_73181_i, var7, var8, var9);
+         }
+ 
+-        if (this.field_73181_i.nextInt(1) == 0)
++        if (doGen && this.field_73181_i.nextInt(1) == 0)
+         {
+             var7 = var4 + this.field_73181_i.nextInt(16) + 8;
+             var8 = this.field_73181_i.nextInt(128);
+             var9 = var5 + this.field_73181_i.nextInt(16) + 8;
+             (new WorldGenFlowers(Block.field_72103_ag.field_71990_ca)).func_76484_a(this.field_73175_o, this.field_73181_i, var7, var8, var9);
+         }
++        
++        MinecraftForge.EVENT_BUS.post(new DecorateBiomeEvent.Post(field_73175_o, field_73181_i, var4, var5));
++        MinecraftForge.EVENT_BUS.post(new PopulateChunkEvent.Post(p_73153_1_, field_73175_o, field_73181_i, p_73153_2_, p_73153_3_, false));
+ 
+         BlockSand.field_72192_a = false;
+     }

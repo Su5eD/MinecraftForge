@@ -1,0 +1,29 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockPistonBase.java
++++ ../src-work/minecraft/net/minecraft/block/BlockPistonBase.java
+@@ -312,7 +312,7 @@
+                 return false;
+             }
+ 
+-            return !(Block.field_71973_m[p_72111_0_] instanceof BlockContainer);
++            return !p_72111_1_.func_72927_d(p_72111_2_, p_72111_3_, p_72111_4_);
+         }
+     }
+ 
+@@ -327,7 +327,7 @@
+         {
+             if (var8 < 13)
+             {
+-                if (var6 <= 0 || var6 >= 255)
++                if (var6 <= 0 || var6 >= p_72112_0_.func_72800_K() - 1)
+                 {
+                     return false;
+                 }
+@@ -374,7 +374,7 @@
+ 
+             if (var9 < 13)
+             {
+-                if (var7 <= 0 || var7 >= 255)
++                if (var7 <= 0 || var7 >= p_72115_1_.func_72800_K() - 1)
+                 {
+                     return false;
+                 }

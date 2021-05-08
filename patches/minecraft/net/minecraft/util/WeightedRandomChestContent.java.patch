@@ -1,0 +1,94 @@
+--- ../src-base/minecraft/net/minecraft/util/WeightedRandomChestContent.java
++++ ../src-work/minecraft/net/minecraft/util/WeightedRandomChestContent.java
+@@ -1,9 +1,12 @@
+ package net.minecraft.util;
+ 
+ import java.util.Random;
++
++import net.minecraft.inventory.IInventory;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.tileentity.TileEntityChest;
+ import net.minecraft.tileentity.TileEntityDispenser;
++import net.minecraftforge.common.ChestGenHooks;
+ 
+ public class WeightedRandomChestContent extends WeightedRandomItem
+ {
+@@ -27,27 +30,17 @@
+         this.field_76296_e = p_i8006_3_;
+     }
+ 
++    @SuppressWarnings("deprecation")
+     public static void func_76293_a(Random p_76293_0_, WeightedRandomChestContent[] p_76293_1_, TileEntityChest p_76293_2_, int p_76293_3_)
+     {
+         for (int var4 = 0; var4 < p_76293_3_; ++var4)
+         {
+             WeightedRandomChestContent var5 = (WeightedRandomChestContent)WeightedRandom.func_76274_a(p_76293_0_, p_76293_1_);
+-            int var6 = var5.field_76295_d + p_76293_0_.nextInt(var5.field_76296_e - var5.field_76295_d + 1);
++            ItemStack[] stacks = var5.generateChestContent(p_76293_0_, p_76293_2_);
+ 
+-            if (var5.field_76297_b.func_77976_d() >= var6)
+-            {
+-                ItemStack var7 = var5.field_76297_b.func_77946_l();
+-                var7.field_77994_a = var6;
+-                p_76293_2_.func_70299_a(p_76293_0_.nextInt(p_76293_2_.func_70302_i_()), var7);
+-            }
+-            else
+-            {
+-                for (int var9 = 0; var9 < var6; ++var9)
+-                {
+-                    ItemStack var8 = var5.field_76297_b.func_77946_l();
+-                    var8.field_77994_a = 1;
+-                    p_76293_2_.func_70299_a(p_76293_0_.nextInt(p_76293_2_.func_70302_i_()), var8);
+-                }
++            for (ItemStack item : stacks)
++            {
++                p_76293_2_.func_70299_a(p_76293_0_.nextInt(p_76293_2_.func_70302_i_()), item);
+             }
+         }
+     }
+@@ -57,22 +50,11 @@
+         for (int var4 = 0; var4 < p_76294_3_; ++var4)
+         {
+             WeightedRandomChestContent var5 = (WeightedRandomChestContent)WeightedRandom.func_76274_a(p_76294_0_, p_76294_1_);
+-            int var6 = var5.field_76295_d + p_76294_0_.nextInt(var5.field_76296_e - var5.field_76295_d + 1);
++            ItemStack[] stacks = var5.generateChestContent(p_76294_0_, p_76294_2_);
+ 
+-            if (var5.field_76297_b.func_77976_d() >= var6)
+-            {
+-                ItemStack var7 = var5.field_76297_b.func_77946_l();
+-                var7.field_77994_a = var6;
+-                p_76294_2_.func_70299_a(p_76294_0_.nextInt(p_76294_2_.func_70302_i_()), var7);
+-            }
+-            else
+-            {
+-                for (int var9 = 0; var9 < var6; ++var9)
+-                {
+-                    ItemStack var8 = var5.field_76297_b.func_77946_l();
+-                    var8.field_77994_a = 1;
+-                    p_76294_2_.func_70299_a(p_76294_0_.nextInt(p_76294_2_.func_70302_i_()), var8);
+-                }
++            for (ItemStack item : stacks)
++            {
++                p_76294_2_.func_70299_a(p_76294_0_.nextInt(p_76294_2_.func_70302_i_()), item);
+             }
+         }
+     }
+@@ -97,5 +79,18 @@
+         }
+ 
+         return var2;
++    }
++    
++    // -- Forge hooks
++    /**
++     * Allow a mod to submit a custom implementation that can delegate item stack generation beyond simple stack lookup
++     *
++     * @param random The current random for generation
++     * @param newInventory The inventory being generated (do not populate it, but you can refer to it)
++     * @return An array of {@link ItemStack} to put into the chest
++     */
++    protected ItemStack[] generateChestContent(Random random, IInventory newInventory)
++    {
++        return ChestGenHooks.generateStacks(random, field_76297_b, field_76295_d, field_76296_e);
+     }
+ }

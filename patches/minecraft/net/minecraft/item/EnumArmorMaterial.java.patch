@@ -1,0 +1,28 @@
+--- ../src-base/minecraft/net/minecraft/item/EnumArmorMaterial.java
++++ ../src-work/minecraft/net/minecraft/item/EnumArmorMaterial.java
+@@ -10,6 +10,9 @@
+     private int field_78048_f;
+     private int[] field_78049_g;
+     private int field_78055_h;
++    
++    //Added by forge for custom Armor materials.
++    public Item customCraftingMaterial = null;
+ 
+     private static final EnumArmorMaterial[] $VALUES = new EnumArmorMaterial[]{CLOTH, CHAIN, IRON, GOLD, DIAMOND};
+ 
+@@ -37,6 +40,14 @@
+ 
+     public int func_82845_b()
+     {
+-        return this == CLOTH ? Item.field_77770_aF.field_77779_bT : (this == CHAIN ? Item.field_77703_o.field_77779_bT : (this == GOLD ? Item.field_77717_p.field_77779_bT : (this == IRON ? Item.field_77703_o.field_77779_bT : (this == DIAMOND ? Item.field_77702_n.field_77779_bT : 0))));
++        switch (this)
++        {
++            case CLOTH:   return Item.field_77770_aF.field_77779_bT;
++            case CHAIN:   return Item.field_77703_o.field_77779_bT;
++            case GOLD:    return Item.field_77717_p.field_77779_bT;
++            case IRON:    return Item.field_77703_o.field_77779_bT;
++            case DIAMOND: return Item.field_77702_n.field_77779_bT;
++            default:      return (customCraftingMaterial == null ? 0 : customCraftingMaterial.field_77779_bT);
++        }
+     }
+ }

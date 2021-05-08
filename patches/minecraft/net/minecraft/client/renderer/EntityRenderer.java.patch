@@ -1,0 +1,123 @@
+--- ../src-base/minecraft/net/minecraft/client/renderer/EntityRenderer.java
++++ ../src-work/minecraft/net/minecraft/client/renderer/EntityRenderer.java
+@@ -31,6 +31,7 @@
+ import net.minecraft.util.ReportedException;
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.biome.BiomeGenBase;
++import net.minecraftforge.client.ForgeHooksClient;
+ import org.lwjgl.input.Mouse;
+ import org.lwjgl.opengl.Display;
+ import org.lwjgl.opengl.GL11;
+@@ -242,8 +243,15 @@
+ 
+     private void func_78477_e()
+     {
+-        EntityPlayerSP var1 = (EntityPlayerSP)this.field_78531_r.field_71451_h;
+-        this.field_78501_T = var1.func_71151_f();
++        if (field_78531_r.field_71451_h instanceof EntityPlayerSP)
++        {
++            EntityPlayerSP var1 = (EntityPlayerSP)this.field_78531_r.field_71451_h;
++            this.field_78501_T = var1.func_71151_f();
++               }
++        else
++        {
++            this.field_78501_T = field_78531_r.field_71439_g.func_71151_f();
++        }
+         this.field_78506_S = this.field_78507_R;
+         this.field_78507_R += (this.field_78501_T - this.field_78507_R) * 0.5F;
+     }
+@@ -256,7 +264,7 @@
+         }
+         else
+         {
+-            EntityPlayer var3 = (EntityPlayer)this.field_78531_r.field_71451_h;
++            EntityLiving var3 = (EntityLiving)this.field_78531_r.field_71451_h;
+             float var4 = 70.0F;
+ 
+             if (p_78481_2_)
+@@ -337,14 +345,7 @@
+ 
+             if (!this.field_78531_r.field_71474_y.field_74325_U)
+             {
+-                int var10 = this.field_78531_r.field_71441_e.func_72798_a(MathHelper.func_76128_c(var2.field_70165_t), MathHelper.func_76128_c(var2.field_70163_u), MathHelper.func_76128_c(var2.field_70161_v));
+-
+-                if (var10 == Block.field_71959_S.field_71990_ca)
+-                {
+-                    int var11 = this.field_78531_r.field_71441_e.func_72805_g(MathHelper.func_76128_c(var2.field_70165_t), MathHelper.func_76128_c(var2.field_70163_u), MathHelper.func_76128_c(var2.field_70161_v));
+-                    int var12 = var11 & 3;
+-                    GL11.glRotatef((float)(var12 * 90), 0.0F, 1.0F, 0.0F);
+-                }
++                ForgeHooksClient.orientBedCamera(field_78531_r, var2);
+ 
+                 GL11.glRotatef(var2.field_70126_B + (var2.field_70177_z - var2.field_70126_B) * p_78467_1_ + 180.0F, 0.0F, -1.0F, 0.0F);
+                 GL11.glRotatef(var2.field_70127_C + (var2.field_70125_A - var2.field_70127_C) * p_78467_1_, -1.0F, 0.0F, 0.0F);
+@@ -1003,7 +1004,9 @@
+             {
+                 RenderHelper.func_74519_b();
+                 this.field_78531_r.field_71424_I.func_76318_c("entities");
++                ForgeHooksClient.setRenderPass(0);
+                 var5.func_72713_a(var4.func_70666_h(p_78471_1_), var14, p_78471_1_);
++                ForgeHooksClient.setRenderPass(-1);
+                 this.func_78463_b((double)p_78471_1_);
+                 this.field_78531_r.field_71424_I.func_76318_c("litParticles");
+                 var6.func_78872_b(var4, p_78471_1_);
+@@ -1018,8 +1021,11 @@
+                     var17 = (EntityPlayer)var4;
+                     GL11.glDisable(GL11.GL_ALPHA_TEST);
+                     this.field_78531_r.field_71424_I.func_76318_c("outline");
+-                    var5.func_72727_a(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
+-                    var5.func_72731_b(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
++                    if (!ForgeHooksClient.onDrawBlockHighlight(var5, var17, field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_))
++                    {
++                        var5.func_72727_a(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
++                        var5.func_72731_b(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
++                    }
+                     GL11.glEnable(GL11.GL_ALPHA_TEST);
+                 }
+             }
+@@ -1073,6 +1079,13 @@
+                 this.field_78531_r.field_71424_I.func_76318_c("water");
+                 var5.func_72719_a(var4, 1, (double)p_78471_1_);
+             }
++            
++            RenderHelper.func_74519_b();
++            this.field_78531_r.field_71424_I.func_76318_c("entities");
++            ForgeHooksClient.setRenderPass(1);
++            var5.func_72713_a(var4.func_70666_h(p_78471_1_), var14, p_78471_1_);
++            ForgeHooksClient.setRenderPass(-1);
++            RenderHelper.func_74518_a();
+ 
+             GL11.glDepthMask(true);
+             GL11.glEnable(GL11.GL_CULL_FACE);
+@@ -1083,15 +1096,18 @@
+                 var17 = (EntityPlayer)var4;
+                 GL11.glDisable(GL11.GL_ALPHA_TEST);
+                 this.field_78531_r.field_71424_I.func_76318_c("outline");
+-                var5.func_72727_a(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
+-                var5.func_72731_b(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
++                if (!ForgeHooksClient.onDrawBlockHighlight(var5, var17, field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_))
++                {
++                    var5.func_72727_a(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
++                    var5.func_72731_b(var17, this.field_78531_r.field_71476_x, 0, var17.field_71071_by.func_70448_g(), p_78471_1_);
++                }
+                 GL11.glEnable(GL11.GL_ALPHA_TEST);
+             }
+ 
+             this.field_78531_r.field_71424_I.func_76318_c("destroyProgress");
+             GL11.glEnable(GL11.GL_BLEND);
+             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+-            var5.func_72717_a(Tessellator.field_78398_a, (EntityPlayer)var4, p_78471_1_);
++            var5.drawBlockDamageTexture(Tessellator.field_78398_a, var4, p_78471_1_);
+             GL11.glDisable(GL11.GL_BLEND);
+             this.field_78531_r.field_71424_I.func_76318_c("weather");
+             this.func_78474_d(p_78471_1_);
+@@ -1101,6 +1117,9 @@
+             {
+                 this.func_82829_a(var5, p_78471_1_);
+             }
++            
++            this.field_78531_r.field_71424_I.func_76318_c("FRenderLast");
++            ForgeHooksClient.dispatchRenderLast(var5, p_78471_1_);
+ 
+             this.field_78531_r.field_71424_I.func_76318_c("hand");
+ 

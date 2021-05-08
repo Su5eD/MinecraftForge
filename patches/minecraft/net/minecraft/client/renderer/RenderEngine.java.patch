@@ -12,7 +12,7 @@
  import java.awt.Graphics;
  import java.awt.image.BufferedImage;
  import java.awt.image.ImageObserver;
-@@ -15,6 +18,9 @@
+@@ -15,12 +18,16 @@
  import java.util.Iterator;
  import java.util.List;
  import java.util.Map;
@@ -22,7 +22,14 @@
  import javax.imageio.ImageIO;
  import net.minecraft.client.renderer.texturefx.TextureFX;
  import net.minecraft.client.settings.GameSettings;
-@@ -39,6 +45,8 @@
+ import net.minecraft.client.texturepacks.ITexturePack;
+ import net.minecraft.client.texturepacks.TexturePackList;
+ import net.minecraft.util.IntHashMap;
++import net.minecraftforge.client.ForgeHooksClient;
+ import org.lwjgl.opengl.GL11;
+ 
+ @SideOnly(Side.CLIENT)
+@@ -39,6 +46,8 @@
      public TexturePackList field_78366_k;
      private BufferedImage field_78364_l = new BufferedImage(64, 64, 2);
  
@@ -31,7 +38,7 @@
      public RenderEngine(TexturePackList p_i3192_1_, GameSettings p_i3192_2_)
      {
          this.field_78366_k = p_i3192_1_;
-@@ -102,8 +110,9 @@
+@@ -102,8 +111,9 @@
                  this.field_78359_d.put(p_78346_1_, var7);
                  return var7;
              }
@@ -42,7 +49,15 @@
                  var6.printStackTrace();
                  int[] var5 = this.func_78348_b(this.field_78364_l);
                  this.field_78359_d.put(p_78346_1_, var5);
-@@ -181,7 +190,9 @@
+@@ -143,6 +153,7 @@
+ 
+             try
+             {
++                ForgeHooksClient.onTextureLoadPre(p_78341_1_);
+                 this.field_78357_f.clear();
+                 GLAllocation.func_74528_a(this.field_78357_f);
+                 int var3 = this.field_78357_f.get(0);
+@@ -181,11 +192,14 @@
                      }
                      else
                      {
@@ -53,7 +68,12 @@
                      }
                  }
  
-@@ -250,6 +261,7 @@
+                 this.field_78362_c.put(p_78341_1_, Integer.valueOf(var3));
++                ForgeHooksClient.onTextureLoad(p_78341_1_, var6);
+                 return var3;
+             }
+             catch (Exception var5)
+@@ -250,6 +264,7 @@
  
          int var3 = p_78351_1_.getWidth();
          int var4 = p_78351_1_.getHeight();
@@ -61,7 +81,7 @@
          int[] var5 = new int[var3 * var4];
          byte[] var6 = new byte[var3 * var4 * 4];
          p_78351_1_.getRGB(0, 0, var3, var4, var5, 0, var3);
-@@ -410,6 +422,7 @@
+@@ -410,6 +425,7 @@
  
      public void func_78355_a(TextureFX p_78355_1_)
      {
@@ -69,7 +89,7 @@
          this.field_78367_h.add(p_78355_1_);
          p_78355_1_.func_76846_a();
      }
-@@ -422,28 +435,44 @@
+@@ -422,28 +438,44 @@
          {
              TextureFX var3 = (TextureFX)this.field_78367_h.get(var2);
              var3.field_76851_c = this.field_78365_j.field_74337_g;
@@ -123,7 +143,7 @@
              }
          }
  
-@@ -509,8 +538,9 @@
+@@ -509,8 +541,9 @@
                  this.field_78361_b = false;
                  this.field_78363_a = false;
              }
@@ -134,7 +154,7 @@
                  var7.printStackTrace();
              }
          }
-@@ -546,8 +576,9 @@
+@@ -546,8 +579,9 @@
                  this.field_78361_b = false;
                  this.field_78363_a = false;
              }

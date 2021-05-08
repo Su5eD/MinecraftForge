@@ -1,0 +1,66 @@
+--- ../src-base/minecraft/net/minecraft/world/SpawnerAnimals.java
++++ ../src-work/minecraft/net/minecraft/world/SpawnerAnimals.java
+@@ -1,9 +1,7 @@
+ package net.minecraft.world;
+ 
+-import java.util.HashMap;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Random;
++import java.util.*;
++
+ import net.minecraft.block.Block;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.entity.EntityLiving;
+@@ -19,6 +17,11 @@
+ import net.minecraft.world.biome.SpawnListEntry;
+ import net.minecraft.world.chunk.Chunk;
+ 
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.Event.Result;
++import net.minecraftforge.event.ForgeEventFactory;
++import net.minecraftforge.event.entity.living.LivingSpecialSpawnEvent;
++
+ public final class SpawnerAnimals
+ {
+     private static HashMap field_77193_b = new HashMap();
+@@ -83,6 +86,9 @@
+                 if ((!var35.func_75599_d() || p_77192_2_) && (var35.func_75599_d() || p_77192_1_) && (!var35.func_82705_e() || p_77192_3_) && p_77192_0_.func_72907_a(var35.func_75598_a()) <= var35.func_75601_b() * field_77193_b.size() / 256)
+                 {
+                     Iterator var36 = field_77193_b.keySet().iterator();
++                    ArrayList<ChunkCoordIntPair> tmp = new ArrayList(field_77193_b.keySet());
++                    Collections.shuffle(tmp);
++                    var36 = tmp.iterator();
+                     label110:
+ 
+                     while (var36.hasNext())
+@@ -159,7 +165,8 @@
+ 
+                                                             var39.func_70012_b((double)var24, (double)var25, (double)var26, p_77192_0_.field_73012_v.nextFloat() * 360.0F, 0.0F);
+ 
+-                                                            if (var39.func_70601_bi())
++                                                            Result canSpawn = ForgeEventFactory.canEntitySpawn(var39, p_77192_0_, var24, var25, var26);
++                                                            if (canSpawn == Result.ALLOW || (canSpawn == Result.DEFAULT && var39.func_70601_bi()))
+                                                             {
+                                                                 ++var16;
+                                                                 p_77192_0_.func_72838_d(var39);
+@@ -208,12 +215,18 @@
+         else
+         {
+             int var5 = p_77190_1_.func_72798_a(p_77190_2_, p_77190_3_ - 1, p_77190_4_);
+-            return var5 != Block.field_71986_z.field_71990_ca && !p_77190_1_.func_72809_s(p_77190_2_, p_77190_3_, p_77190_4_) && !p_77190_1_.func_72803_f(p_77190_2_, p_77190_3_, p_77190_4_).func_76224_d() && !p_77190_1_.func_72809_s(p_77190_2_, p_77190_3_ + 1, p_77190_4_);
++            boolean spawnBlock = (Block.field_71973_m[var5] != null && Block.field_71973_m[var5].canCreatureSpawn(p_77190_0_, p_77190_1_, p_77190_2_, p_77190_3_ - 1, p_77190_4_));
++            return spawnBlock && var5 != Block.field_71986_z.field_71990_ca && !p_77190_1_.func_72809_s(p_77190_2_, p_77190_3_, p_77190_4_) && !p_77190_1_.func_72803_f(p_77190_2_, p_77190_3_, p_77190_4_).func_76224_d() && !p_77190_1_.func_72809_s(p_77190_2_, p_77190_3_ + 1, p_77190_4_);
+         }
+     }
+ 
+     private static void func_77188_a(EntityLiving p_77188_0_, World p_77188_1_, float p_77188_2_, float p_77188_3_, float p_77188_4_)
+     {
++        if (ForgeEventFactory.doSpecialSpawn(p_77188_0_, p_77188_1_, p_77188_2_, p_77188_3_, p_77188_4_))
++        {
++            return;
++        }
++        
+         p_77188_0_.func_82163_bD();
+     }
+ 

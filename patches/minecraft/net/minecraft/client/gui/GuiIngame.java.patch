@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraft/client/gui/GuiIngame.java
++++ ../src-work/minecraft/net/minecraft/client/gui/GuiIngame.java
+@@ -23,6 +23,7 @@
+ import net.minecraft.util.StringUtils;
+ import net.minecraft.world.EnumSkyBlock;
+ import net.minecraft.world.chunk.Chunk;
++import net.minecraftforge.common.ForgeHooks;
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GL12;
+ 
+@@ -148,7 +149,7 @@
+ 
+                 var46 = var7 - 39;
+                 var22 = var46 - 10;
+-                var23 = this.field_73839_d.field_71439_g.func_70658_aO();
++                var23 = ForgeHooks.getTotalArmorValue(field_73839_d.field_71439_g);
+                 var24 = -1;
+ 
+                 if (this.field_73839_d.field_71439_g.func_70644_a(Potion.field_76428_l))

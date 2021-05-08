@@ -1,0 +1,166 @@
+--- ../src-base/minecraft/net/minecraft/client/renderer/Tessellator.java
++++ ../src-work/minecraft/net/minecraft/client/renderer/Tessellator.java
+@@ -7,6 +7,8 @@
+ import java.nio.FloatBuffer;
+ import java.nio.IntBuffer;
+ import java.nio.ShortBuffer;
++import java.util.Arrays;
++
+ import org.lwjgl.opengl.ARBVertexBufferObject;
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GLContext;
+@@ -14,12 +16,18 @@
+ @SideOnly(Side.CLIENT)
+ public class Tessellator
+ {
++    private static int nativeBufferSize = 0x200000;
++    private static int trivertsInBuffer = (nativeBufferSize / 48) * 6;
++    public static boolean renderingWorldRenderer = false;
++    public boolean defaultTexture = false;
++    private int rawBufferSize = 0;
++    public int textureID = 0;
+     private static boolean field_78396_b = false;
+     private static boolean field_78397_c = false;
+-    private ByteBuffer field_78394_d;
+-    private IntBuffer field_78395_e;
+-    private FloatBuffer field_78392_f;
+-    private ShortBuffer field_78393_g;
++    private static ByteBuffer field_78394_d = GLAllocation.func_74524_c(nativeBufferSize * 4);
++    private static IntBuffer field_78395_e = field_78394_d.asIntBuffer();
++    private static FloatBuffer field_78392_f = field_78394_d.asFloatBuffer();
++    private static ShortBuffer field_78393_g = field_78394_d.asShortBuffer();
+     private int[] field_78405_h;
+     private int field_78406_i = 0;
+     private double field_78403_j;
+@@ -40,26 +48,29 @@
+     private int field_78416_y;
+     public static Tessellator field_78398_a = new Tessellator(2097152);
+     public boolean field_78415_z = false;
+-    private boolean field_78389_A = false;
+-    private IntBuffer field_78390_B;
++    private static boolean field_78389_A = false;
++    private static IntBuffer field_78390_B;
+     private int field_78391_C = 0;
+-    private int field_78387_D = 10;
++    private static int field_78387_D = 10;
+     private int field_78388_E;
+ 
+     private Tessellator(int p_i3191_1_)
+     {
+-        this.field_78388_E = p_i3191_1_;
+-        this.field_78394_d = GLAllocation.func_74524_c(p_i3191_1_ * 4);
+-        this.field_78395_e = this.field_78394_d.asIntBuffer();
+-        this.field_78392_f = this.field_78394_d.asFloatBuffer();
+-        this.field_78393_g = this.field_78394_d.asShortBuffer();
+-        this.field_78405_h = new int[p_i3191_1_];
+-        this.field_78389_A = field_78397_c && GLContext.getCapabilities().GL_ARB_vertex_buffer_object;
+-
+-        if (this.field_78389_A)
++    }
++        
++    public Tessellator()
++    {
++    }
++        
++    static
++    {
++        field_78398_a.defaultTexture = true;
++        field_78389_A = field_78397_c && GLContext.getCapabilities().GL_ARB_vertex_buffer_object;
++    
++        if (field_78389_A)
+         {
+-            this.field_78390_B = GLAllocation.func_74527_f(this.field_78387_D);
+-            ARBVertexBufferObject.glGenBuffersARB(this.field_78390_B);
++            field_78390_B = GLAllocation.func_74527_f(field_78387_D);
++            ARBVertexBufferObject.glGenBuffersARB(field_78390_B);
+         }
+     }
+ 
+@@ -73,12 +84,23 @@
+         {
+             this.field_78415_z = false;
+ 
+-            if (this.field_78406_i > 0)
++            int offs = 0;
++            while (offs < field_78406_i)
+             {
++                int vtc = 0;
++                if (field_78409_u == 7 && field_78396_b)
++                {
++                    vtc = Math.min(field_78406_i - offs, trivertsInBuffer);
++                }
++                else
++                {
++                    vtc = Math.min(field_78406_i - offs, nativeBufferSize >> 5);
++                }
+                 this.field_78395_e.clear();
+-                this.field_78395_e.put(this.field_78405_h, 0, this.field_78412_r);
++                this.field_78395_e.put(this.field_78405_h, offs * 8, vtc * 8);
+                 this.field_78394_d.position(0);
+-                this.field_78394_d.limit(this.field_78412_r * 4);
++                this.field_78394_d.limit(vtc * 32);
++                offs += vtc;
+ 
+                 if (this.field_78389_A)
+                 {
+@@ -164,11 +186,11 @@
+ 
+                 if (this.field_78409_u == 7 && field_78396_b)
+                 {
+-                    GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, this.field_78406_i);
++                    GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vtc);
+                 }
+                 else
+                 {
+-                    GL11.glDrawArrays(this.field_78409_u, 0, this.field_78406_i);
++                    GL11.glDrawArrays(this.field_78409_u, 0, vtc);
+                 }
+ 
+                 GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+@@ -195,6 +217,12 @@
+                     GL11.glDisableClientState(GL11.GL_NORMAL_ARRAY);
+                 }
+             }
++            
++            if (rawBufferSize > 0x20000 && field_78412_r < (rawBufferSize << 3))
++            {
++                rawBufferSize = 0;
++                field_78405_h = null;
++            }
+ 
+             int var1 = this.field_78412_r * 4;
+             this.func_78379_d();
+@@ -327,6 +355,20 @@
+ 
+     public void func_78377_a(double p_78377_1_, double p_78377_3_, double p_78377_5_)
+     {
++        if (field_78412_r >= rawBufferSize - 32) 
++        {
++            if (rawBufferSize == 0)
++            {
++                rawBufferSize = 0x10000;
++                field_78405_h = new int[rawBufferSize];
++            }
++            else
++            {
++                rawBufferSize *= 2;
++                field_78405_h = Arrays.copyOf(field_78405_h, rawBufferSize);
++            }
++        }
++        
+         ++this.field_78411_s;
+ 
+         if (this.field_78409_u == 7 && field_78396_b && this.field_78411_s % 4 == 0)
+@@ -385,12 +427,6 @@
+         this.field_78405_h[this.field_78412_r + 2] = Float.floatToRawIntBits((float)(p_78377_5_ + this.field_78417_x));
+         this.field_78412_r += 8;
+         ++this.field_78406_i;
+-
+-        if (this.field_78406_i % 4 == 0 && this.field_78412_r >= this.field_78388_E - 32)
+-        {
+-            this.func_78381_a();
+-            this.field_78415_z = true;
+-        }
+     }
+ 
+     public void func_78378_d(int p_78378_1_)

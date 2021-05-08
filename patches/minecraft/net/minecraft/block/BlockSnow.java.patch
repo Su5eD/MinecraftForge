@@ -1,0 +1,48 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockSnow.java
++++ ../src-work/minecraft/net/minecraft/block/BlockSnow.java
+@@ -50,7 +50,8 @@
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+     {
+         int var5 = p_71930_1_.func_72798_a(p_71930_2_, p_71930_3_ - 1, p_71930_4_);
+-        return var5 != 0 && (var5 == Block.field_71952_K.field_71990_ca || Block.field_71973_m[var5].func_71926_d()) ? p_71930_1_.func_72803_f(p_71930_2_, p_71930_3_ - 1, p_71930_4_).func_76230_c() : false;
++        Block block = Block.field_71973_m[var5];
++        return block != null && (block.isLeaves(p_71930_1_, p_71930_2_, p_71930_3_ - 1, p_71930_4_) || Block.field_71973_m[var5].func_71926_d()) ? p_71930_1_.func_72803_f(p_71930_2_, p_71930_3_ - 1, p_71930_4_).func_76230_c() : false;
+     }
+ 
+     public void func_71863_a(World p_71863_1_, int p_71863_2_, int p_71863_3_, int p_71863_4_, int p_71863_5_)
+@@ -62,7 +63,6 @@
+     {
+         if (!this.func_71930_b(p_72124_1_, p_72124_2_, p_72124_3_, p_72124_4_))
+         {
+-            this.func_71897_c(p_72124_1_, p_72124_2_, p_72124_3_, p_72124_4_, p_72124_1_.func_72805_g(p_72124_2_, p_72124_3_, p_72124_4_), 0);
+             p_72124_1_.func_72859_e(p_72124_2_, p_72124_3_, p_72124_4_, 0);
+             return false;
+         }
+@@ -74,10 +74,8 @@
+ 
+     public void func_71893_a(World p_71893_1_, EntityPlayer p_71893_2_, int p_71893_3_, int p_71893_4_, int p_71893_5_, int p_71893_6_)
+     {
+-        int var7 = Item.field_77768_aD.field_77779_bT;
+-        this.func_71929_a(p_71893_1_, p_71893_3_, p_71893_4_, p_71893_5_, new ItemStack(var7, 1, 0));
++        super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
+         p_71893_1_.func_72859_e(p_71893_3_, p_71893_4_, p_71893_5_, 0);
+-        p_71893_2_.func_71064_a(StatList.field_75934_C[this.field_71990_ca], 1);
+     }
+ 
+     public int func_71885_a(int p_71885_1_, Random p_71885_2_, int p_71885_3_)
+@@ -87,14 +85,13 @@
+ 
+     public int func_71925_a(Random p_71925_1_)
+     {
+-        return 0;
++        return 1;
+     }
+ 
+     public void func_71847_b(World p_71847_1_, int p_71847_2_, int p_71847_3_, int p_71847_4_, Random p_71847_5_)
+     {
+         if (p_71847_1_.func_72972_b(EnumSkyBlock.Block, p_71847_2_, p_71847_3_, p_71847_4_) > 11)
+         {
+-            this.func_71897_c(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_, p_71847_1_.func_72805_g(p_71847_2_, p_71847_3_, p_71847_4_), 0);
+             p_71847_1_.func_72859_e(p_71847_2_, p_71847_3_, p_71847_4_, 0);
+         }
+     }

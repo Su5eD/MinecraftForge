@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockContainer.java
++++ ../src-work/minecraft/net/minecraft/block/BlockContainer.java
+@@ -21,7 +21,7 @@
+     public void func_71861_g(World p_71861_1_, int p_71861_2_, int p_71861_3_, int p_71861_4_)
+     {
+         super.func_71861_g(p_71861_1_, p_71861_2_, p_71861_3_, p_71861_4_);
+-        p_71861_1_.func_72837_a(p_71861_2_, p_71861_3_, p_71861_4_, this.func_72274_a(p_71861_1_));
++        p_71861_1_.func_72837_a(p_71861_2_, p_71861_3_, p_71861_4_, this.createTileEntity(p_71861_1_, p_71861_1_.func_72805_g(p_71861_2_, p_71861_3_, p_71861_4_)));
+     }
+ 
+     public void func_71852_a(World p_71852_1_, int p_71852_2_, int p_71852_3_, int p_71852_4_, int p_71852_5_, int p_71852_6_)
+@@ -31,6 +31,11 @@
+     }
+ 
+     public abstract TileEntity func_72274_a(World p_72274_1_);
++    
++    public TileEntity createNewTileEntity(World world, int metadata)
++    {
++        return func_72274_a(world);
++    }
+ 
+     public void func_71883_b(World p_71883_1_, int p_71883_2_, int p_71883_3_, int p_71883_4_, int p_71883_5_, int p_71883_6_)
+     {

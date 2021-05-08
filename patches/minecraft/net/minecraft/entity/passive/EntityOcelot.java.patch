@@ -1,0 +1,13 @@
+--- ../src-base/minecraft/net/minecraft/entity/passive/EntityOcelot.java
++++ ../src-work/minecraft/net/minecraft/entity/passive/EntityOcelot.java
+@@ -297,7 +297,9 @@
+ 
+                 int var4 = this.field_70170_p.func_72798_a(var1, var2 - 1, var3);
+ 
+-                if (var4 == Block.field_71980_u.field_71990_ca || var4 == Block.field_71952_K.field_71990_ca)
++                Block block = Block.field_71973_m[var4];
++                
++                if (var4 == Block.field_71980_u.field_71990_ca || (block != null && block.isLeaves(field_70170_p, var1, var2 - 1, var3)))
+                 {
+                     return true;
+                 }

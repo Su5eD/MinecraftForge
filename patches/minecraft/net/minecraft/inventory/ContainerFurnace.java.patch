@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/inventory/ContainerFurnace.java
++++ ../src-work/minecraft/net/minecraft/inventory/ContainerFurnace.java
+@@ -119,7 +119,7 @@
+             }
+             else if (p_82846_2_ != 1 && p_82846_2_ != 0)
+             {
+-                if (FurnaceRecipes.func_77602_a().func_77603_b(var5.func_77973_b().field_77779_bT) != null)
++                if (FurnaceRecipes.func_77602_a().getSmeltingResult(var5) != null)
+                 {
+                     if (!this.func_75135_a(var5, 0, 1, false))
+                     {

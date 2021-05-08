@@ -1,0 +1,211 @@
+--- ../src-base/minecraft/net/minecraft/client/gui/inventory/GuiContainerCreative.java
++++ ../src-work/minecraft/net/minecraft/client/gui/inventory/GuiContainerCreative.java
+@@ -40,6 +40,8 @@
+     private Slot field_74235_v = null;
+     private boolean field_74234_w = false;
+     private CreativeCrafting field_82324_x;
++    private static int tabPage = 0;
++    private int maxPages = 0;
+ 
+     public GuiContainerCreative(EntityPlayer p_i3083_1_)
+     {
+@@ -119,7 +121,7 @@
+                     return;
+                 }
+ 
+-                if (var7 != null && var8 != null && var7.func_77969_a(var8))
++                if (var7 != null && var8 != null && var7.func_77969_a(var8) && ItemStack.func_77970_a(var7, var8))
+                 {
+                     if (p_74191_3_ == 0)
+                     {
+@@ -208,6 +210,13 @@
+             this.func_74227_b(CreativeTabs.field_78032_a[var1]);
+             this.field_82324_x = new CreativeCrafting(this.field_73882_e);
+             this.field_73882_e.field_71439_g.field_71069_bz.func_75132_a(this.field_82324_x);
++            int tabCount = CreativeTabs.field_78032_a.length;
++            if (tabCount > 12)
++            {
++                field_73887_h.add(new GuiButton(101, field_74198_m,              field_74197_n - 50, 20, 20, "<"));
++                field_73887_h.add(new GuiButton(102, field_74198_m + field_74194_b - 20, field_74197_n - 50, 20, 20, ">"));
++                maxPages = ((tabCount - 12) / 10) + 1;
++            }
+         }
+         else
+         {
+@@ -333,7 +342,7 @@
+     {
+         CreativeTabs var3 = CreativeTabs.field_78032_a[field_74241_p];
+ 
+-        if (var3.func_78019_g())
++        if (var3 != null && var3.func_78019_g())
+         {
+             this.field_73886_k.func_78276_b(var3.func_78024_c(), 8, 6, 4210752);
+         }
+@@ -352,7 +361,7 @@
+             {
+                 CreativeTabs var9 = var6[var8];
+ 
+-                if (this.func_74232_a(var9, var4, var5))
++                if (var9 != null && func_74232_a(var9, var4, var5))
+                 {
+                     this.func_74227_b(var9);
+                     return;
+@@ -365,11 +374,17 @@
+ 
+     private boolean func_74226_k()
+     {
++        if (CreativeTabs.field_78032_a[field_74241_p] == null) return false;
+         return field_74241_p != CreativeTabs.field_78036_m.func_78021_a() && CreativeTabs.field_78032_a[field_74241_p].func_78017_i() && ((ContainerCreative)this.field_74193_d).func_75184_d();
+     }
+ 
+     private void func_74227_b(CreativeTabs p_74227_1_)
+     {
++        if (p_74227_1_ == null)
++        {
++            return;
++        }
++        
+         int var2 = field_74241_p;
+         field_74241_p = p_74227_1_.func_78021_a();
+         ContainerCreative var3 = (ContainerCreative)this.field_74193_d;
+@@ -533,22 +548,43 @@
+ 
+         super.func_73863_a(p_73863_1_, p_73863_2_, p_73863_3_);
+         CreativeTabs[] var11 = CreativeTabs.field_78032_a;
+-        int var12 = var11.length;
+-
+-        for (int var13 = 0; var13 < var12; ++var13)
++        int start = tabPage * 10;
++        int var12 = Math.min(var11.length, ((tabPage + 1) * 10) + 2);
++        if (tabPage != 0) start += 2;
++        boolean rendered = false;
++        
++        for (int var13 = start; var13 < var12; ++var13)
+         {
+             CreativeTabs var14 = var11[var13];
+ 
+-            if (this.func_74231_b(var14, p_73863_1_, p_73863_2_))
++            if (var14 != null && func_74231_b(var14, p_73863_1_, p_73863_2_))
+             {
++                rendered = true;
+                 break;
+             }
++        }
++        
++        if (!rendered && !func_74231_b(CreativeTabs.field_78027_g, p_73863_1_, p_73863_2_))
++        {
++            func_74231_b(CreativeTabs.field_78036_m, p_73863_1_, p_73863_2_);
+         }
+ 
+         if (this.field_74235_v != null && field_74241_p == CreativeTabs.field_78036_m.func_78021_a() && this.func_74188_c(this.field_74235_v.field_75223_e, this.field_74235_v.field_75221_f, 16, 16, p_73863_1_, p_73863_2_))
+         {
+             this.func_74190_a(StringTranslate.func_74808_a().func_74805_b("inventory.binSlot"), p_73863_1_, p_73863_2_);
+         }
++        
++        if (maxPages != 0)
++        {
++            String page = String.format("%d / %d", tabPage + 1, maxPages + 1);
++            int width = field_73886_k.func_78256_a(page);
++            GL11.glDisable(GL11.GL_LIGHTING);
++            this.field_73735_i = 300.0F;
++            field_74196_a.field_77023_b = 300.0F;
++            field_73886_k.func_78276_b(page, field_74198_m + (field_74194_b / 2) - (width / 2), field_74197_n - 44, -1);
++            this.field_73735_i = 0.0F;
++            field_74196_a.field_77023_b = 0.0F;
++        }
+ 
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+         GL11.glDisable(GL11.GL_LIGHTING);
+@@ -565,16 +601,34 @@
+         int var8 = var7.length;
+         int var9;
+ 
+-        for (var9 = 0; var9 < var8; ++var9)
++        int start = tabPage * 10;
++        var8 = Math.min(var7.length, ((tabPage + 1) * 10 + 2));
++        if (tabPage != 0) start += 2;
++        
++        for (var9 = start; var9 < var8; ++var9)
+         {
+             CreativeTabs var10 = var7[var9];
+             this.field_73882_e.field_71446_o.func_78342_b(var4);
+ 
+-            if (var10.func_78021_a() != field_74241_p)
++            if (var10 != null && var10.func_78021_a() != field_74241_p)
+             {
+                 this.func_74233_a(var10);
+             }
+         }
++            
++        if (tabPage != 0)
++        {
++            if (var5 != CreativeTabs.field_78027_g)
++            {
++                field_73882_e.field_71446_o.func_78342_b(var4);
++                func_74233_a(CreativeTabs.field_78027_g);
++            }
++            if (var5 != CreativeTabs.field_78036_m)
++            {
++                field_73882_e.field_71446_o.func_78342_b(var4);
++                func_74233_a(CreativeTabs.field_78036_m);
++            }
++        }
+ 
+         this.field_73882_e.field_71446_o.func_78342_b(var6);
+         this.func_73729_b(this.field_74198_m, this.field_74197_n, 0, 0, this.field_74194_b, this.field_74195_c);
+@@ -589,6 +643,14 @@
+         {
+             this.func_73729_b(var11, var8 + (int)((float)(var9 - var8 - 17) * this.field_74240_q), 232 + (this.func_74226_k() ? 0 : 12), 0, 12, 15);
+         }
++        
++        if (var5 == null || var5.getTabPage() != tabPage)
++        {
++            if (var5 != CreativeTabs.field_78027_g && var5 != CreativeTabs.field_78036_m)
++            {
++                return;
++            }
++        }
+ 
+         this.func_74233_a(var5);
+ 
+@@ -600,6 +662,15 @@
+ 
+     protected boolean func_74232_a(CreativeTabs p_74232_1_, int p_74232_2_, int p_74232_3_)
+     {
++        if (p_74232_1_.getTabPage() != tabPage)
++        {
++            if (p_74232_1_ != CreativeTabs.field_78027_g &&
++                    p_74232_1_ != CreativeTabs.field_78036_m)
++            {
++                return false;
++            }
++        }
++        
+         int var4 = p_74232_1_.func_78020_k();
+         int var5 = 28 * var4;
+         byte var6 = 0;
+@@ -707,7 +778,7 @@
+         var8 += 8 + (var3 ? 1 : -1);
+         GL11.glEnable(GL11.GL_LIGHTING);
+         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+-        ItemStack var10 = new ItemStack(p_74233_1_.func_78016_d());
++        ItemStack var10 = p_74233_1_.getIconItemStack();
+         field_74196_a.func_82406_b(this.field_73886_k, this.field_73882_e.field_71446_o, var10, var7, var8);
+         field_74196_a.func_77021_b(this.field_73886_k, this.field_73882_e.field_71446_o, var10, var7, var8);
+         GL11.glDisable(GL11.GL_LIGHTING);
+@@ -725,6 +796,15 @@
+         if (p_73875_1_.field_73741_f == 1)
+         {
+             this.field_73882_e.func_71373_a(new GuiStats(this, this.field_73882_e.field_71413_E));
++        }
++        
++        if (p_73875_1_.field_73741_f == 101)
++        {
++            tabPage = Math.max(tabPage - 1, 0);
++        }
++        else if (p_73875_1_.field_73741_f == 102)
++        {
++            tabPage = Math.min(tabPage + 1, maxPages);
+         }
+     }
+ 

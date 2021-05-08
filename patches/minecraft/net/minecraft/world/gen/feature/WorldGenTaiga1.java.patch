@@ -1,0 +1,36 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenTaiga1.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenTaiga1.java
+@@ -43,7 +43,9 @@
+                         {
+                             var15 = p_76484_1_.func_72798_a(var13, var11, var14);
+ 
+-                            if (var15 != 0 && var15 != Block.field_71952_K.field_71990_ca)
++                            Block block = Block.field_71973_m[var15];
++                            
++                            if (var15 != 0 && (block == null || !block.isLeaves(p_76484_1_, var13, var11, var14)))
+                             {
+                                 var10 = false;
+                             }
+@@ -79,7 +81,10 @@
+                             {
+                                 int var17 = var16 - p_76484_5_;
+ 
+-                                if ((Math.abs(var15) != var18 || Math.abs(var17) != var18 || var18 <= 0) && !Block.field_71970_n[p_76484_1_.func_72798_a(var14, var13, var16)])
++                                Block block = Block.field_71973_m[p_76484_1_.func_72798_a(var14, var13, var16)];
++                                
++                                if ((Math.abs(var15) != var18 || Math.abs(var17) != var18 || var18 <= 0) && 
++                                        (block == null || block.canBeReplacedByLeaves(p_76484_1_, var14, var13, var16)))
+                                 {
+                                     this.func_76485_a(p_76484_1_, var14, var13, var16, Block.field_71952_K.field_71990_ca, 1);
+                                 }
+@@ -100,7 +105,9 @@
+                     {
+                         var14 = p_76484_1_.func_72798_a(p_76484_3_, p_76484_4_ + var13, p_76484_5_);
+ 
+-                        if (var14 == 0 || var14 == Block.field_71952_K.field_71990_ca)
++                        Block block = Block.field_71973_m[var14];
++                        
++                        if (var14 == 0 || block == null || block.isLeaves(p_76484_1_, p_76484_3_, p_76484_4_ + var13, p_76484_5_))
+                         {
+                             this.func_76485_a(p_76484_1_, p_76484_3_, p_76484_4_ + var13, p_76484_5_, Block.field_71951_J.field_71990_ca, 1);
+                         }

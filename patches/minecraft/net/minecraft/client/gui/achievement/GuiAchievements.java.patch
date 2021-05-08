@@ -1,0 +1,99 @@
+--- ../src-base/minecraft/net/minecraft/client/gui/achievement/GuiAchievements.java
++++ ../src-work/minecraft/net/minecraft/client/gui/achievement/GuiAchievements.java
+@@ -2,6 +2,9 @@
+ 
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
++
++import java.util.LinkedList;
++import java.util.List;
+ import java.util.Random;
+ import net.minecraft.block.Block;
+ import net.minecraft.client.Minecraft;
+@@ -15,6 +18,7 @@
+ import net.minecraft.stats.StatFileWriter;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.StatCollector;
++import net.minecraftforge.common.AchievementPage;
+ import org.lwjgl.input.Mouse;
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GL12;
+@@ -38,6 +42,10 @@
+     protected double field_74123_r;
+     private int field_74118_w = 0;
+     private StatFileWriter field_74126_x;
++    
++    private int currentPage = -1;
++    private GuiSmallButton button;
++    private LinkedList<Achievement> minecraftAchievements = new LinkedList<Achievement>();
+ 
+     public GuiAchievements(StatFileWriter p_i3070_1_)
+     {
+@@ -46,12 +54,21 @@
+         short var3 = 141;
+         this.field_74117_m = this.field_74116_o = this.field_74124_q = (double)(AchievementList.field_76004_f.field_75993_a * 24 - var2 / 2 - 12);
+         this.field_74115_n = this.field_74125_p = this.field_74123_r = (double)(AchievementList.field_76004_f.field_75991_b * 24 - var3 / 2);
++        minecraftAchievements.clear();
++        for (Object achievement : AchievementList.field_76007_e)
++        {
++            if (!AchievementPage.isAchievementInPages((Achievement)achievement))
++            {
++                minecraftAchievements.add((Achievement)achievement);
++            }
++        }
+     }
+ 
+     public void func_73866_w_()
+     {
+         this.field_73887_h.clear();
+         this.field_73887_h.add(new GuiSmallButton(1, this.field_73880_f / 2 + 24, this.field_73881_g / 2 + 74, 80, 20, StatCollector.func_74838_a("gui.done")));
++        this.field_73887_h.add(button = new GuiSmallButton(2, (field_73880_f - field_74114_a) / 2 + 24, field_73881_g / 2 + 74, 125, 20, AchievementPage.getTitle(currentPage)));
+     }
+ 
+     protected void func_73875_a(GuiButton p_73875_1_)
+@@ -61,6 +78,16 @@
+             this.field_73882_e.func_71373_a((GuiScreen)null);
+             this.field_73882_e.func_71381_h();
+         }
++        
++        if (p_73875_1_.field_73741_f == 2) 
++        {
++            currentPage++;
++            if (currentPage >= AchievementPage.getAchievementPages().size())
++            {
++                currentPage = -1;
++            }
++            button.field_73744_e = AchievementPage.getTitle(currentPage);
++        }
+ 
+         super.func_73875_a(p_73875_1_);
+     }
+@@ -272,11 +299,12 @@
+         int var27;
+         int var30;
+ 
+-        for (var22 = 0; var22 < AchievementList.field_76007_e.size(); ++var22)
++        List<Achievement> achievementList = (currentPage == -1 ? minecraftAchievements : AchievementPage.getAchievementPage(currentPage).getAchievements());
++        for (var22 = 0; var22 < achievementList.size(); ++var22)
+         {
+-            Achievement var33 = (Achievement)AchievementList.field_76007_e.get(var22);
+-
+-            if (var33.field_75992_c != null)
++            Achievement var33 = achievementList.get(var22);
++        
++            if (var33.field_75992_c != null && achievementList.contains(var33.field_75992_c))
+             {
+                 var24 = var33.field_75993_a * 24 - var4 + 11 + var10;
+                 var25 = var33.field_75991_b * 24 - var5 + 11 + var11;
+@@ -310,9 +338,9 @@
+         int var39;
+         int var40;
+ 
+-        for (var24 = 0; var24 < AchievementList.field_76007_e.size(); ++var24)
++        for (var24 = 0; var24 < achievementList.size(); ++var24)
+         {
+-            Achievement var35 = (Achievement)AchievementList.field_76007_e.get(var24);
++            Achievement var35 = achievementList.get(var24);
+             var26 = var35.field_75993_a * 24 - var4;
+             var27 = var35.field_75991_b * 24 - var5;
+ 

@@ -1,0 +1,33 @@
+--- ../src-base/minecraft/net/minecraft/world/ChunkCache.java
++++ ../src-work/minecraft/net/minecraft/world/ChunkCache.java
+@@ -85,7 +85,15 @@
+     {
+         int var4 = (p_72796_1_ >> 4) - this.field_72818_a;
+         int var5 = (p_72796_3_ >> 4) - this.field_72816_b;
+-        return this.field_72817_c[var4][var5].func_76597_e(p_72796_1_ & 15, p_72796_2_, p_72796_3_ & 15);
++        if (var4 >= 0 && var4 < this.field_72817_c.length && var5 >= 0 && var5 < this.field_72817_c[var4].length)
++        {
++            Chunk var6 = this.field_72817_c[var4][var5];
++            return var6 == null ? null : var6.func_76597_e(p_72796_1_ & 15, p_72796_2_, p_72796_3_ & 15);
++        }
++        else
++        {
++            return null;
++        }
+     }
+ 
+     @SideOnly(Side.CLIENT)
+@@ -213,7 +221,12 @@
+         {
+             int var4 = (p_72805_1_ >> 4) - this.field_72818_a;
+             int var5 = (p_72805_3_ >> 4) - this.field_72816_b;
+-            return this.field_72817_c[var4][var5].func_76628_c(p_72805_1_ & 15, p_72805_2_, p_72805_3_ & 15);
++            if (var4 >= 0 && var4 < this.field_72817_c.length && var5 >= 0 && var5 < this.field_72817_c[var4].length)
++            {
++                Chunk var6 = this.field_72817_c[var4][var5];
++                return var6 == null ? 0 : var6.func_76628_c(p_72805_1_ & 15, p_72805_2_, p_72805_3_ & 15);
++            }
++            return 0;
+         }
+     }
+ 

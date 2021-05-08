@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenBigTree.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenBigTree.java
+@@ -2,8 +2,10 @@
+ 
+ import java.util.Random;
+ import net.minecraft.block.Block;
++import net.minecraft.block.BlockSapling;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.ForgeDirection;
+ 
+ public class WorldGenBigTree extends WorldGenerator
+ {
+@@ -387,7 +389,9 @@
+         int[] var2 = new int[] {this.field_76503_d[0], this.field_76503_d[1] + this.field_76504_e - 1, this.field_76503_d[2]};
+         int var3 = this.field_76506_c.func_72798_a(this.field_76503_d[0], this.field_76503_d[1] - 1, this.field_76503_d[2]);
+ 
+-        if (var3 != 2 && var3 != 3)
++        Block soil = Block.field_71973_m[var3];
++        boolean isValidSoil = (soil != null && soil.canSustainPlant(field_76506_c, field_76503_d[0], field_76503_d[1] - 1, field_76503_d[2], ForgeDirection.UP, (BlockSapling)Block.field_71987_y));
++        if (!isValidSoil)
+         {
+             return false;
+         }

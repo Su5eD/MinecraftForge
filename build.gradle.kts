@@ -240,13 +240,13 @@ project(":forge") {
     version = getVersion(gitInfo)
 
     configure<PatcherExtension> {
-        exc(file("$rootDir/src/main/resources/fml.exc"))
+        exc(file("$rootDir/src/main/resources/forge.exc"))
         parent = project(":clean")
         patches = file("$rootDir/patches/minecraft")
-        patchedSrc = file("$rootDir/src/main/java")
+        patchedSrc = file("src/main/java")
         srgPatches = true
         notchObf = true
-        accessTransformer(file("$rootDir/src/main/resources/fml_new_at.cfg"))
+        accessTransformer(file("$rootDir/src/main/resources/forge_dev_at.cfg"))
         //sideAnnotationStripper = file("$rootDir/src/main/resources/forge.sas")
         processor(postProcessor)
 

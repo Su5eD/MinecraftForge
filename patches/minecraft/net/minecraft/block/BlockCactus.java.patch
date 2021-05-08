@@ -1,0 +1,47 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockCactus.java
++++ ../src-work/minecraft/net/minecraft/block/BlockCactus.java
+@@ -10,7 +10,11 @@
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.world.World;
+ 
+-public class BlockCactus extends Block
++import net.minecraftforge.common.EnumPlantType;
++import net.minecraftforge.common.ForgeDirection;
++import net.minecraftforge.common.IPlantable;
++
++public class BlockCactus extends Block implements IPlantable
+ {
+     protected BlockCactus(int p_i3925_1_, int p_i3925_2_)
+     {
+@@ -115,12 +119,30 @@
+         else
+         {
+             int var5 = p_71854_1_.func_72798_a(p_71854_2_, p_71854_3_ - 1, p_71854_4_);
+-            return var5 == Block.field_72038_aV.field_71990_ca || var5 == Block.field_71939_E.field_71990_ca;
++            return field_71973_m[var5] != null && field_71973_m[var5].canSustainPlant(p_71854_1_, p_71854_2_, p_71854_3_ - 1, p_71854_4_, ForgeDirection.UP, this);
+         }
+     }
+ 
+     public void func_71869_a(World p_71869_1_, int p_71869_2_, int p_71869_3_, int p_71869_4_, Entity p_71869_5_)
+     {
+         p_71869_5_.func_70097_a(DamageSource.field_76367_g, 1);
++    }
++    
++    @Override
++    public EnumPlantType getPlantType(World world, int x, int y, int z)
++    {
++        return EnumPlantType.Desert;
++    }
++    
++    @Override
++    public int getPlantID(World world, int x, int y, int z)
++    {
++        return field_71990_ca;
++    }
++    
++    @Override
++    public int getPlantMetadata(World world, int x, int y, int z)
++    {
++        return -1;
+     }
+ }

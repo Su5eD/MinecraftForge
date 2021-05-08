@@ -1,0 +1,96 @@
+--- ../src-base/minecraft/net/minecraft/client/renderer/entity/RenderPlayer.java
++++ ../src-work/minecraft/net/minecraft/client/renderer/entity/RenderPlayer.java
+@@ -13,14 +13,16 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.player.EntityPlayer;
+-import net.minecraft.item.EnumAction;
+-import net.minecraft.item.EnumArmorMaterial;
+-import net.minecraft.item.Item;
+-import net.minecraft.item.ItemArmor;
+-import net.minecraft.item.ItemStack;
++import net.minecraft.item.*;
+ import net.minecraft.util.MathHelper;
+ import org.lwjgl.opengl.GL11;
+ 
++import static net.minecraftforge.client.IItemRenderer.ItemRenderType.*;
++import static net.minecraftforge.client.IItemRenderer.ItemRendererHelper.*;
++import net.minecraftforge.client.IItemRenderer;
++import net.minecraftforge.client.MinecraftForgeClient;
++import net.minecraftforge.client.ForgeHooksClient;
++
+ @SideOnly(Side.CLIENT)
+ public class RenderPlayer extends RenderLiving
+ {
+@@ -28,6 +30,8 @@
+     private ModelBiped field_77108_b;
+     private ModelBiped field_77111_i;
+     public static String[] field_77110_j = new String[] {"cloth", "chain", "iron", "diamond", "gold"};
++    public static float NAME_TAG_RANGE = 64.0f;
++    public static float NAME_TAG_RANGE_SNEAK = 32.0f;
+ 
+     public RenderPlayer()
+     {
+@@ -48,7 +52,7 @@
+             if (var5 instanceof ItemArmor)
+             {
+                 ItemArmor var6 = (ItemArmor)var5;
+-                this.func_76985_a("/armor/" + field_77110_j[var6.field_77880_c] + "_" + (p_77107_2_ == 2 ? 2 : 1) + ".png");
++                this.func_76985_a(ForgeHooksClient.getArmorTexture(var4, "/armor/" + field_77110_j[var6.field_77880_c] + "_" + (p_77107_2_ == 2 ? 2 : 1) + ".png"));
+                 ModelBiped var7 = p_77107_2_ == 2 ? this.field_77111_i : this.field_77108_b;
+                 var7.field_78116_c.field_78806_j = p_77107_2_ == 0;
+                 var7.field_78114_d.field_78806_j = p_77107_2_ == 0;
+@@ -117,7 +121,7 @@
+             if (var5 instanceof ItemArmor)
+             {
+                 ItemArmor var6 = (ItemArmor)var5;
+-                this.func_76985_a("/armor/" + field_77110_j[var6.field_77880_c] + "_" + (p_82439_2_ == 2 ? 2 : 1) + "_b.png");
++                this.func_76985_a(ForgeHooksClient.getArmorTexture(var4, "/armor/" + field_77110_j[var6.field_77880_c] + "_" + (p_82439_2_ == 2 ? 2 : 1) + "_b.png"));
+                 float var7 = 1.0F;
+                 GL11.glColor3f(var7, var7, var7);
+             }
+@@ -166,7 +170,7 @@
+             float var8 = 1.6F;
+             float var9 = 0.016666668F * var8;
+             double var10 = p_77103_1_.func_70068_e(this.field_76990_c.field_78734_h);
+-            float var12 = p_77103_1_.func_70093_af() ? 32.0F : 64.0F;
++            float var12 = p_77103_1_.func_70093_af() ? NAME_TAG_RANGE_SNEAK : NAME_TAG_RANGE;
+ 
+             if (var10 < (double)(var12 * var12))
+             {
+@@ -230,9 +234,12 @@
+             this.field_77109_a.field_78116_c.func_78794_c(0.0625F);
+             float var5;
+ 
+-            if (var4.func_77973_b().field_77779_bT < 256)
++            if (var4 != null && var4.func_77973_b() instanceof ItemBlock)
+             {
+-                if (RenderBlocks.func_78597_b(Block.field_71973_m[var4.field_77993_c].func_71857_b()))
++                IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(var4, EQUIPPED);
++                boolean is3D = (customRenderer != null && customRenderer.shouldUseRenderHelper(EQUIPPED, var4, BLOCK_3D));
++            
++                if (is3D || RenderBlocks.func_78597_b(Block.field_71973_m[var4.field_77993_c].func_71857_b()))
+                 {
+                     var5 = 0.625F;
+                     GL11.glTranslatef(0.0F, -0.25F, 0.0F);
+@@ -350,7 +357,10 @@
+                 var25 = var22.func_77975_n();
+             }
+ 
+-            if (var22.field_77993_c < 256 && RenderBlocks.func_78597_b(Block.field_71973_m[var22.field_77993_c].func_71857_b()))
++            IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(var22, EQUIPPED);
++            boolean is3D = (customRenderer != null && customRenderer.shouldUseRenderHelper(EQUIPPED, var22, BLOCK_3D));
++            
++            if (var22.func_77973_b() instanceof ItemBlock && (is3D || RenderBlocks.func_78597_b(Block.field_71973_m[var22.field_77993_c].func_71857_b())))
+             {
+                 var7 = 0.5F;
+                 GL11.glTranslatef(0.0F, 0.1875F, -0.3125F);
+@@ -407,7 +417,7 @@
+ 
+             if (var22.func_77973_b().func_77623_v())
+             {
+-                for (var27 = 0; var27 <= 1; ++var27)
++                for (var27 = 0; var27 < var22.func_77973_b().getRenderPasses(var22.func_77960_j()); ++var27)
+                 {
+                     int var26 = var22.func_77973_b().func_82790_a(var22, var27);
+                     var28 = (float)(var26 >> 16 & 255) / 255.0F;

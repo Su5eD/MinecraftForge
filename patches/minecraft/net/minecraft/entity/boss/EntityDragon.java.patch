@@ -1,0 +1,16 @@
+--- ../src-base/minecraft/net/minecraft/entity/boss/EntityDragon.java
++++ ../src-work/minecraft/net/minecraft/entity/boss/EntityDragon.java
+@@ -477,9 +477,11 @@
+                 {
+                     int var13 = this.field_70170_p.func_72798_a(var10, var11, var12);
+ 
+-                    if (var13 != 0)
++                    Block block = Block.field_71973_m[var13];
++                    
++                    if (block != null)
+                     {
+-                        if (var13 != Block.field_72089_ap.field_71990_ca && var13 != Block.field_72082_bJ.field_71990_ca && var13 != Block.field_71986_z.field_71990_ca)
++                        if (block.canDragonDestroy(field_70170_p, var10, var11, var12))
+                         {
+                             var9 = true;
+                             this.field_70170_p.func_72859_e(var10, var11, var12, 0);

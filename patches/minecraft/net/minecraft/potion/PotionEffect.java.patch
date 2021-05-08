@@ -1,0 +1,107 @@
+--- ../src-base/minecraft/net/minecraft/potion/PotionEffect.java
++++ ../src-work/minecraft/net/minecraft/potion/PotionEffect.java
+@@ -1,8 +1,13 @@
+ package net.minecraft.potion;
+ 
+ import net.minecraft.entity.EntityLiving;
++import net.minecraft.item.Item;
++import net.minecraft.item.ItemStack;
+ import net.minecraft.nbt.NBTTagCompound;
+ 
++import java.util.ArrayList;
++import java.util.List;
++
+ public class PotionEffect
+ {
+     private int field_76462_a;
+@@ -10,6 +15,9 @@
+     private int field_76461_c;
+     private boolean field_82723_d;
+     private boolean field_82724_e;
++    
++    /** List of ItemStack that can cure the potion effect **/
++    private List<ItemStack> curativeItems;
+ 
+     public PotionEffect(int p_i5051_1_, int p_i5051_2_)
+     {
+@@ -27,6 +35,8 @@
+         this.field_76460_b = p_i5052_2_;
+         this.field_76461_c = p_i5052_3_;
+         this.field_82724_e = p_i5052_4_;
++        this.curativeItems = new ArrayList<ItemStack>();
++        this.curativeItems.add(new ItemStack(Item.field_77771_aG));
+     }
+ 
+     public PotionEffect(PotionEffect p_i3435_1_)
+@@ -34,6 +44,7 @@
+         this.field_76462_a = p_i3435_1_.field_76462_a;
+         this.field_76460_b = p_i3435_1_.field_76460_b;
+         this.field_76461_c = p_i3435_1_.field_76461_c;
++        this.curativeItems = p_i3435_1_.getCurativeItems();
+     }
+ 
+     public void func_76452_a(PotionEffect p_76452_1_)
+@@ -71,6 +82,63 @@
+     public int func_76458_c()
+     {
+         return this.field_76461_c;
++    }
++    
++    /***
++     * Returns a list of curative items for the potion effect
++     * @return The list (ItemStack) of curative items for the potion effect
++     */
++    public List<ItemStack> getCurativeItems()
++    {
++        return this.curativeItems;
++    }
++    
++    /***
++     * Checks the given ItemStack to see if it is in the list of curative items for the potion effect
++     * @param stack The ItemStack being checked against the list of curative items for the potion effect
++        * @return true if the given ItemStack is in the list of curative items for the potion effect, false otherwise
++     */
++    public boolean isCurativeItem(ItemStack stack)
++    {
++        boolean found = false;
++        for (ItemStack curativeItem : this.curativeItems)
++        {
++            if (curativeItem.func_77969_a(stack))
++            {
++                found = true;
++            }
++        }
++    
++        return found;
++    }
++    
++    /***
++     * Sets the array of curative items for the potion effect
++     * @param curativeItems The list of ItemStacks being set to the potion effect
++     */
++    public void setCurativeItems(List<ItemStack> curativeItems)
++    {
++        this.curativeItems = curativeItems;
++    }
++    
++    /***
++     * Adds the given stack to list of curative items for the potion effect
++     * @param stack The ItemStack being added to the curative item list
++     */
++    public void addCurativeItem(ItemStack stack)
++    {
++        boolean found = false;
++        for (ItemStack curativeItem : this.curativeItems)
++        {
++            if (curativeItem.func_77969_a(stack))
++            {
++                found = true;
++            }
++        }
++        if (!found)
++        {
++            this.curativeItems.add(stack);
++        }
+     }
+ 
+     public void func_82721_a(boolean p_82721_1_)

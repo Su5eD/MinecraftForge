@@ -1,0 +1,58 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockTrapDoor.java
++++ ../src-work/minecraft/net/minecraft/block/BlockTrapDoor.java
+@@ -10,9 +10,13 @@
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.ForgeDirection;
+ 
+ public class BlockTrapDoor extends Block
+ {
++    /** Set this to allow trapdoors to remain free-floating */
++    public static boolean disableValidation = false;
++    
+     protected BlockTrapDoor(int p_i4015_1_, Material p_i4015_2_)
+     {
+         super(p_i4015_1_, p_i4015_2_);
+@@ -169,7 +173,7 @@
+                 --var7;
+             }
+ 
+-            if (!func_72140_j(p_71863_1_.func_72798_a(var7, p_71863_3_, var8)))
++            if (!(func_72140_j(p_71863_1_.func_72798_a(var7, p_71863_3_, var8)) || p_71863_1_.isBlockSolidOnSide(var7, p_71863_3_, var8, ForgeDirection.getOrientation((var6 & 3) + 2))))
+             {
+                 p_71863_1_.func_72859_e(p_71863_2_, p_71863_3_, p_71863_4_, 0);
+                 this.func_71897_c(p_71863_1_, p_71863_2_, p_71863_3_, p_71863_4_, var6, 0);
+@@ -224,6 +228,11 @@
+ 
+     public boolean func_71850_a_(World p_71850_1_, int p_71850_2_, int p_71850_3_, int p_71850_4_, int p_71850_5_)
+     {
++        if (disableValidation)
++        {
++            return true;
++        }
++        
+         if (p_71850_5_ == 0)
+         {
+             return false;
+@@ -254,7 +263,7 @@
+                 --p_71850_2_;
+             }
+ 
+-            return func_72140_j(p_71850_1_.func_72798_a(p_71850_2_, p_71850_3_, p_71850_4_));
++            return func_72140_j(p_71850_1_.func_72798_a(p_71850_2_, p_71850_3_, p_71850_4_)) || p_71850_1_.isBlockSolidOnSide(p_71850_2_, p_71850_3_, p_71850_4_, ForgeDirection.UP);
+         }
+     }
+ 
+@@ -265,6 +274,11 @@
+ 
+     private static boolean func_72140_j(int p_72140_0_)
+     {
++        if (disableValidation)
++        {
++            return true;
++        }
++        
+         if (p_72140_0_ <= 0)
+         {
+             return false;

@@ -1,13 +1,20 @@
 --- ../src-base/minecraft/net/minecraft/inventory/SlotCrafting.java
 +++ ../src-work/minecraft/net/minecraft/inventory/SlotCrafting.java
-@@ -1,5 +1,6 @@
+@@ -1,10 +1,13 @@
  package net.minecraft.inventory;
  
 +import cpw.mods.fml.common.registry.GameRegistry;
  import net.minecraft.block.Block;
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.item.Item;
-@@ -89,6 +90,7 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.stats.AchievementList;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+ 
+ public class SlotCrafting extends Slot
+ {
+@@ -89,6 +92,7 @@
  
      public void func_82870_a(EntityPlayer p_82870_1_, ItemStack p_82870_2_)
      {
@@ -15,3 +22,21 @@
          this.func_75208_c(p_82870_2_);
  
          for (int var3 = 0; var3 < this.field_75239_a.func_70302_i_(); ++var3)
+@@ -101,9 +105,15 @@
+ 
+                 if (var4.func_77973_b().func_77634_r())
+                 {
+-                    ItemStack var5 = new ItemStack(var4.func_77973_b().func_77668_q());
++                    ItemStack var5 = var4.func_77973_b().getContainerItemStack(var4);
++                                        
++                    if (var5.func_77984_f() && var5.func_77960_j() > var5.func_77958_k())
++                    {
++                        MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(field_75238_b, var5));
++                        var5 = null;
++                    }
+ 
+-                    if (!var4.func_77973_b().func_77630_h(var4) || !this.field_75238_b.field_71071_by.func_70441_a(var5))
++                    if (var5 != null && (!var4.func_77973_b().func_77630_h(var4) || !this.field_75238_b.field_71071_by.func_70441_a(var5)))
+                     {
+                         if (this.field_75239_a.func_70301_a(var3) == null)
+                         {

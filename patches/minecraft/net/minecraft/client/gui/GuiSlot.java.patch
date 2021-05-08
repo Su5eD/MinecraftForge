@@ -1,0 +1,62 @@
+--- ../src-base/minecraft/net/minecraft/client/gui/GuiSlot.java
++++ ../src-work/minecraft/net/minecraft/client/gui/GuiSlot.java
+@@ -31,6 +31,8 @@
+     private boolean field_77244_r = true;
+     private boolean field_77243_s;
+     private int field_77242_t;
++    
++    public String BACKGROUND_IMAGE = "/gui/background.png";
+ 
+     public GuiSlot(Minecraft p_i3060_1_, int p_i3060_2_, int p_i3060_3_, int p_i3060_4_, int p_i3060_5_, int p_i3060_6_)
+     {
+@@ -280,16 +282,7 @@
+         GL11.glDisable(GL11.GL_LIGHTING);
+         GL11.glDisable(GL11.GL_FOG);
+         Tessellator var18 = Tessellator.field_78398_a;
+-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_77233_a.field_71446_o.func_78341_b("/gui/background.png"));
+-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-        float var17 = 32.0F;
+-        var18.func_78382_b();
+-        var18.func_78378_d(2105376);
+-        var18.func_78374_a((double)this.field_77238_j, (double)this.field_77232_c, 0.0D, (double)((float)this.field_77238_j / var17), (double)((float)(this.field_77232_c + (int)this.field_77235_o) / var17));
+-        var18.func_78374_a((double)this.field_77241_i, (double)this.field_77232_c, 0.0D, (double)((float)this.field_77241_i / var17), (double)((float)(this.field_77232_c + (int)this.field_77235_o) / var17));
+-        var18.func_78374_a((double)this.field_77241_i, (double)this.field_77231_b, 0.0D, (double)((float)this.field_77241_i / var17), (double)((float)(this.field_77231_b + (int)this.field_77235_o) / var17));
+-        var18.func_78374_a((double)this.field_77238_j, (double)this.field_77231_b, 0.0D, (double)((float)this.field_77238_j / var17), (double)((float)(this.field_77231_b + (int)this.field_77235_o) / var17));
+-        var18.func_78381_a();
++        drawContainerBackground(var18);
+         var9 = this.field_77228_g / 2 - 92 - 16;
+         var10 = this.field_77231_b + 4 - (int)this.field_77235_o;
+ 
+@@ -415,10 +408,10 @@
+         return this.field_77228_g / 2 + 124;
+     }
+ 
+-    private void func_77206_b(int p_77206_1_, int p_77206_2_, int p_77206_3_, int p_77206_4_)
++    protected void func_77206_b(int p_77206_1_, int p_77206_2_, int p_77206_3_, int p_77206_4_)
+     {
+         Tessellator var5 = Tessellator.field_78398_a;
+-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_77233_a.field_71446_o.func_78341_b("/gui/background.png"));
++        GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_77233_a.field_71446_o.func_78341_b(BACKGROUND_IMAGE));
+         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+         float var6 = 32.0F;
+         var5.func_78382_b();
+@@ -429,5 +422,19 @@
+         var5.func_78374_a((double)this.field_77228_g, (double)p_77206_1_, 0.0D, (double)((float)this.field_77228_g / var6), (double)((float)p_77206_1_ / var6));
+         var5.func_78374_a(0.0D, (double)p_77206_1_, 0.0D, 0.0D, (double)((float)p_77206_1_ / var6));
+         var5.func_78381_a();
++    }
++    
++    protected void drawContainerBackground(Tessellator tess)
++    {
++        GL11.glBindTexture(GL11.GL_TEXTURE_2D, field_77233_a.field_71446_o.func_78341_b(BACKGROUND_IMAGE));
++        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
++        float height = 32.0F;
++        tess.func_78382_b();
++        tess.func_78378_d(2105376);
++        tess.func_78374_a((double)field_77238_j,  (double)field_77232_c, 0.0D, (double)(field_77238_j  / height), (double)((field_77232_c + (int)field_77235_o) / height));
++        tess.func_78374_a((double)field_77241_i, (double)field_77232_c, 0.0D, (double)(field_77241_i / height), (double)((field_77232_c + (int)field_77235_o) / height));
++        tess.func_78374_a((double)field_77241_i, (double)field_77231_b,    0.0D, (double)(field_77241_i / height), (double)((field_77231_b    + (int)field_77235_o) / height));
++        tess.func_78374_a((double)field_77238_j,  (double)field_77231_b,    0.0D, (double)(field_77238_j  / height), (double)((field_77231_b    + (int)field_77235_o) / height));
++        tess.func_78381_a();
+     }
+ }

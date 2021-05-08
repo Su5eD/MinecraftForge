@@ -1,0 +1,22 @@
+--- ../src-base/minecraft/net/minecraft/network/packet/Packet52MultiBlockChange.java
++++ ../src-work/minecraft/net/minecraft/network/packet/Packet52MultiBlockChange.java
+@@ -6,6 +6,7 @@
+ import java.io.IOException;
+ import net.minecraft.world.World;
+ import net.minecraft.world.chunk.Chunk;
++import net.minecraftforge.common.ForgeDummyContainer;
+ 
+ public class Packet52MultiBlockChange extends Packet
+ {
+@@ -31,10 +32,8 @@
+ 
+         try
+         {
+-            if (p_i3302_4_ >= 64)
++            if (p_i3302_4_ >= ForgeDummyContainer.clumpingThreshold)
+             {
+-                System.out.println("ChunkTilesUpdatePacket compress " + p_i3302_4_);
+-
+                 if (field_73449_e.length < var6)
+                 {
+                     field_73449_e = new byte[var6];

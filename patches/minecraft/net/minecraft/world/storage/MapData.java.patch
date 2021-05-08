@@ -46,3 +46,12 @@
          p_76187_1_.func_74768_a("xCenter", this.field_76201_a);
          p_76187_1_.func_74768_a("zCenter", this.field_76199_b);
          p_76187_1_.func_74774_a("scale", this.field_76197_d);
+@@ -144,7 +154,7 @@
+             p_82567_8_ += p_82567_8_ < 0.0D ? -8.0D : 8.0D;
+             var15 = (byte)((int)(p_82567_8_ * 16.0D / 360.0D));
+ 
+-            if (this.field_76200_c < 0)
++            if (p_82567_2_.field_73011_w.shouldMapSpin(p_82567_3_, p_82567_4_, p_82567_6_, p_82567_8_))
+             {
+                 int var17 = (int)(p_82567_2_.func_72912_H().func_76073_f() / 10L);
+                 var15 = (byte)(var17 * var17 * 34187121 + var17 * 121 >> 15 & 15);

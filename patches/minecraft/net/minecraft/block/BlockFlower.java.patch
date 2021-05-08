@@ -1,0 +1,70 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFlower.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFlower.java
+@@ -6,7 +6,12 @@
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.World;
+ 
+-public class BlockFlower extends Block
++import net.minecraftforge.common.EnumPlantType;
++import net.minecraftforge.common.ForgeDirection;
++import net.minecraftforge.common.IPlantable;
++import static net.minecraftforge.common.EnumPlantType.*;
++
++public class BlockFlower extends Block implements IPlantable
+ {
+     protected BlockFlower(int p_i3922_1_, int p_i3922_2_, Material p_i3922_3_)
+     {
+@@ -25,7 +30,7 @@
+ 
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+     {
+-        return super.func_71930_b(p_71930_1_, p_71930_2_, p_71930_3_, p_71930_4_) && this.func_72263_d_(p_71930_1_.func_72798_a(p_71930_2_, p_71930_3_ - 1, p_71930_4_));
++        return super.func_71930_b(p_71930_1_, p_71930_2_, p_71930_3_, p_71930_4_) && func_71854_d(p_71930_1_, p_71930_2_, p_71930_3_, p_71930_4_);
+     }
+ 
+     protected boolean func_72263_d_(int p_72263_1_)
+@@ -55,7 +60,9 @@
+ 
+     public boolean func_71854_d(World p_71854_1_, int p_71854_2_, int p_71854_3_, int p_71854_4_)
+     {
+-        return (p_71854_1_.func_72883_k(p_71854_2_, p_71854_3_, p_71854_4_) >= 8 || p_71854_1_.func_72937_j(p_71854_2_, p_71854_3_, p_71854_4_)) && this.func_72263_d_(p_71854_1_.func_72798_a(p_71854_2_, p_71854_3_ - 1, p_71854_4_));
++        Block soil = field_71973_m[p_71854_1_.func_72798_a(p_71854_2_, p_71854_3_ - 1, p_71854_4_)];
++        return (p_71854_1_.func_72883_k(p_71854_2_, p_71854_3_, p_71854_4_) >= 8 || p_71854_1_.func_72937_j(p_71854_2_, p_71854_3_, p_71854_4_)) && 
++                (soil != null && soil.canSustainPlant(p_71854_1_, p_71854_2_, p_71854_3_ - 1, p_71854_4_, ForgeDirection.UP, this));
+     }
+ 
+     public AxisAlignedBB func_71872_e(World p_71872_1_, int p_71872_2_, int p_71872_3_, int p_71872_4_)
+@@ -76,5 +83,33 @@
+     public int func_71857_b()
+     {
+         return 1;
++    }
++    
++    @Override
++    public EnumPlantType getPlantType(World world, int x, int y, int z)
++    {
++        if (field_71990_ca == field_72058_az.field_71990_ca        ) return Crop;
++        if (field_71990_ca == field_71961_Y.field_71990_ca     ) return Desert;
++        if (field_71990_ca == field_71991_bz.field_71990_ca    ) return Water;
++        if (field_71990_ca == field_72103_ag.field_71990_ca  ) return Cave;
++        if (field_71990_ca == field_72109_af.field_71990_ca) return Cave;
++        if (field_71990_ca == field_72094_bD.field_71990_ca  ) return Nether;
++        if (field_71990_ca == field_71987_y.field_71990_ca      ) return Plains;
++        if (field_71990_ca == field_71999_bt.field_71990_ca    ) return Crop;
++        if (field_71990_ca == field_71996_bs.field_71990_ca  ) return Crop;
++        if (field_71990_ca == field_71962_X.field_71990_ca    ) return Plains;
++        return Plains;
++    }
++    
++    @Override
++    public int getPlantID(World world, int x, int y, int z)
++    {
++        return field_71990_ca;
++    }
++    
++    @Override
++    public int getPlantMetadata(World world, int x, int y, int z)
++    {
++        return world.func_72805_g(x, y, z);
+     }
+ }

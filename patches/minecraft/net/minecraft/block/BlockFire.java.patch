@@ -1,0 +1,284 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFire.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFire.java
+@@ -9,6 +9,9 @@
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldProviderEnd;
+ 
++import net.minecraftforge.common.ForgeDirection;
++import static net.minecraftforge.common.ForgeDirection.*;
++
+ public class BlockFire extends Block
+ {
+     private int[] field_72258_a = new int[256];
+@@ -22,6 +25,8 @@
+ 
+     public void func_71928_r_()
+     {
++        field_72257_b = Block.blockFlammability;
++        field_72258_a = Block.blockFireSpreadSpeed;
+         this.func_72253_a(Block.field_71988_x.field_71990_ca, 5, 20);
+         this.func_72253_a(Block.field_72090_bN.field_71990_ca, 5, 20);
+         this.func_72253_a(Block.field_72092_bO.field_71990_ca, 5, 20);
+@@ -41,8 +46,7 @@
+ 
+     private void func_72253_a(int p_72253_1_, int p_72253_2_, int p_72253_3_)
+     {
+-        this.field_72258_a[p_72253_1_] = p_72253_2_;
+-        this.field_72257_b[p_72253_1_] = p_72253_3_;
++        Block.setBurnProperties(p_72253_1_, p_72253_2_, p_72253_3_);
+     }
+ 
+     public AxisAlignedBB func_71872_e(World p_71872_1_, int p_71872_2_, int p_71872_3_, int p_71872_4_)
+@@ -79,12 +83,8 @@
+     {
+         if (p_71847_1_.func_82736_K().func_82766_b("doFireTick"))
+         {
+-            boolean var6 = p_71847_1_.func_72798_a(p_71847_2_, p_71847_3_ - 1, p_71847_4_) == Block.field_72012_bb.field_71990_ca;
+-
+-            if (p_71847_1_.field_73011_w instanceof WorldProviderEnd && p_71847_1_.func_72798_a(p_71847_2_, p_71847_3_ - 1, p_71847_4_) == Block.field_71986_z.field_71990_ca)
+-            {
+-                var6 = true;
+-            }
++            Block base = Block.field_71973_m[p_71847_1_.func_72798_a(p_71847_2_, p_71847_3_ - 1, p_71847_4_)];
++            boolean var6 = (base != null && base.isFireSource(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, p_71847_1_.func_72805_g(p_71847_2_, p_71847_3_ - 1, p_71847_4_), UP));
+ 
+             if (!this.func_71930_b(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_))
+             {
+@@ -113,7 +113,7 @@
+                         p_71847_1_.func_72859_e(p_71847_2_, p_71847_3_, p_71847_4_, 0);
+                     }
+                 }
+-                else if (!var6 && !this.func_72256_d(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_) && var7 == 15 && p_71847_5_.nextInt(4) == 0)
++                else if (!var6 && !this.canBlockCatchFire(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, UP) && var7 == 15 && p_71847_5_.nextInt(4) == 0)
+                 {
+                     p_71847_1_.func_72859_e(p_71847_2_, p_71847_3_, p_71847_4_, 0);
+                 }
+@@ -127,12 +127,12 @@
+                         var9 = -50;
+                     }
+ 
+-                    this.func_72255_a(p_71847_1_, p_71847_2_ + 1, p_71847_3_, p_71847_4_, 300 + var9, p_71847_5_, var7);
+-                    this.func_72255_a(p_71847_1_, p_71847_2_ - 1, p_71847_3_, p_71847_4_, 300 + var9, p_71847_5_, var7);
+-                    this.func_72255_a(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, 250 + var9, p_71847_5_, var7);
+-                    this.func_72255_a(p_71847_1_, p_71847_2_, p_71847_3_ + 1, p_71847_4_, 250 + var9, p_71847_5_, var7);
+-                    this.func_72255_a(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ - 1, 300 + var9, p_71847_5_, var7);
+-                    this.func_72255_a(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ + 1, 300 + var9, p_71847_5_, var7);
++                    this.tryToCatchBlockOnFire(p_71847_1_, p_71847_2_ + 1, p_71847_3_, p_71847_4_, 300 + var9, p_71847_5_, var7, WEST );
++                    this.tryToCatchBlockOnFire(p_71847_1_, p_71847_2_ - 1, p_71847_3_, p_71847_4_, 300 + var9, p_71847_5_, var7, EAST );
++                    this.tryToCatchBlockOnFire(p_71847_1_, p_71847_2_, p_71847_3_ - 1, p_71847_4_, 250 + var9, p_71847_5_, var7, UP   );
++                    this.tryToCatchBlockOnFire(p_71847_1_, p_71847_2_, p_71847_3_ + 1, p_71847_4_, 250 + var9, p_71847_5_, var7, DOWN );
++                    this.tryToCatchBlockOnFire(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ - 1, 300 + var9, p_71847_5_, var7, SOUTH);
++                    this.tryToCatchBlockOnFire(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_ + 1, 300 + var9, p_71847_5_, var7, NORTH);
+ 
+                     for (int var10 = p_71847_2_ - 1; var10 <= p_71847_2_ + 1; ++var10)
+                     {
+@@ -186,40 +186,56 @@
+         return false;
+     }
+ 
++    @Deprecated
+     private void func_72255_a(World p_72255_1_, int p_72255_2_, int p_72255_3_, int p_72255_4_, int p_72255_5_, Random p_72255_6_, int p_72255_7_)
+     {
+-        int var8 = this.field_72257_b[p_72255_1_.func_72798_a(p_72255_2_, p_72255_3_, p_72255_4_)];
+-
+-        if (p_72255_6_.nextInt(p_72255_5_) < var8)
+-        {
+-            boolean var9 = p_72255_1_.func_72798_a(p_72255_2_, p_72255_3_, p_72255_4_) == Block.field_72091_am.field_71990_ca;
+-
+-            if (p_72255_6_.nextInt(p_72255_7_ + 10) < 5 && !p_72255_1_.func_72951_B(p_72255_2_, p_72255_3_, p_72255_4_))
++        tryToCatchBlockOnFire(p_72255_1_, p_72255_2_, p_72255_3_, p_72255_4_, p_72255_5_, p_72255_6_, p_72255_7_, UP);
++    }
++    
++    private void tryToCatchBlockOnFire(World par1World, int par2, int par3, int par4, int par5, Random par6Random, int par7, ForgeDirection face)
++    {
++        int var8 = 0;
++        Block block = Block.field_71973_m[par1World.func_72798_a(par2, par3, par4)];
++        if (block != null)
++        {
++            var8 = block.getFlammability(par1World, par2, par3, par4, par1World.func_72805_g(par2, par3, par4), face);
++        }
++
++        if (par6Random.nextInt(par5) < var8)
++        {
++            boolean var9 = par1World.func_72798_a(par2, par3, par4) == Block.field_72091_am.field_71990_ca;
++
++            if (par6Random.nextInt(par7 + 10) < 5 && !par1World.func_72951_B(par2, par3, par4))
+             {
+-                int var10 = p_72255_7_ + p_72255_6_.nextInt(5) / 4;
++                int var10 = par7 + par6Random.nextInt(5) / 4;
+ 
+                 if (var10 > 15)
+                 {
+                     var10 = 15;
+                 }
+ 
+-                p_72255_1_.func_72832_d(p_72255_2_, p_72255_3_, p_72255_4_, this.field_71990_ca, var10);
++                par1World.func_72832_d(par2, par3, par4, this.field_71990_ca, var10);
+             }
+             else
+             {
+-                p_72255_1_.func_72859_e(p_72255_2_, p_72255_3_, p_72255_4_, 0);
++                par1World.func_72859_e(par2, par3, par4, 0);
+             }
+ 
+             if (var9)
+             {
+-                Block.field_72091_am.func_71898_d(p_72255_1_, p_72255_2_, p_72255_3_, p_72255_4_, 1);
++                Block.field_72091_am.func_71898_d(par1World, par2, par3, par4, 1);
+             }
+         }
+     }
+ 
+     private boolean func_72251_l(World p_72251_1_, int p_72251_2_, int p_72251_3_, int p_72251_4_)
+     {
+-        return this.func_72256_d(p_72251_1_, p_72251_2_ + 1, p_72251_3_, p_72251_4_) ? true : (this.func_72256_d(p_72251_1_, p_72251_2_ - 1, p_72251_3_, p_72251_4_) ? true : (this.func_72256_d(p_72251_1_, p_72251_2_, p_72251_3_ - 1, p_72251_4_) ? true : (this.func_72256_d(p_72251_1_, p_72251_2_, p_72251_3_ + 1, p_72251_4_) ? true : (this.func_72256_d(p_72251_1_, p_72251_2_, p_72251_3_, p_72251_4_ - 1) ? true : this.func_72256_d(p_72251_1_, p_72251_2_, p_72251_3_, p_72251_4_ + 1)))));
++        return canBlockCatchFire(p_72251_1_, p_72251_2_ + 1, p_72251_3_, p_72251_4_, WEST ) ||
++                canBlockCatchFire(p_72251_1_, p_72251_2_ - 1, p_72251_3_, p_72251_4_, EAST ) ||
++                canBlockCatchFire(p_72251_1_, p_72251_2_, p_72251_3_ - 1, p_72251_4_, UP   ) ||
++                canBlockCatchFire(p_72251_1_, p_72251_2_, p_72251_3_ + 1, p_72251_4_, DOWN ) ||
++                canBlockCatchFire(p_72251_1_, p_72251_2_, p_72251_3_, p_72251_4_ - 1, SOUTH) ||
++                canBlockCatchFire(p_72251_1_, p_72251_2_, p_72251_3_, p_72251_4_ + 1, NORTH);
+     }
+ 
+     private int func_72254_n(World p_72254_1_, int p_72254_2_, int p_72254_3_, int p_72254_4_)
+@@ -232,12 +248,12 @@
+         }
+         else
+         {
+-            int var6 = this.func_72252_e(p_72254_1_, p_72254_2_ + 1, p_72254_3_, p_72254_4_, var5);
+-            var6 = this.func_72252_e(p_72254_1_, p_72254_2_ - 1, p_72254_3_, p_72254_4_, var6);
+-            var6 = this.func_72252_e(p_72254_1_, p_72254_2_, p_72254_3_ - 1, p_72254_4_, var6);
+-            var6 = this.func_72252_e(p_72254_1_, p_72254_2_, p_72254_3_ + 1, p_72254_4_, var6);
+-            var6 = this.func_72252_e(p_72254_1_, p_72254_2_, p_72254_3_, p_72254_4_ - 1, var6);
+-            var6 = this.func_72252_e(p_72254_1_, p_72254_2_, p_72254_3_, p_72254_4_ + 1, var6);
++            int var6 = this.getChanceToEncourageFire(p_72254_1_, p_72254_2_ + 1, p_72254_3_, p_72254_4_, var5, WEST);
++            var6 = this.getChanceToEncourageFire(p_72254_1_, p_72254_2_ - 1, p_72254_3_, p_72254_4_, var6, EAST);
++            var6 = this.getChanceToEncourageFire(p_72254_1_, p_72254_2_, p_72254_3_ - 1, p_72254_4_, var6, UP);
++            var6 = this.getChanceToEncourageFire(p_72254_1_, p_72254_2_, p_72254_3_ + 1, p_72254_4_, var6, DOWN);
++            var6 = this.getChanceToEncourageFire(p_72254_1_, p_72254_2_, p_72254_3_, p_72254_4_ - 1, var6, SOUTH);
++            var6 = this.getChanceToEncourageFire(p_72254_1_, p_72254_2_, p_72254_3_, p_72254_4_ + 1, var6, NORTH);
+             return var6;
+         }
+     }
+@@ -247,15 +263,22 @@
+         return false;
+     }
+ 
++    /**
++     * Deprecated for a side-sensitive version
++     */
++    @Deprecated
+     public boolean func_72256_d(IBlockAccess p_72256_1_, int p_72256_2_, int p_72256_3_, int p_72256_4_)
+     {
+-        return this.field_72258_a[p_72256_1_.func_72798_a(p_72256_2_, p_72256_3_, p_72256_4_)] > 0;
++        return canBlockCatchFire(p_72256_1_, p_72256_2_, p_72256_3_, p_72256_4_, UP);
+     }
+ 
++    /**
++     * Deprecated for a side-sensitive version
++     */
++    @Deprecated
+     public int func_72252_e(World p_72252_1_, int p_72252_2_, int p_72252_3_, int p_72252_4_, int p_72252_5_)
+     {
+-        int var6 = this.field_72258_a[p_72252_1_.func_72798_a(p_72252_2_, p_72252_3_, p_72252_4_)];
+-        return var6 > p_72252_5_ ? var6 : p_72252_5_;
++        return getChanceToEncourageFire(p_72252_1_, p_72252_2_, p_72252_3_, p_72252_4_, p_72252_5_, UP);
+     }
+ 
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+@@ -299,9 +322,9 @@
+         float var8;
+         float var9;
+ 
+-        if (!p_71862_1_.func_72797_t(p_71862_2_, p_71862_3_ - 1, p_71862_4_) && !Block.field_72067_ar.func_72256_d(p_71862_1_, p_71862_2_, p_71862_3_ - 1, p_71862_4_))
++        if (!p_71862_1_.func_72797_t(p_71862_2_, p_71862_3_ - 1, p_71862_4_) && !Block.field_72067_ar.canBlockCatchFire(p_71862_1_, p_71862_2_, p_71862_3_ - 1, p_71862_4_, UP))
+         {
+-            if (Block.field_72067_ar.func_72256_d(p_71862_1_, p_71862_2_ - 1, p_71862_3_, p_71862_4_))
++            if (Block.field_72067_ar.canBlockCatchFire(p_71862_1_, p_71862_2_ - 1, p_71862_3_, p_71862_4_, EAST))
+             {
+                 for (var6 = 0; var6 < 2; ++var6)
+                 {
+@@ -312,7 +335,7 @@
+                 }
+             }
+ 
+-            if (Block.field_72067_ar.func_72256_d(p_71862_1_, p_71862_2_ + 1, p_71862_3_, p_71862_4_))
++            if (Block.field_72067_ar.canBlockCatchFire(p_71862_1_, p_71862_2_ + 1, p_71862_3_, p_71862_4_, WEST))
+             {
+                 for (var6 = 0; var6 < 2; ++var6)
+                 {
+@@ -323,7 +346,7 @@
+                 }
+             }
+ 
+-            if (Block.field_72067_ar.func_72256_d(p_71862_1_, p_71862_2_, p_71862_3_, p_71862_4_ - 1))
++            if (Block.field_72067_ar.canBlockCatchFire(p_71862_1_, p_71862_2_, p_71862_3_, p_71862_4_ - 1, SOUTH))
+             {
+                 for (var6 = 0; var6 < 2; ++var6)
+                 {
+@@ -334,7 +357,7 @@
+                 }
+             }
+ 
+-            if (Block.field_72067_ar.func_72256_d(p_71862_1_, p_71862_2_, p_71862_3_, p_71862_4_ + 1))
++            if (Block.field_72067_ar.canBlockCatchFire(p_71862_1_, p_71862_2_, p_71862_3_, p_71862_4_ + 1, NORTH))
+             {
+                 for (var6 = 0; var6 < 2; ++var6)
+                 {
+@@ -345,7 +368,7 @@
+                 }
+             }
+ 
+-            if (Block.field_72067_ar.func_72256_d(p_71862_1_, p_71862_2_, p_71862_3_ + 1, p_71862_4_))
++            if (Block.field_72067_ar.canBlockCatchFire(p_71862_1_, p_71862_2_, p_71862_3_ + 1, p_71862_4_, DOWN))
+             {
+                 for (var6 = 0; var6 < 2; ++var6)
+                 {
+@@ -366,5 +389,47 @@
+                 p_71862_1_.func_72869_a("largesmoke", (double)var7, (double)var8, (double)var9, 0.0D, 0.0D, 0.0D);
+             }
+         }
++    }
++    
++    /**
++     * Side sensitive version that calls the block function.
++     * 
++     * @param world The current world
++     * @param x X Position
++     * @param y Y Position
++     * @param z Z Position
++     * @param face The side the fire is coming from
++     * @return True if the face can catch fire.
++     */
++    public boolean canBlockCatchFire(IBlockAccess world, int x, int y, int z, ForgeDirection face)
++    {
++        Block block = Block.field_71973_m[world.func_72798_a(x, y, z)];
++        if (block != null)
++        {
++            return block.isFlammable(world, x, y, z, world.func_72805_g(x, y, z), face);
++        }
++        return false;
++    }
++    
++    /**
++     * Side sensitive version that calls the block function.
++     * 
++     * @param world The current world
++     * @param x X Position
++     * @param y Y Position
++     * @param z Z Position
++     * @param oldChance The previous maximum chance.
++     * @param face The side the fire is coming from
++     * @return The chance of the block catching fire, or oldChance if it is higher
++     */
++    public int getChanceToEncourageFire(World world, int x, int y, int z, int oldChance, ForgeDirection face)
++    {
++        int newChance = 0;
++        Block block = Block.field_71973_m[world.func_72798_a(x, y, z)];
++        if (block != null)
++        {
++            newChance = block.getFireSpreadSpeed(world, x, y, z, world.func_72805_g(x, y, z), face);
++        }
++        return (newChance > oldChance ? newChance : oldChance);
+     }
+ }

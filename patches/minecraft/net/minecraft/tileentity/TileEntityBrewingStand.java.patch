@@ -1,0 +1,59 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityBrewingStand.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityBrewingStand.java
+@@ -12,7 +12,10 @@
+ import net.minecraft.nbt.NBTTagList;
+ import net.minecraft.potion.PotionHelper;
+ 
+-public class TileEntityBrewingStand extends TileEntity implements IInventory
++import net.minecraftforge.common.ISidedInventory;
++import net.minecraftforge.common.ForgeDirection;
++
++public class TileEntityBrewingStand extends TileEntity implements IInventory, ISidedInventory
+ {
+     private ItemStack[] field_70359_a = new ItemStack[4];
+     private int field_70357_b;
+@@ -79,7 +82,7 @@
+         {
+             ItemStack var1 = this.field_70359_a[3];
+ 
+-            if (!Item.field_77698_e[var1.field_77993_c].func_77632_u())
++            if (!Item.field_77698_e[var1.field_77993_c].isPotionIngredient(var1))
+             {
+                 return false;
+             }
+@@ -151,7 +154,7 @@
+ 
+             if (Item.field_77698_e[var1.field_77993_c].func_77634_r())
+             {
+-                this.field_70359_a[3] = new ItemStack(Item.field_77698_e[var1.field_77993_c].func_77668_q());
++                this.field_70359_a[3] = Item.field_77698_e[var1.field_77993_c].getContainerItemStack(field_70359_a[3]);
+             }
+             else
+             {
+@@ -167,7 +170,7 @@
+ 
+     private int func_70352_b(int p_70352_1_, ItemStack p_70352_2_)
+     {
+-        return p_70352_2_ == null ? p_70352_1_ : (Item.field_77698_e[p_70352_2_.field_77993_c].func_77632_u() ? PotionHelper.func_77913_a(p_70352_1_, Item.field_77698_e[p_70352_2_.field_77993_c].func_77666_t()) : p_70352_1_);
++        return p_70352_2_ == null ? p_70352_1_ : (Item.field_77698_e[p_70352_2_.field_77993_c].isPotionIngredient(p_70352_2_) ? PotionHelper.func_77913_a(p_70352_1_, Item.field_77698_e[p_70352_2_.field_77993_c].getPotionEffect(p_70352_2_)) : p_70352_1_);
+     }
+ 
+     public void func_70307_a(NBTTagCompound p_70307_1_)
+@@ -288,5 +291,17 @@
+         }
+ 
+         return var1;
++    }
++    
++    @Override
++    public int getStartInventorySide(ForgeDirection side)
++    {
++        return (side == ForgeDirection.UP ? 3 : 0);
++    }
++    
++    @Override
++    public int getSizeInventorySide(ForgeDirection side)
++    {
++        return (side == ForgeDirection.UP ? 1 : 3);
+     }
+ }

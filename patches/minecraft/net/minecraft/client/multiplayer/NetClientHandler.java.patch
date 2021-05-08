@@ -7,7 +7,16 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.BufferedReader;
-@@ -174,11 +175,14 @@
+@@ -157,6 +158,8 @@
+ import net.minecraft.world.chunk.Chunk;
+ import net.minecraft.world.storage.ISaveHandler;
+ import net.minecraft.world.storage.MapStorage;
++import net.minecraftforge.client.event.ClientChatReceivedEvent;
++import net.minecraftforge.common.MinecraftForge;
+ import org.lwjgl.input.Keyboard;
+ 
+ @SideOnly(Side.CLIENT)
+@@ -174,11 +177,14 @@
      public int field_72556_d = 20;
      Random field_72557_e = new Random();
  
@@ -22,7 +31,7 @@
      }
  
      public NetClientHandler(Minecraft p_i3104_1_, IntegratedServer p_i3104_2_) throws IOException
-@@ -186,6 +190,7 @@
+@@ -186,6 +192,7 @@
          this.field_72563_h = p_i3104_1_;
          this.field_72555_g = new MemoryConnection(this);
          p_i3104_2_.func_71343_a().func_71754_a((MemoryConnection)this.field_72555_g, p_i3104_1_.field_71449_j.field_74286_b);
@@ -30,7 +39,7 @@
      }
  
      public void func_72547_c()
-@@ -256,6 +261,7 @@
+@@ -256,6 +263,7 @@
  
      public void func_72513_a(Packet252SharedKey p_72513_1_)
      {
@@ -38,7 +47,7 @@
          this.func_72552_c(new Packet205ClientCommand(0));
      }
  
-@@ -271,6 +277,7 @@
+@@ -271,6 +279,7 @@
          this.field_72563_h.field_71439_g.field_70157_k = p_72455_1_.field_73561_a;
          this.field_72556_d = p_72455_1_.field_73562_h;
          this.field_72563_h.field_71442_b.func_78746_a(p_72455_1_.field_73557_d);
@@ -46,7 +55,16 @@
          this.field_72563_h.field_71474_y.func_82879_c();
      }
  
-@@ -711,6 +718,7 @@
+@@ -689,7 +698,7 @@
+ 
+     public void func_72492_a(Packet255KickDisconnect p_72492_1_)
+     {
+-        this.field_72555_g.func_74424_a("disconnect.kicked", new Object[0]);
++        this.field_72555_g.func_74424_a("disconnect.kicked", p_72492_1_.field_73631_a);
+         this.field_72554_f = true;
+         this.field_72563_h.func_71403_a((WorldClient)null);
+         this.field_72563_h.func_71373_a(new GuiDisconnected("disconnect.disconnected", "disconnect.genericReason", new Object[] {p_72492_1_.field_73631_a}));
+@@ -711,6 +720,7 @@
          {
              this.field_72555_g.func_74429_a(p_72546_1_);
              this.field_72555_g.func_74423_d();
@@ -54,15 +72,32 @@
          }
      }
  
-@@ -750,6 +758,7 @@
+@@ -750,7 +760,12 @@
  
      public void func_72481_a(Packet3Chat p_72481_1_)
      {
+-        this.field_72563_h.field_71456_v.func_73827_b().func_73765_a(p_72481_1_.field_73476_b);
 +        p_72481_1_ = FMLNetworkHandler.handleChatMessage(this, p_72481_1_);
-         this.field_72563_h.field_71456_v.func_73827_b().func_73765_a(p_72481_1_.field_73476_b);
++        ClientChatReceivedEvent event = new ClientChatReceivedEvent(p_72481_1_.field_73476_b);
++        if (!MinecraftForge.EVENT_BUS.post(event) && event.message != null)
++        {
++            this.field_72563_h.field_71456_v.func_73827_b().func_73765_a(p_72481_1_.field_73476_b);
++        }
      }
  
-@@ -1243,6 +1252,11 @@
+     public void func_72524_a(Packet18Animation p_72524_1_)
+@@ -1111,6 +1126,10 @@
+                 {
+                     var2.func_70307_a(p_72468_1_.field_73331_e);
+                 }
++                else
++                {
++                    var2.onDataPacket(field_72555_g,  p_72468_1_);
++                }
+             }
+         }
+     }
+@@ -1243,6 +1262,11 @@
  
      public void func_72494_a(Packet131MapData p_72494_1_)
      {
@@ -74,7 +109,7 @@
          if (p_72494_1_.field_73438_a == Item.field_77744_bd.field_77779_bT)
          {
              ItemMap.func_77874_a(p_72494_1_.field_73436_b, this.field_72563_h.field_71441_e).func_76192_a(p_72494_1_.field_73437_c);
-@@ -1352,6 +1366,11 @@
+@@ -1352,6 +1376,11 @@
  
      public void func_72501_a(Packet250CustomPayload p_72501_1_)
      {
@@ -86,7 +121,7 @@
          if ("MC|TPack".equals(p_72501_1_.field_73630_a))
          {
              String[] var2 = (new String(p_72501_1_.field_73629_c)).split("\u0000");
-@@ -1395,5 +1414,21 @@
+@@ -1395,5 +1424,21 @@
      public INetworkManager func_72548_f()
      {
          return this.field_72555_g;

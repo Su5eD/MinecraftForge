@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/net/minecraft/client/renderer/tileentity/TileEntityRendererPiston.java
++++ ../src-work/minecraft/net/minecraft/client/renderer/tileentity/TileEntityRendererPiston.java
+@@ -11,6 +11,7 @@
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.tileentity.TileEntityPiston;
+ import net.minecraft.world.World;
++import net.minecraftforge.client.ForgeHooksClient;
+ import org.lwjgl.opengl.GL11;
+ 
+ @SideOnly(Side.CLIENT)
+@@ -40,6 +41,7 @@
+                 GL11.glShadeModel(GL11.GL_FLAT);
+             }
+ 
++            ForgeHooksClient.beforeBlockRender(var9, field_76904_a);
+             var10.func_78382_b();
+             var10.func_78373_b((double)((float)p_76903_2_ - (float)p_76903_1_.field_70329_l + p_76903_1_.func_70337_b(p_76903_8_)), (double)((float)p_76903_4_ - (float)p_76903_1_.field_70330_m + p_76903_1_.func_70334_c(p_76903_8_)), (double)((float)p_76903_6_ - (float)p_76903_1_.field_70327_n + p_76903_1_.func_70332_d(p_76903_8_)));
+             var10.func_78376_a(1, 1, 1);
+@@ -63,6 +65,7 @@
+ 
+             var10.func_78373_b(0.0D, 0.0D, 0.0D);
+             var10.func_78381_a();
++            ForgeHooksClient.afterBlockRender(var9, field_76904_a);
+             RenderHelper.func_74519_b();
+         }
+     }

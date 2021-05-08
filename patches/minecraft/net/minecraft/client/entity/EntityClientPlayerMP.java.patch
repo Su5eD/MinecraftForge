@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/client/entity/EntityClientPlayerMP.java
++++ ../src-work/minecraft/net/minecraft/client/entity/EntityClientPlayerMP.java
+@@ -153,7 +153,7 @@
+         return null;
+     }
+ 
+-    protected void func_71012_a(EntityItem p_71012_1_)
++    public void func_71012_a(EntityItem p_71012_1_)
+     {
+     }
+ 

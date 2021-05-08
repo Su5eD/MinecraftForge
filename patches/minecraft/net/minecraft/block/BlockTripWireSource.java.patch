@@ -1,0 +1,108 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockTripWireSource.java
++++ ../src-work/minecraft/net/minecraft/block/BlockTripWireSource.java
+@@ -8,6 +8,9 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.ForgeDirection;
++import static net.minecraftforge.common.ForgeDirection.*;
++
+ public class BlockTripWireSource extends Block
+ {
+     public BlockTripWireSource(int p_i4017_1_)
+@@ -44,34 +47,41 @@
+ 
+     public boolean func_71850_a_(World p_71850_1_, int p_71850_2_, int p_71850_3_, int p_71850_4_, int p_71850_5_)
+     {
+-        return p_71850_5_ == 2 && p_71850_1_.func_72809_s(p_71850_2_, p_71850_3_, p_71850_4_ + 1) ? true : (p_71850_5_ == 3 && p_71850_1_.func_72809_s(p_71850_2_, p_71850_3_, p_71850_4_ - 1) ? true : (p_71850_5_ == 4 && p_71850_1_.func_72809_s(p_71850_2_ + 1, p_71850_3_, p_71850_4_) ? true : p_71850_5_ == 5 && p_71850_1_.func_72809_s(p_71850_2_ - 1, p_71850_3_, p_71850_4_)));
++        ForgeDirection dir = ForgeDirection.getOrientation(p_71850_5_);
++        return (dir == NORTH && p_71850_1_.isBlockSolidOnSide(p_71850_2_, p_71850_3_, p_71850_4_ + 1, NORTH)) ||
++                (dir == SOUTH && p_71850_1_.isBlockSolidOnSide(p_71850_2_, p_71850_3_, p_71850_4_ - 1, SOUTH)) ||
++                (dir == WEST  && p_71850_1_.isBlockSolidOnSide(p_71850_2_ + 1, p_71850_3_, p_71850_4_, WEST )) ||
++                (dir == EAST  && p_71850_1_.isBlockSolidOnSide(p_71850_2_ - 1, p_71850_3_, p_71850_4_, EAST ));
+     }
+ 
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+     {
+-        return p_71930_1_.func_72809_s(p_71930_2_ - 1, p_71930_3_, p_71930_4_) ? true : (p_71930_1_.func_72809_s(p_71930_2_ + 1, p_71930_3_, p_71930_4_) ? true : (p_71930_1_.func_72809_s(p_71930_2_, p_71930_3_, p_71930_4_ - 1) ? true : p_71930_1_.func_72809_s(p_71930_2_, p_71930_3_, p_71930_4_ + 1)));
++        return p_71930_1_.isBlockSolidOnSide(p_71930_2_ - 1, p_71930_3_, p_71930_4_, SOUTH) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_ + 1, p_71930_3_, p_71930_4_, NORTH) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_, p_71930_3_, p_71930_4_ - 1, EAST ) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_, p_71930_3_, p_71930_4_ + 1, WEST );
+     }
+ 
+     public int func_85104_a(World p_85104_1_, int p_85104_2_, int p_85104_3_, int p_85104_4_, int p_85104_5_, float p_85104_6_, float p_85104_7_, float p_85104_8_, int p_85104_9_)
+     {
+         byte var10 = 0;
+ 
+-        if (p_85104_5_ == 2 && p_85104_1_.func_72887_b(p_85104_2_, p_85104_3_, p_85104_4_ + 1, true))
++        if (p_85104_5_ == 2 && p_85104_1_.isBlockSolidOnSide(p_85104_2_, p_85104_3_, p_85104_4_ + 1, WEST, true))
+         {
+             var10 = 2;
+         }
+ 
+-        if (p_85104_5_ == 3 && p_85104_1_.func_72887_b(p_85104_2_, p_85104_3_, p_85104_4_ - 1, true))
++        if (p_85104_5_ == 3 && p_85104_1_.isBlockSolidOnSide(p_85104_2_, p_85104_3_, p_85104_4_ - 1, EAST, true))
+         {
+             var10 = 0;
+         }
+ 
+-        if (p_85104_5_ == 4 && p_85104_1_.func_72887_b(p_85104_2_ + 1, p_85104_3_, p_85104_4_, true))
++        if (p_85104_5_ == 4 && p_85104_1_.isBlockSolidOnSide(p_85104_2_ + 1, p_85104_3_, p_85104_4_, NORTH, true))
+         {
+             var10 = 1;
+         }
+ 
+-        if (p_85104_5_ == 5 && p_85104_1_.func_72887_b(p_85104_2_ - 1, p_85104_3_, p_85104_4_, true))
++        if (p_85104_5_ == 5 && p_85104_1_.isBlockSolidOnSide(p_85104_2_ - 1, p_85104_3_, p_85104_4_, SOUTH, true))
+         {
+             var10 = 3;
+         }
+@@ -94,22 +104,22 @@
+                 int var7 = var6 & 3;
+                 boolean var8 = false;
+ 
+-                if (!p_71863_1_.func_72809_s(p_71863_2_ - 1, p_71863_3_, p_71863_4_) && var7 == 3)
+-                {
+-                    var8 = true;
+-                }
+-
+-                if (!p_71863_1_.func_72809_s(p_71863_2_ + 1, p_71863_3_, p_71863_4_) && var7 == 1)
+-                {
+-                    var8 = true;
+-                }
+-
+-                if (!p_71863_1_.func_72809_s(p_71863_2_, p_71863_3_, p_71863_4_ - 1) && var7 == 0)
+-                {
+-                    var8 = true;
+-                }
+-
+-                if (!p_71863_1_.func_72809_s(p_71863_2_, p_71863_3_, p_71863_4_ + 1) && var7 == 2)
++                if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_ - 1, p_71863_3_, p_71863_4_, SOUTH) && var7 == 3)
++                {
++                    var8 = true;
++                }
++
++                if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_ + 1, p_71863_3_, p_71863_4_, NORTH) && var7 == 1)
++                {
++                    var8 = true;
++                }
++
++                if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_, p_71863_3_, p_71863_4_ - 1, EAST) && var7 == 0)
++                {
++                    var8 = true;
++                }
++
++                if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_, p_71863_3_, p_71863_4_ + 1, WEST) && var7 == 2)
+                 {
+                     var8 = true;
+                 }
+@@ -130,7 +140,7 @@
+         boolean var12 = (p_72143_6_ & 8) == 8;
+         boolean var13 = p_72143_5_ == Block.field_72064_bT.field_71990_ca;
+         boolean var14 = false;
+-        boolean var15 = !p_72143_1_.func_72797_t(p_72143_2_, p_72143_3_ - 1, p_72143_4_);
++        boolean var15 = !p_72143_1_.isBlockSolidOnSide(p_72143_2_, p_72143_3_ - 1, p_72143_4_, UP);
+         int var16 = Direction.field_71583_a[var10];
+         int var17 = Direction.field_71581_b[var10];
+         int var18 = 0;

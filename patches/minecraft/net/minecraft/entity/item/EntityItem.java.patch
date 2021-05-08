@@ -9,7 +9,110 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.material.Material;
  import net.minecraft.entity.Entity;
-@@ -278,6 +280,8 @@
+@@ -13,6 +15,10 @@
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.util.StatCollector;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.Event;
++import net.minecraftforge.event.entity.item.ItemExpireEvent;
++import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+ 
+ public class EntityItem extends Entity
+ {
+@@ -20,6 +26,11 @@
+     public int field_70293_c;
+     private int field_70291_e;
+     public float field_70290_d;
++    
++    /**
++     * The maximum age of this EntityItem.  The item is expired once this is reached.
++     */
++    public int lifespan = 6000;
+ 
+     public EntityItem(World p_i8007_1_, double p_i8007_2_, double p_i8007_4_, double p_i8007_6_)
+     {
+@@ -119,7 +130,28 @@
+ 
+         ++this.field_70292_b;
+ 
+-        if (!this.field_70170_p.field_72995_K && this.field_70292_b >= 6000)
++        ItemStack item = func_70096_w().func_82710_f(10);
++        
++        if (!this.field_70170_p.field_72995_K && this.field_70292_b >= lifespan)
++        {
++                   if (item != null) {
++                       ItemExpireEvent event = new ItemExpireEvent(this, (item.func_77973_b() == null ? 6000 : item.func_77973_b().getEntityLifespan(item, field_70170_p)));
++                       if (MinecraftForge.EVENT_BUS.post(event))
++                       {
++                           lifespan += event.extraLife;
++                       }
++                       else
++                       {
++                           this.func_70106_y();
++                       }
++                   }
++                   else
++                   {
++                       this.func_70106_y();
++                   }
++        }
++        
++        if (item != null && item.field_77994_a <= 0)
+         {
+             this.func_70106_y();
+         }
+@@ -230,6 +262,7 @@
+     {
+         p_70014_1_.func_74777_a("Health", (short)((byte)this.field_70291_e));
+         p_70014_1_.func_74777_a("Age", (short)this.field_70292_b);
++        p_70014_1_.func_74768_a("Lifespan", lifespan);
+ 
+         if (this.func_92059_d() != null)
+         {
+@@ -244,20 +277,39 @@
+         NBTTagCompound var2 = p_70037_1_.func_74775_l("Item");
+         this.func_92058_a(ItemStack.func_77949_a(var2));
+ 
+-        if (this.func_92059_d() == null)
++        ItemStack item = func_70096_w().func_82710_f(10);
++        
++        if (item == null || item.field_77994_a <= 0)
+         {
+             this.func_70106_y();
++        }
++        
++        if (p_70037_1_.func_74764_b("Lifespan"))
++        {
++            lifespan = p_70037_1_.func_74762_e("Lifespan");
+         }
+     }
+ 
+     public void func_70100_b_(EntityPlayer p_70100_1_)
+     {
++        if (this.field_70293_c > 0)
++        {
++            return;
++        }
++        
++        EntityItemPickupEvent event = new EntityItemPickupEvent(p_70100_1_, this);
++        
++        if (MinecraftForge.EVENT_BUS.post(event))
++        {
++            return;
++        }
++        
+         if (!this.field_70170_p.field_72995_K)
+         {
+             ItemStack var2 = this.func_92059_d();
+             int var3 = var2.field_77994_a;
+ 
+-            if (this.field_70293_c == 0 && p_70100_1_.field_71071_by.func_70441_a(var2))
++            if (this.field_70293_c <= 0 && (event.getResult() == Event.Result.ALLOW || var3 <= 0 || p_70100_1_.field_71071_by.func_70441_a(var2)))
+             {
+                 if (var2.field_77993_c == Block.field_71951_J.field_71990_ca)
+                 {
+@@ -278,6 +330,8 @@
                  {
                      p_70100_1_.func_71029_a(AchievementList.field_76027_z);
                  }

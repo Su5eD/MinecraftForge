@@ -8,7 +8,18 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.File;
-@@ -109,6 +111,8 @@
+@@ -35,9 +37,7 @@
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.ChunkCoordinates;
+ import net.minecraft.util.MathHelper;
+-import net.minecraft.world.EnumGameType;
+-import net.minecraft.world.World;
+-import net.minecraft.world.WorldServer;
++import net.minecraft.world.*;
+ import net.minecraft.world.demo.DemoWorldManager;
+ import net.minecraft.world.storage.IPlayerFileData;
+ 
+@@ -109,6 +109,8 @@
          }
  
          p_72355_2_.func_71116_b();
@@ -17,7 +28,7 @@
      }
  
      public void func_72364_a(WorldServer[] p_72364_1_)
-@@ -175,6 +179,7 @@
+@@ -175,6 +177,7 @@
  
      public void func_72367_e(EntityPlayerMP p_72367_1_)
      {
@@ -25,7 +36,32 @@
          this.func_72391_b(p_72367_1_);
          WorldServer var2 = p_72367_1_.func_71121_q();
          var2.func_72900_e(p_72367_1_);
-@@ -324,6 +329,7 @@
+@@ -265,6 +268,16 @@
+ 
+     public EntityPlayerMP func_72368_a(EntityPlayerMP p_72368_1_, int p_72368_2_, boolean p_72368_3_)
+     {
++        World world = field_72400_f.func_71218_a(p_72368_2_);
++        if (world == null)
++        {
++            p_72368_2_ = 0;
++        }
++        else if (!world.field_73011_w.func_76567_e())
++        {
++            p_72368_2_ = world.field_73011_w.getRespawnDimension(p_72368_1_);
++        }
++        
+         p_72368_1_.func_71121_q().func_73039_n().func_72787_a(p_72368_1_);
+         p_72368_1_.func_71121_q().func_73039_n().func_72790_b(p_72368_1_);
+         p_72368_1_.func_71121_q().func_73040_p().func_72695_c(p_72368_1_);
+@@ -287,6 +300,7 @@
+         EntityPlayerMP var7 = new EntityPlayerMP(this.field_72400_f, this.field_72400_f.func_71218_a(p_72368_1_.field_71093_bK), p_72368_1_.field_71092_bJ, (ItemInWorldManager)var6);
+         var7.field_71135_a = p_72368_1_.field_71135_a;
+         var7.func_71049_a(p_72368_1_, p_72368_3_);
++        var7.field_71093_bK = p_72368_2_;
+         var7.field_70157_k = p_72368_1_.field_70157_k;
+         WorldServer var8 = this.field_72400_f.func_71218_a(p_72368_1_.field_71093_bK);
+         this.func_72381_a(var7, p_72368_1_, var8);
+@@ -324,110 +338,103 @@
          var8.func_72838_d(var7);
          this.field_72404_b.add(var7);
          var7.func_71116_b();
@@ -33,12 +69,163 @@
          return var7;
      }
  
-@@ -349,6 +355,8 @@
+     public void func_72356_a(EntityPlayerMP p_72356_1_, int p_72356_2_)
+     {
+-        int var3 = p_72356_1_.field_71093_bK;
+-        WorldServer var4 = this.field_72400_f.func_71218_a(p_72356_1_.field_71093_bK);
+-        p_72356_1_.field_71093_bK = p_72356_2_;
+-        WorldServer var5 = this.field_72400_f.func_71218_a(p_72356_1_.field_71093_bK);
+-        p_72356_1_.field_71135_a.func_72567_b(new Packet9Respawn(p_72356_1_.field_71093_bK, (byte)p_72356_1_.field_70170_p.field_73013_u, var5.func_72912_H().func_76067_t(), var5.func_72800_K(), p_72356_1_.field_71134_c.func_73081_b()));
+-        var4.func_72973_f(p_72356_1_);
+-        p_72356_1_.field_70128_L = false;
+-        this.func_82448_a(p_72356_1_, var3, var4, var5);
+-        this.func_72375_a(p_72356_1_, var4);
+-        p_72356_1_.field_71135_a.func_72569_a(p_72356_1_.field_70165_t, p_72356_1_.field_70163_u, p_72356_1_.field_70161_v, p_72356_1_.field_70177_z, p_72356_1_.field_70125_A);
+-        p_72356_1_.field_71134_c.func_73080_a(var5);
+-        this.func_72354_b(p_72356_1_, var5);
+-        this.func_72385_f(p_72356_1_);
+-        Iterator var6 = p_72356_1_.func_70651_bq().iterator();
++        transferPlayerToDimension(p_72356_1_, p_72356_2_, field_72400_f.func_71218_a(p_72356_2_).func_85176_s());
++    }
++    
++    public void transferPlayerToDimension(EntityPlayerMP par1EntityPlayerMP, int par2, Teleporter teleporter)
++    {
++        int var3 = par1EntityPlayerMP.field_71093_bK;
++        WorldServer var4 = this.field_72400_f.func_71218_a(par1EntityPlayerMP.field_71093_bK);
++        par1EntityPlayerMP.field_71093_bK = par2;
++        WorldServer var5 = this.field_72400_f.func_71218_a(par1EntityPlayerMP.field_71093_bK);
++        par1EntityPlayerMP.field_71135_a.func_72567_b(new Packet9Respawn(par1EntityPlayerMP.field_71093_bK, (byte)par1EntityPlayerMP.field_70170_p.field_73013_u, var5.func_72912_H().func_76067_t(), var5.func_72800_K(), par1EntityPlayerMP.field_71134_c.func_73081_b()));
++        var4.func_72973_f(par1EntityPlayerMP);
++        par1EntityPlayerMP.field_70128_L = false;
++        this.transferEntityToWorld(par1EntityPlayerMP, var3, var4, var5, teleporter);
++        this.func_72375_a(par1EntityPlayerMP, var4);
++        par1EntityPlayerMP.field_71135_a.func_72569_a(par1EntityPlayerMP.field_70165_t, par1EntityPlayerMP.field_70163_u, par1EntityPlayerMP.field_70161_v, par1EntityPlayerMP.field_70177_z, par1EntityPlayerMP.field_70125_A);
++        par1EntityPlayerMP.field_71134_c.func_73080_a(var5);
++        this.func_72354_b(par1EntityPlayerMP, var5);
++        this.func_72385_f(par1EntityPlayerMP);
++        Iterator var6 = par1EntityPlayerMP.func_70651_bq().iterator();
+ 
+         while (var6.hasNext())
+         {
              PotionEffect var7 = (PotionEffect)var6.next();
-             p_72356_1_.field_71135_a.func_72567_b(new Packet41EntityEffect(p_72356_1_.field_70157_k, var7));
+-            p_72356_1_.field_71135_a.func_72567_b(new Packet41EntityEffect(p_72356_1_.field_70157_k, var7));
++            par1EntityPlayerMP.field_71135_a.func_72567_b(new Packet41EntityEffect(par1EntityPlayerMP.field_70157_k, var7));
          }
 +
-+        GameRegistry.onPlayerChangedDimension(p_72356_1_);
++        GameRegistry.onPlayerChangedDimension(par1EntityPlayerMP);
      }
  
      public void func_82448_a(Entity p_82448_1_, int p_82448_2_, WorldServer p_82448_3_, WorldServer p_82448_4_)
+     {
+-        double var5 = p_82448_1_.field_70165_t;
+-        double var7 = p_82448_1_.field_70161_v;
+-        double var9 = 8.0D;
+-        double var11 = p_82448_1_.field_70165_t;
+-        double var13 = p_82448_1_.field_70163_u;
+-        double var15 = p_82448_1_.field_70161_v;
+-        float var17 = p_82448_1_.field_70177_z;
+-        p_82448_3_.field_72984_F.func_76320_a("moving");
+-
+-        if (p_82448_1_.field_71093_bK == -1)
+-        {
+-            var5 /= var9;
+-            var7 /= var9;
+-            p_82448_1_.func_70012_b(var5, p_82448_1_.field_70163_u, var7, p_82448_1_.field_70177_z, p_82448_1_.field_70125_A);
+-
+-            if (p_82448_1_.func_70089_S())
+-            {
+-                p_82448_3_.func_72866_a(p_82448_1_, false);
+-            }
+-        }
+-        else if (p_82448_1_.field_71093_bK == 0)
+-        {
+-            var5 *= var9;
+-            var7 *= var9;
+-            p_82448_1_.func_70012_b(var5, p_82448_1_.field_70163_u, var7, p_82448_1_.field_70177_z, p_82448_1_.field_70125_A);
+-
+-            if (p_82448_1_.func_70089_S())
+-            {
+-                p_82448_3_.func_72866_a(p_82448_1_, false);
+-            }
+-        }
+-        else
++        transferEntityToWorld(p_82448_1_, p_82448_2_, p_82448_3_, p_82448_4_, p_82448_4_.func_85176_s());
++    }
++    
++    public void transferEntityToWorld(Entity par1Entity, int par2, WorldServer par3WorldServer, WorldServer par4WorldServer, Teleporter teleporter)
++    {
++        WorldProvider pOld = par3WorldServer.field_73011_w;
++        WorldProvider pNew = par4WorldServer.field_73011_w;
++        double moveFactor = pOld.getMovementFactor() / pNew.getMovementFactor();
++        double var5 = par1Entity.field_70165_t * moveFactor;
++        double var7 = par1Entity.field_70161_v * moveFactor;
++        double var11 = par1Entity.field_70165_t;
++        double var13 = par1Entity.field_70163_u;
++        double var15 = par1Entity.field_70161_v;
++        float var17 = par1Entity.field_70177_z;
++        par3WorldServer.field_72984_F.func_76320_a("moving");
++
++        if (par1Entity.field_71093_bK == 1)
+         {
+             ChunkCoordinates var18;
+ 
+-            if (p_82448_2_ == 1)
++            if (par2 == 1)
+             {
+-                var18 = p_82448_4_.func_72861_E();
++                var18 = par4WorldServer.func_72861_E();
+             }
+             else
+             {
+-                var18 = p_82448_4_.func_73054_j();
++                var18 = par4WorldServer.func_73054_j();
+             }
+ 
+             var5 = (double)var18.field_71574_a;
+-            p_82448_1_.field_70163_u = (double)var18.field_71572_b;
++            par1Entity.field_70163_u = (double)var18.field_71572_b;
+             var7 = (double)var18.field_71573_c;
+-            p_82448_1_.func_70012_b(var5, p_82448_1_.field_70163_u, var7, 90.0F, 0.0F);
++            par1Entity.func_70012_b(var5, par1Entity.field_70163_u, var7, 90.0F, 0.0F);
+ 
+-            if (p_82448_1_.func_70089_S())
++            if (par1Entity.func_70089_S())
+             {
+-                p_82448_3_.func_72866_a(p_82448_1_, false);
++                par3WorldServer.func_72866_a(par1Entity, false);
+             }
+         }
+ 
+-        p_82448_3_.field_72984_F.func_76319_b();
++        par3WorldServer.field_72984_F.func_76319_b();
+ 
+-        if (p_82448_2_ != 1)
++        if (par2 != 1)
+         {
+-            p_82448_3_.field_72984_F.func_76320_a("placing");
++            par3WorldServer.field_72984_F.func_76320_a("placing");
+             var5 = (double)MathHelper.func_76125_a((int)var5, -29999872, 29999872);
+             var7 = (double)MathHelper.func_76125_a((int)var7, -29999872, 29999872);
+ 
+-            if (p_82448_1_.func_70089_S())
++            if (par1Entity.func_70089_S())
+             {
+-                p_82448_4_.func_72838_d(p_82448_1_);
+-                p_82448_1_.func_70012_b(var5, p_82448_1_.field_70163_u, var7, p_82448_1_.field_70177_z, p_82448_1_.field_70125_A);
+-                p_82448_4_.func_72866_a(p_82448_1_, false);
+-                p_82448_4_.func_85176_s().func_77185_a(p_82448_1_, var11, var13, var15, var17);
++                par4WorldServer.func_72838_d(par1Entity);
++                par1Entity.func_70012_b(var5, par1Entity.field_70163_u, var7, par1Entity.field_70177_z, par1Entity.field_70125_A);
++                par4WorldServer.func_72866_a(par1Entity, false);
++                teleporter.func_77185_a(par1Entity, var11, var13, var15, var17);
+             }
+ 
+-            p_82448_3_.field_72984_F.func_76319_b();
++            par3WorldServer.field_72984_F.func_76319_b();
+         }
+ 
+-        p_82448_1_.func_70029_a(p_82448_4_);
++        par1Entity.func_70029_a(par4WorldServer);
+     }
+ 
+     public void func_72374_b()

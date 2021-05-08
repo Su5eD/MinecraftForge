@@ -1,0 +1,75 @@
+--- ../src-base/minecraft/net/minecraft/client/multiplayer/PlayerControllerMP.java
++++ ../src-work/minecraft/net/minecraft/client/multiplayer/PlayerControllerMP.java
+@@ -19,6 +19,8 @@
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.EnumGameType;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+ 
+ @SideOnly(Side.CLIENT)
+ public class PlayerControllerMP
+@@ -81,6 +83,12 @@
+ 
+     public boolean func_78751_a(int p_78751_1_, int p_78751_2_, int p_78751_3_, int p_78751_4_)
+     {
++        ItemStack stack = field_78776_a.field_71439_g.func_71045_bC();
++        if (stack != null && stack.func_77973_b() != null && stack.func_77973_b().onBlockStartBreak(stack, p_78751_1_, p_78751_2_, p_78751_3_, field_78776_a.field_71439_g))
++        {
++            return false;
++        }
++        
+         if (this.field_78779_k.func_82752_c() && !this.field_78776_a.field_71439_g.func_82246_f(p_78751_1_, p_78751_2_, p_78751_3_))
+         {
+             return false;
+@@ -98,7 +106,7 @@
+             {
+                 var5.func_72926_e(2001, p_78751_1_, p_78751_2_, p_78751_3_, var6.field_71990_ca + (var5.func_72805_g(p_78751_1_, p_78751_2_, p_78751_3_) << 12));
+                 int var7 = var5.func_72805_g(p_78751_1_, p_78751_2_, p_78751_3_);
+-                boolean var8 = var5.func_72859_e(p_78751_1_, p_78751_2_, p_78751_3_, 0);
++                boolean var8 = var6.removeBlockByPlayer(var5, field_78776_a.field_71439_g, p_78751_1_, p_78751_2_, p_78751_3_);
+ 
+                 if (var8)
+                 {
+@@ -276,6 +284,12 @@
+         float var11 = (float)p_78760_8_.field_72449_c - (float)p_78760_6_;
+         boolean var12 = false;
+         int var13;
++        if (p_78760_3_ != null &&
++                p_78760_3_.func_77973_b() != null &&
++                p_78760_3_.func_77973_b().onItemUseFirst(p_78760_3_, p_78760_1_, p_78760_2_, p_78760_4_, p_78760_5_, p_78760_6_, p_78760_7_, var9, var10, var11))
++        {
++            return true;
++        }
+ 
+         if (!p_78760_1_.func_70093_af() || p_78760_1_.func_70694_bm() == null)
+         {
+@@ -318,7 +332,15 @@
+         }
+         else
+         {
+-            return p_78760_3_.func_77943_a(p_78760_1_, p_78760_2_, p_78760_4_, p_78760_5_, p_78760_6_, p_78760_7_, var9, var10, var11);
++            if (!p_78760_3_.func_77943_a(p_78760_1_, p_78760_2_, p_78760_4_, p_78760_5_, p_78760_6_, p_78760_7_, var9, var10, var11))
++            {
++                return false;
++            }
++            if (p_78760_3_.field_77994_a <= 0)
++            {
++                MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(p_78760_1_, p_78760_3_));
++            }
++            return true;
+         }
+     }
+ 
+@@ -337,9 +359,10 @@
+         {
+             p_78769_1_.field_71071_by.field_70462_a[p_78769_1_.field_71071_by.field_70461_c] = var5;
+ 
+-            if (var5.field_77994_a == 0)
++            if (var5.field_77994_a <= 0)
+             {
+                 p_78769_1_.field_71071_by.field_70462_a[p_78769_1_.field_71071_by.field_70461_c] = null;
++                MinecraftForge.EVENT_BUS.post(new PlayerDestroyItemEvent(p_78769_1_, var5));
+             }
+ 
+             return true;

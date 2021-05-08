@@ -1,0 +1,32 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentMineshaftCorridor.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentMineshaftCorridor.java
+@@ -8,6 +8,9 @@
+ import net.minecraft.util.WeightedRandomChestContent;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.ChestGenHooks;
++import static net.minecraftforge.common.ChestGenHooks.*;
++
+ public class ComponentMineshaftCorridor extends StructureComponent
+ {
+     private final boolean field_74958_a;
+@@ -228,15 +231,17 @@
+                 this.func_74876_a(p_74875_1_, p_74875_3_, p_74875_2_, 0.05F, 2, 2, var10 + 2, Block.field_71955_W.field_71990_ca, 0);
+                 this.func_74876_a(p_74875_1_, p_74875_3_, p_74875_2_, 0.05F, 1, 2, var10 - 1, Block.field_72069_aq.field_71990_ca, 0);
+                 this.func_74876_a(p_74875_1_, p_74875_3_, p_74875_2_, 0.05F, 1, 2, var10 + 1, Block.field_72069_aq.field_71990_ca, 0);
++                
++                ChestGenHooks info = ChestGenHooks.getInfo(MINESHAFT_CORRIDOR);
+ 
+                 if (p_74875_2_.nextInt(100) == 0)
+                 {
+-                    this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 2, 0, var10 - 1, WeightedRandomChestContent.func_92080_a(StructureMineshaftPieces.func_78816_a(), new WeightedRandomChestContent[] {Item.field_92105_bW.func_92114_b(p_74875_2_)}), 3 + p_74875_2_.nextInt(4));
++                    this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 2, 0, var10 - 1, info.getItems(p_74875_2_), info.getCount(p_74875_2_));
+                 }
+ 
+                 if (p_74875_2_.nextInt(100) == 0)
+                 {
+-                    this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 0, 0, var10 + 1, WeightedRandomChestContent.func_92080_a(StructureMineshaftPieces.func_78816_a(), new WeightedRandomChestContent[] {Item.field_92105_bW.func_92114_b(p_74875_2_)}), 3 + p_74875_2_.nextInt(4));
++                    this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 0, 0, var10 + 1, info.getItems(p_74875_2_), info.getCount(p_74875_2_));
+                 }
+ 
+                 if (this.field_74956_b && !this.field_74957_c)

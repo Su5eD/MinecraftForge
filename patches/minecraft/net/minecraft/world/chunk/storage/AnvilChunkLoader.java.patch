@@ -10,7 +10,32 @@
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityList;
  import net.minecraft.nbt.CompressedStreamTools;
-@@ -253,9 +256,18 @@
+@@ -23,6 +26,8 @@
+ import net.minecraft.world.chunk.NibbleArray;
+ import net.minecraft.world.storage.IThreadedFileIO;
+ import net.minecraft.world.storage.ThreadedFileIOBase;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.world.ChunkDataEvent;
+ 
+ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
+ {
+@@ -96,6 +101,7 @@
+                 var5 = this.func_75823_a(p_75822_1_, p_75822_4_.func_74775_l("Level"));
+             }
+ 
++            MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Load(var5, p_75822_4_));
+             return var5;
+         }
+     }
+@@ -111,6 +117,7 @@
+             var3.func_74782_a("Level", var4);
+             this.func_75820_a(p_75816_2_, p_75816_1_, var4);
+             this.func_75824_a(p_75816_2_.func_76632_l(), var3);
++            MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Save(p_75816_2_, var3));
+         }
+         catch (Exception var5)
+         {
+@@ -253,9 +260,18 @@
                  p_75820_1_.field_76644_m = true;
                  var11 = new NBTTagCompound();
  
@@ -32,7 +57,7 @@
                  }
              }
          }
-@@ -268,8 +280,17 @@
+@@ -268,8 +284,17 @@
          {
              TileEntity var21 = (TileEntity)var18.next();
              var11 = new NBTTagCompound();

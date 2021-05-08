@@ -12,7 +12,19 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.awt.BorderLayout;
-@@ -120,6 +126,8 @@
+@@ -107,6 +113,11 @@
+ import net.minecraft.world.storage.ISaveFormat;
+ import net.minecraft.world.storage.ISaveHandler;
+ import net.minecraft.world.storage.WorldInfo;
++import net.minecraftforge.common.ForgeHooks;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.ForgeEventFactory;
++import net.minecraftforge.event.entity.player.PlayerInteractEvent;
++import net.minecraftforge.event.world.WorldEvent;
+ import org.lwjgl.LWJGLException;
+ import org.lwjgl.Sys;
+ import org.lwjgl.input.Keyboard;
+@@ -120,6 +131,8 @@
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
  
@@ -21,7 +33,7 @@
  @SideOnly(Side.CLIENT)
  public abstract class Minecraft implements Runnable, IPlayerUsage
  {
-@@ -302,6 +310,8 @@
+@@ -302,6 +315,8 @@
          this.field_71466_p = new FontRenderer(this.field_71474_y, "/font/default.png", this.field_71446_o, false);
          this.field_71464_q = new FontRenderer(this.field_71474_y, "/font/alternate.png", this.field_71446_o, false);
  
@@ -30,7 +42,7 @@
          if (this.field_71474_y.field_74363_ab != null)
          {
              StringTranslate.func_74808_a().func_74810_a(this.field_71474_y.field_74363_ab);
-@@ -346,6 +356,8 @@
+@@ -346,6 +361,8 @@
          GL11.glViewport(0, 0, this.field_71443_c, this.field_71440_d);
          this.field_71452_i = new EffectRenderer(this.field_71441_e, this.field_71446_o);
  
@@ -39,7 +51,7 @@
          try
          {
              this.field_71430_V = new ThreadDownloadResources(this.field_71412_D, this);
-@@ -374,6 +386,8 @@
+@@ -374,6 +391,8 @@
          {
              this.func_71352_k();
          }
@@ -48,7 +60,7 @@
      }
  
      private void func_71357_I() throws LWJGLException
-@@ -738,9 +752,11 @@
+@@ -738,9 +757,11 @@
  
              if (!this.field_71454_w)
              {
@@ -60,7 +72,36 @@
              }
  
              GL11.glFlush();
-@@ -1270,11 +1286,15 @@
+@@ -1097,7 +1118,7 @@
+ 
+                 if (this.field_71439_g.func_82246_f(var3, var4, var5))
+                 {
+-                    this.field_71452_i.func_78867_a(var3, var4, var5, this.field_71476_x.field_72310_e);
++                    this.field_71452_i.addBlockHitEffects(var3, var4, var5, this.field_71476_x);
+                     this.field_71439_g.func_71038_i();
+                 }
+             }
+@@ -1159,7 +1180,8 @@
+                 {
+                     int var8 = var3 != null ? var3.field_77994_a : 0;
+ 
+-                    if (this.field_71442_b.func_78760_a(this.field_71439_g, this.field_71441_e, var3, var4, var5, var6, var7, this.field_71476_x.field_72307_f))
++                    boolean result = !ForgeEventFactory.onPlayerInteract(field_71439_g, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, var4, var5, var6, var7).isCanceled();
++                    if (result && this.field_71442_b.func_78760_a(this.field_71439_g, this.field_71441_e, var3, var4, var5, var6, var7, this.field_71476_x.field_72307_f))
+                     {
+                         var2 = false;
+                         this.field_71439_g.func_71038_i();
+@@ -1185,7 +1207,8 @@
+             {
+                 ItemStack var9 = this.field_71439_g.field_71071_by.func_70448_g();
+ 
+-                if (var9 != null && this.field_71442_b.func_78769_a(this.field_71439_g, this.field_71441_e, var9))
++                boolean result = !ForgeEventFactory.onPlayerInteract(field_71439_g, PlayerInteractEvent.Action.RIGHT_CLICK_AIR, 0, 0, 0, -1).isCanceled();
++                if (result && var9 != null && this.field_71442_b.func_78769_a(this.field_71439_g, this.field_71441_e, var9))
+                 {
+                     this.field_71460_t.field_78516_c.func_78445_c();
+                 }
+@@ -1270,11 +1293,15 @@
  
      public void func_71407_l()
      {
@@ -76,7 +117,7 @@
          this.field_71424_I.func_76320_a("stats");
          this.field_71413_E.func_77449_e();
          this.field_71424_I.func_76318_c("gui");
-@@ -1730,6 +1750,8 @@
+@@ -1730,6 +1757,8 @@
              this.field_71453_ak.func_74428_b();
          }
  
@@ -85,7 +126,7 @@
          this.field_71424_I.func_76319_b();
          this.field_71423_H = func_71386_F();
      }
-@@ -1768,8 +1790,27 @@
+@@ -1768,8 +1797,27 @@
          }
  
          this.field_71413_E.func_77450_a(StatList.field_75936_f, 1);
@@ -113,7 +154,39 @@
          this.field_71455_al = true;
          this.field_71461_s.func_73720_a(StatCollector.func_74838_a("menu.loadingLevel"));
  
-@@ -1984,28 +2025,34 @@
+@@ -1820,6 +1868,12 @@
+ 
+         if (p_71353_1_ == null)
+         {
++            
++            if (field_71441_e != null)
++            {
++                MinecraftForge.EVENT_BUS.post(new WorldEvent.Unload(field_71441_e));
++            }
++            
+             NetClientHandler var3 = this.func_71391_r();
+ 
+             if (var3 != null)
+@@ -1835,6 +1889,18 @@
+             if (this.field_71437_Z != null)
+             {
+                 this.field_71437_Z.func_71263_m();
++                if (field_71461_s!=null)
++                {
++                    this.field_71461_s.func_73719_c("Shutting down internal server...");
++                }
++                while (!field_71437_Z.func_71241_aa())
++                {
++                    try
++                    {
++                        Thread.sleep(10);
++                    }
++                    catch (InterruptedException ie) {}
++                }
+             }
+ 
+             this.field_71437_Z = null;
+@@ -1984,28 +2050,34 @@
  
      public static void main(String[] p_main_0_)
      {
@@ -155,3 +228,103 @@
              boolean var10 = false;
  
              if (!var8.equals("-demo") && !var8.equals("--demo"))
+@@ -2104,95 +2176,12 @@
+         if (this.field_71476_x != null)
+         {
+             boolean var1 = this.field_71439_g.field_71075_bZ.field_75098_d;
+-            int var3 = 0;
+-            boolean var4 = false;
+-            int var2;
+             int var5;
+ 
+-            if (this.field_71476_x.field_72313_a == EnumMovingObjectType.TILE)
+-            {
+-                var5 = this.field_71476_x.field_72311_b;
+-                int var6 = this.field_71476_x.field_72312_c;
+-                int var7 = this.field_71476_x.field_72309_d;
+-                Block var8 = Block.field_71973_m[this.field_71441_e.func_72798_a(var5, var6, var7)];
+-
+-                if (var8 == null)
+-                {
+-                    return;
+-                }
+-
+-                var2 = var8.func_71922_a(this.field_71441_e, var5, var6, var7);
+-
+-                if (var2 == 0)
+-                {
+-                    return;
+-                }
+-
+-                var4 = Item.field_77698_e[var2].func_77614_k();
+-                int var9 = var2 < 256 && !Block.field_71973_m[var8.field_71990_ca].func_82505_u_() ? var2 : var8.field_71990_ca;
+-                var3 = Block.field_71973_m[var9].func_71873_h(this.field_71441_e, var5, var6, var7);
+-            }
+-            else
+-            {
+-                if (this.field_71476_x.field_72313_a != EnumMovingObjectType.ENTITY || this.field_71476_x.field_72308_g == null || !var1)
+-                {
+-                    return;
+-                }
+-
+-                if (this.field_71476_x.field_72308_g instanceof EntityPainting)
+-                {
+-                    var2 = Item.field_77780_as.field_77779_bT;
+-                }
+-                else if (this.field_71476_x.field_72308_g instanceof EntityItemFrame)
+-                {
+-                    EntityItemFrame var10 = (EntityItemFrame)this.field_71476_x.field_72308_g;
+-
+-                    if (var10.func_82335_i() == null)
+-                    {
+-                        var2 = Item.field_82802_bI.field_77779_bT;
+-                    }
+-                    else
+-                    {
+-                        var2 = var10.func_82335_i().field_77993_c;
+-                        var3 = var10.func_82335_i().func_77960_j();
+-                        var4 = true;
+-                    }
+-                }
+-                else if (this.field_71476_x.field_72308_g instanceof EntityMinecart)
+-                {
+-                    EntityMinecart var11 = (EntityMinecart)this.field_71476_x.field_72308_g;
+-
+-                    if (var11.field_70505_a == 2)
+-                    {
+-                        var2 = Item.field_77763_aO.field_77779_bT;
+-                    }
+-                    else if (var11.field_70505_a == 1)
+-                    {
+-                        var2 = Item.field_77762_aN.field_77779_bT;
+-                    }
+-                    else
+-                    {
+-                        var2 = Item.field_77773_az.field_77779_bT;
+-                    }
+-                }
+-                else if (this.field_71476_x.field_72308_g instanceof EntityBoat)
+-                {
+-                    var2 = Item.field_77769_aE.field_77779_bT;
+-                }
+-                else
+-                {
+-                    var2 = Item.field_77815_bC.field_77779_bT;
+-                    var3 = EntityList.func_75619_a(this.field_71476_x.field_72308_g);
+-                    var4 = true;
+-
+-                    if (var3 <= 0 || !EntityList.field_75627_a.containsKey(Integer.valueOf(var3)))
+-                    {
+-                        return;
+-                    }
+-                }
+-            }
+-
+-            this.field_71439_g.field_71071_by.func_70433_a(var2, var3, var4, var1);
++            if (!ForgeHooks.onPickBlock(this.field_71476_x, this.field_71439_g, this.field_71441_e))
++            {
++                return;
++            }
+ 
+             if (var1)
+             {

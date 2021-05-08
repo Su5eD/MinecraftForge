@@ -1,0 +1,204 @@
+--- ../src-base/minecraft/net/minecraft/client/particle/EffectRenderer.java
++++ ../src-work/minecraft/net/minecraft/client/particle/EffectRenderer.java
+@@ -1,17 +1,23 @@
+ package net.minecraft.client.particle;
+ 
++import com.google.common.collect.ArrayListMultimap;
++import com.google.common.collect.Multimap;
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
+-import java.util.ArrayList;
+-import java.util.List;
+-import java.util.Random;
++
++import java.util.*;
++
+ import net.minecraft.block.Block;
+ import net.minecraft.client.renderer.ActiveRenderInfo;
+ import net.minecraft.client.renderer.RenderEngine;
+ import net.minecraft.client.renderer.Tessellator;
+ import net.minecraft.entity.Entity;
++import net.minecraft.item.Item;
+ import net.minecraft.util.MathHelper;
++import net.minecraft.util.MovingObjectPosition;
+ import net.minecraft.world.World;
++import net.minecraftforge.client.ForgeHooksClient;
++import net.minecraftforge.common.ForgeHooks;
+ import org.lwjgl.opengl.GL11;
+ 
+ @SideOnly(Side.CLIENT)
+@@ -21,6 +27,8 @@
+     private List[] field_78876_b = new List[4];
+     private RenderEngine field_78877_c;
+     private Random field_78875_d = new Random();
++    
++    private Multimap<String, EntityFX> effectList = ArrayListMultimap.create();
+ 
+     public EffectRenderer(World p_i3170_1_, RenderEngine p_i3170_2_)
+     {
+@@ -56,14 +64,28 @@
+             for (int var2 = 0; var2 < this.field_78876_b[var1].size(); ++var2)
+             {
+                 EntityFX var3 = (EntityFX)this.field_78876_b[var1].get(var2);
+-                var3.func_70071_h_();
+-
+-                if (var3.field_70128_L)
++                if (var3 != null)
++                {
++                    var3.func_70071_h_();
++                }
++                
++                if (var3 == null || var3.field_70128_L)
+                 {
+                     this.field_78876_b[var1].remove(var2--);
+                 }
+             }
+         }
++        
++        Iterator<Map.Entry<String, EntityFX>> itr = effectList.entries().iterator();
++        while (itr.hasNext())
++        {
++            EntityFX fx = itr.next().getValue();
++            fx.func_70071_h_();
++            if (fx.field_70128_L)
++            {
++                itr.remove();
++            }
++        }
+     }
+ 
+     public void func_78874_a(Entity p_78874_1_, float p_78874_2_)
+@@ -109,6 +131,7 @@
+                 for (int var11 = 0; var11 < this.field_78876_b[var8].size(); ++var11)
+                 {
+                     EntityFX var12 = (EntityFX)this.field_78876_b[var8].get(var11);
++                    if (var12 == null) continue;
+                     var10.func_78380_c(var12.func_70070_b(p_78874_2_));
+                     var12.func_70539_a(var10, p_78874_2_, var3, var7, var4, var5, var6);
+                 }
+@@ -118,6 +141,27 @@
+                 GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+             }
+         }
++        
++        for (String key : effectList.keySet())
++        {
++            ForgeHooksClient.bindTexture(key, 0);
++            for (EntityFX entry : effectList.get(key))
++            {
++                if (entry == null) continue;
++                Tessellator tessallator = Tessellator.field_78398_a;
++                //GL11.glBindTexture(GL11.GL_TEXTURE_2D, renderer.getTexture(key));
++                tessallator.func_78382_b();
++        
++                if (entry.func_70537_b() != 3)
++                {
++                    tessallator.func_78380_c(entry.func_70070_b(p_78874_2_));
++                    entry.func_70539_a(tessallator, p_78874_2_, var3, var7, var4, var5, var6);
++                }
++        
++                tessallator.func_78381_a();
++            }
++            ForgeHooksClient.unbindTexture();
++        }
+     }
+ 
+     public void func_78872_b(Entity p_78872_1_, float p_78872_2_)
+@@ -136,6 +180,7 @@
+             for (int var11 = 0; var11 < this.field_78876_b[var9].size(); ++var11)
+             {
+                 EntityFX var12 = (EntityFX)this.field_78876_b[var9].get(var11);
++                if (var12 == null) continue;
+                 var10.func_78380_c(var12.func_70070_b(p_78872_2_));
+                 var12.func_70539_a(var10, p_78872_2_, var4, var8, var5, var6, var7);
+             }
+@@ -150,13 +195,15 @@
+         {
+             this.field_78876_b[var2].clear();
+         }
++        
++        effectList.clear();
+     }
+ 
+     public void func_78871_a(int p_78871_1_, int p_78871_2_, int p_78871_3_, int p_78871_4_, int p_78871_5_)
+     {
+-        if (p_78871_4_ != 0)
++        Block var6 = Block.field_71973_m[p_78871_4_];
++        if (var6 != null && !var6.addBlockDestroyEffects(field_78878_a, p_78871_1_, p_78871_2_, p_78871_3_, p_78871_5_, this))
+         {
+-            Block var6 = Block.field_71973_m[p_78871_4_];
+             byte var7 = 4;
+ 
+             for (int var8 = 0; var8 < var7; ++var8)
+@@ -169,7 +216,7 @@
+                         double var13 = (double)p_78871_2_ + ((double)var9 + 0.5D) / (double)var7;
+                         double var15 = (double)p_78871_3_ + ((double)var10 + 0.5D) / (double)var7;
+                         int var17 = this.field_78875_d.nextInt(6);
+-                        this.func_78873_a((new EntityDiggingFX(this.field_78878_a, var11, var13, var15, var11 - (double)p_78871_1_ - 0.5D, var13 - (double)p_78871_2_ - 0.5D, var15 - (double)p_78871_3_ - 0.5D, var6, var17, p_78871_5_)).func_70596_a(p_78871_1_, p_78871_2_, p_78871_3_));
++                        this.addEffect((new EntityDiggingFX(this.field_78878_a, var11, var13, var15, var11 - (double)p_78871_1_ - 0.5D, var13 - (double)p_78871_2_ - 0.5D, var15 - (double)p_78871_3_ - 0.5D, var6, var17, p_78871_5_)).func_70596_a(p_78871_1_, p_78871_2_, p_78871_3_), var6);
+                     }
+                 }
+             }
+@@ -218,12 +265,60 @@
+                 var8 = (double)p_78867_1_ + var6.func_83007_w() + (double)var7;
+             }
+ 
+-            this.func_78873_a((new EntityDiggingFX(this.field_78878_a, var8, var10, var12, 0.0D, 0.0D, 0.0D, var6, p_78867_4_, this.field_78878_a.func_72805_g(p_78867_1_, p_78867_2_, p_78867_3_))).func_70596_a(p_78867_1_, p_78867_2_, p_78867_3_).func_70543_e(0.2F).func_70541_f(0.6F));
++            this.addEffect((new EntityDiggingFX(this.field_78878_a, var8, var10, var12, 0.0D, 0.0D, 0.0D, var6, p_78867_4_, this.field_78878_a.func_72805_g(p_78867_1_, p_78867_2_, p_78867_3_))).func_70596_a(p_78867_1_, p_78867_2_, p_78867_3_).func_70543_e(0.2F).func_70541_f(0.6F), var6);
+         }
+     }
+ 
+     public String func_78869_b()
+     {
+-        return "" + (this.field_78876_b[0].size() + this.field_78876_b[1].size() + this.field_78876_b[2].size());
++        int size = 0;
++        for (List x : field_78876_b)
++        {
++            size += x.size();
++        }
++        size += effectList.size();
++        return Integer.toString(size);
++    }
++    
++    public void addEffect(EntityFX effect, Object obj)
++    {
++        if (obj == null || !(obj instanceof Block || obj instanceof Item))
++        {
++            func_78873_a(effect);
++            return;
++        }
++        
++        if (obj instanceof Item && ((Item)obj).isDefaultTexture)
++        {
++            func_78873_a(effect);
++            return;
++        }
++        
++        if (obj instanceof Block && ((Block)obj).isDefaultTexture)
++        {
++            func_78873_a(effect);
++            return;
++        }
++        
++        String texture = "/terrain.png";
++        if (effect.func_70537_b() == 0)
++        {
++            texture = "/particles.png";
++        }
++        else if (effect.func_70537_b() == 2)
++        {
++            texture = "/gui/items.png";
++        }
++        texture = ForgeHooks.getTexture(texture, obj);
++        effectList.put(texture, effect);
++    }
++    
++    public void addBlockHitEffects(int x, int y, int z, MovingObjectPosition target)
++    {
++        Block block = Block.field_71973_m[field_78878_a.func_72798_a(x, y, z)];
++        if (block != null && !block.addBlockHitEffects(field_78878_a, target, this))
++        {
++            func_78867_a(x, y, z, target.field_72310_e);
++        }
+     }
+ }

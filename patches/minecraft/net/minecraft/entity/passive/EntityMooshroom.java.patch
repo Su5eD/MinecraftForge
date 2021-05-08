@@ -1,0 +1,79 @@
+--- ../src-base/minecraft/net/minecraft/entity/passive/EntityMooshroom.java
++++ ../src-work/minecraft/net/minecraft/entity/passive/EntityMooshroom.java
+@@ -8,7 +8,11 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.world.World;
+ 
+-public class EntityMooshroom extends EntityCow
++import java.util.ArrayList;
++
++import net.minecraftforge.common.IShearable;
++
++public class EntityMooshroom extends EntityCow implements IShearable
+ {
+     public EntityMooshroom(World p_i3518_1_)
+     {
+@@ -36,31 +40,7 @@
+             }
+         }
+ 
+-        if (var2 != null && var2.field_77993_c == Item.field_77745_be.field_77779_bT && this.func_70874_b() >= 0)
+-        {
+-            this.func_70106_y();
+-            this.field_70170_p.func_72869_a("largeexplode", this.field_70165_t, this.field_70163_u + (double)(this.field_70131_O / 2.0F), this.field_70161_v, 0.0D, 0.0D, 0.0D);
+-
+-            if (!this.field_70170_p.field_72995_K)
+-            {
+-                EntityCow var3 = new EntityCow(this.field_70170_p);
+-                var3.func_70012_b(this.field_70165_t, this.field_70163_u, this.field_70161_v, this.field_70177_z, this.field_70125_A);
+-                var3.func_70606_j(this.func_70630_aN());
+-                var3.field_70761_aq = this.field_70761_aq;
+-                this.field_70170_p.func_72838_d(var3);
+-
+-                for (int var4 = 0; var4 < 5; ++var4)
+-                {
+-                    this.field_70170_p.func_72838_d(new EntityItem(this.field_70170_p, this.field_70165_t, this.field_70163_u + (double)this.field_70131_O, this.field_70161_v, new ItemStack(Block.field_72103_ag)));
+-                }
+-            }
+-
+-            return true;
+-        }
+-        else
+-        {
+-            return super.func_70085_c(p_70085_1_);
+-        }
++        return super.func_70085_c(p_70085_1_);
+     }
+ 
+     public EntityMooshroom func_70879_a(EntityAgeable p_70879_1_)
+@@ -71,5 +51,30 @@
+     public EntityAgeable func_90011_a(EntityAgeable p_90011_1_)
+     {
+         return this.func_70879_a(p_90011_1_);
++    }
++    
++    @Override
++    public boolean isShearable(ItemStack item, World world, int X, int Y, int Z)
++    {
++        return func_70874_b() >= 0;
++    }
++    
++    @Override
++    public ArrayList<ItemStack> onSheared(ItemStack item, World world, int X, int Y, int Z, int fortune)
++    {
++        func_70106_y();
++        EntityCow entitycow = new EntityCow(field_70170_p);
++        entitycow.func_70012_b(field_70165_t, field_70163_u, field_70161_v, field_70177_z, field_70125_A);
++        entitycow.func_70606_j(func_70630_aN());
++        entitycow.field_70761_aq = field_70761_aq;
++        field_70170_p.func_72838_d(entitycow);
++        field_70170_p.func_72869_a("largeexplode", field_70165_t, field_70163_u + (double)(field_70131_O / 2.0F), field_70161_v, 0.0D, 0.0D, 0.0D);
++    
++        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
++        for (int x = 0; x < 5; x++)
++        {
++            ret.add(new ItemStack(Block.field_72103_ag));
++        }
++        return ret;
+     }
+ }

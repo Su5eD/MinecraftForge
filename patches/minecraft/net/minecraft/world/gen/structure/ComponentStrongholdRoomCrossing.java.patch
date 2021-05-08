@@ -1,0 +1,21 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentStrongholdRoomCrossing.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentStrongholdRoomCrossing.java
+@@ -7,6 +7,9 @@
+ import net.minecraft.util.WeightedRandomChestContent;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.ChestGenHooks;
++import static net.minecraftforge.common.ChestGenHooks.*;
++
+ public class ComponentStrongholdRoomCrossing extends ComponentStronghold
+ {
+     public static final WeightedRandomChestContent[] field_75014_c = new WeightedRandomChestContent[] {new WeightedRandomChestContent(Item.field_77703_o.field_77779_bT, 0, 1, 5, 10), new WeightedRandomChestContent(Item.field_77717_p.field_77779_bT, 0, 1, 3, 5), new WeightedRandomChestContent(Item.field_77767_aC.field_77779_bT, 0, 4, 9, 5), new WeightedRandomChestContent(Item.field_77705_m.field_77779_bT, 0, 3, 8, 10), new WeightedRandomChestContent(Item.field_77684_U.field_77779_bT, 0, 1, 3, 15), new WeightedRandomChestContent(Item.field_77706_j.field_77779_bT, 0, 1, 3, 15), new WeightedRandomChestContent(Item.field_77696_g.field_77779_bT, 0, 1, 1, 1)};
+@@ -136,7 +139,7 @@
+                     this.func_74864_a(p_74875_1_, Block.field_72055_aF.field_71990_ca, this.func_74863_c(Block.field_72055_aF.field_71990_ca, 4), 9, 1, 3, p_74875_3_);
+                     this.func_74864_a(p_74875_1_, Block.field_72055_aF.field_71990_ca, this.func_74863_c(Block.field_72055_aF.field_71990_ca, 4), 9, 2, 3, p_74875_3_);
+                     this.func_74864_a(p_74875_1_, Block.field_72055_aF.field_71990_ca, this.func_74863_c(Block.field_72055_aF.field_71990_ca, 4), 9, 3, 3, p_74875_3_);
+-                    this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 3, 4, 8, WeightedRandomChestContent.func_92080_a(field_75014_c, new WeightedRandomChestContent[] {Item.field_92105_bW.func_92114_b(p_74875_2_)}), 1 + p_74875_2_.nextInt(4));
++                    this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 3, 4, 8, ChestGenHooks.getItems(STRONGHOLD_CROSSING, p_74875_2_), ChestGenHooks.getCount(STRONGHOLD_CROSSING, p_74875_2_));
+             }
+ 
+             return true;

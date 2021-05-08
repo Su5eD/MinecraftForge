@@ -1,0 +1,100 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockLeaves.java
++++ ../src-work/minecraft/net/minecraft/block/BlockLeaves.java
+@@ -2,6 +2,8 @@
+ 
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
++
++import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.block.material.Material;
+@@ -14,7 +16,9 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
+-public class BlockLeaves extends BlockLeavesBase
++import net.minecraftforge.common.IShearable;
++
++public class BlockLeaves extends BlockLeavesBase implements IShearable
+ {
+     private int field_72134_cr;
+     public static final String[] field_72136_a = new String[] {"oak", "spruce", "birch", "jungle"};
+@@ -91,10 +95,9 @@
+                     {
+                         int var12 = p_71852_1_.func_72798_a(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);
+ 
+-                        if (var12 == Block.field_71952_K.field_71990_ca)
++                        if (Block.field_71973_m[var12] != null)
+                         {
+-                            int var13 = p_71852_1_.func_72805_g(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);
+-                            p_71852_1_.func_72881_d(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11, var13 | 8);
++                            Block.field_71973_m[var12].beginLeavesDecay(p_71852_1_, p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);
+                         }
+                     }
+                 }
+@@ -137,11 +140,13 @@
+                             {
+                                 var15 = p_71847_1_.func_72798_a(p_71847_2_ + var12, p_71847_3_ + var13, p_71847_4_ + var14);
+ 
+-                                if (var15 == Block.field_71951_J.field_71990_ca)
++                                Block block = Block.field_71973_m[var15];
++                                
++                                if (block != null && block.canSustainLeaves(p_71847_1_, p_71847_2_ + var12, p_71847_3_ + var13, p_71847_4_ + var14))
+                                 {
+                                     this.field_72135_b[(var12 + var11) * var10 + (var13 + var11) * var9 + var14 + var11] = 0;
+                                 }
+-                                else if (var15 == Block.field_71952_K.field_71990_ca)
++                                else if (block != null && block.isLeaves(p_71847_1_, p_71847_2_ + var12, p_71847_3_ + var13, p_71847_4_ + var14))
+                                 {
+                                     this.field_72135_b[(var12 + var11) * var10 + (var13 + var11) * var9 + var14 + var11] = -2;
+                                 }
+@@ -267,15 +272,7 @@
+ 
+     public void func_71893_a(World p_71893_1_, EntityPlayer p_71893_2_, int p_71893_3_, int p_71893_4_, int p_71893_5_, int p_71893_6_)
+     {
+-        if (!p_71893_1_.field_72995_K && p_71893_2_.func_71045_bC() != null && p_71893_2_.func_71045_bC().field_77993_c == Item.field_77745_be.field_77779_bT)
+-        {
+-            p_71893_2_.func_71064_a(StatList.field_75934_C[this.field_71990_ca], 1);
+-            this.func_71929_a(p_71893_1_, p_71893_3_, p_71893_4_, p_71893_5_, new ItemStack(Block.field_71952_K.field_71990_ca, 1, p_71893_6_ & 3));
+-        }
+-        else
+-        {
+-            super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
+-        }
++        super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
+     }
+ 
+     public int func_71899_b(int p_71899_1_)
+@@ -312,5 +309,31 @@
+     protected ItemStack func_71880_c_(int p_71880_1_)
+     {
+         return new ItemStack(this.field_71990_ca, 1, p_71880_1_ & 3);
++    }
++    
++    @Override
++    public boolean isShearable(ItemStack item, World world, int x, int y, int z)
++    {
++        return true;
++    }
++    
++    @Override
++    public ArrayList<ItemStack> onSheared(ItemStack item, World world, int x, int y, int z, int fortune)
++    {
++        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
++        ret.add(new ItemStack(this, 1, world.func_72805_g(x, y, z) & 3));
++        return ret;
++    }
++    
++    @Override
++    public void beginLeavesDecay(World world, int x, int y, int z)
++    {
++        world.func_72881_d(x, y, z, world.func_72805_g(x, y, z) | 8);
++    }
++    
++    @Override
++    public boolean isLeaves(World world, int x, int y, int z)
++    {
++        return true;
+     }
+ }

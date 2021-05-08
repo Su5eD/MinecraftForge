@@ -1,0 +1,122 @@
+--- ../src-base/minecraft/net/minecraft/server/management/PlayerInstance.java
++++ ../src-work/minecraft/net/minecraft/server/management/PlayerInstance.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.server.management;
+ 
+ import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.List;
+ import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.network.packet.Packet;
+@@ -9,10 +10,16 @@
+ import net.minecraft.network.packet.Packet53BlockChange;
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.world.ChunkCoordIntPair;
++import net.minecraftforge.common.ForgeDummyContainer;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.world.ChunkWatchEvent;
+ 
+ public class PlayerInstance
+ {
+-    private final List field_73263_b;
++    public static int clumpingThreshold;
++    
++    public final List field_73263_b;
++    
+     private final ChunkCoordIntPair field_73264_c;
+     private short[] field_73261_d;
+     private int field_73262_e;
+@@ -50,6 +57,8 @@
+             p_73252_1_.field_71135_a.func_72567_b(new Packet51MapChunk(PlayerManager.func_72692_a(this.field_73265_a).func_72964_e(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b), true, 0));
+             this.field_73263_b.remove(p_73252_1_);
+             p_73252_1_.field_71129_f.remove(this.field_73264_c);
++            
++            MinecraftForge.EVENT_BUS.post(new ChunkWatchEvent.UnWatch(field_73264_c, p_73252_1_));
+ 
+             if (this.field_73263_b.isEmpty())
+             {
+@@ -75,20 +84,21 @@
+ 
+         this.field_73260_f |= 1 << (p_73259_2_ >> 4);
+ 
+-        if (this.field_73262_e < 64)
++        short var4 = (short)(p_73259_1_ << 12 | p_73259_3_ << 8 | p_73259_2_);
++        
++        for (int var5 = 0; var5 < this.field_73262_e; ++var5)
+         {
+-            short var4 = (short)(p_73259_1_ << 12 | p_73259_3_ << 8 | p_73259_2_);
+-
+-            for (int var5 = 0; var5 < this.field_73262_e; ++var5)
++            if (this.field_73261_d[var5] == var4)
+             {
+-                if (this.field_73261_d[var5] == var4)
+-                {
+-                    return;
+-                }
++                return;
+             }
+-
+-            this.field_73261_d[this.field_73262_e++] = var4;
+-        }
++        }
++        
++        if (this.field_73262_e == field_73261_d.length)
++        {
++            this.field_73261_d = Arrays.copyOf(this.field_73261_d, field_73261_d.length << 1);
++        }
++        this.field_73261_d[this.field_73262_e++] = var4;
+     }
+ 
+     public void func_73256_a(Packet p_73256_1_)
+@@ -128,40 +138,27 @@
+             {
+                 int var4;
+ 
+-                if (this.field_73262_e == 64)
++                if (this.field_73262_e >= ForgeDummyContainer.clumpingThreshold)
+                 {
+                     var1 = this.field_73264_c.field_77276_a * 16;
+                     var2 = this.field_73264_c.field_77275_b * 16;
+                     this.func_73256_a(new Packet51MapChunk(PlayerManager.func_72692_a(this.field_73265_a).func_72964_e(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b), false, this.field_73260_f));
+ 
+-                    for (var3 = 0; var3 < 16; ++var3)
+-                    {
+-                        if ((this.field_73260_f & 1 << var3) != 0)
+-                        {
+-                            var4 = var3 << 4;
+-                            List var5 = PlayerManager.func_72692_a(this.field_73265_a).func_73049_a(var1, var4, var2, var1 + 16, var4 + 16, var2 + 16);
+-
+-                            for (int var6 = 0; var6 < var5.size(); ++var6)
+-                            {
+-                                this.func_73257_a((TileEntity)var5.get(var6));
+-                            }
+-                        }
+-                    }
+                 }
+                 else
+                 {
+                     this.func_73256_a(new Packet52MultiBlockChange(this.field_73264_c.field_77276_a, this.field_73264_c.field_77275_b, this.field_73261_d, this.field_73262_e, PlayerManager.func_72692_a(this.field_73265_a)));
+-
+-                    for (var1 = 0; var1 < this.field_73262_e; ++var1)
++                }
++                
++                for (var1 = 0; var1 < this.field_73262_e; ++var1)
++                {
++                    var2 = this.field_73264_c.field_77276_a * 16 + (this.field_73261_d[var1] >> 12 & 15);
++                    var3 = this.field_73261_d[var1] & 255;
++                    var4 = this.field_73264_c.field_77275_b * 16 + (this.field_73261_d[var1] >> 8 & 15);
++                
++                    if (PlayerManager.func_72692_a(this.field_73265_a).func_72927_d(var2, var3, var4))
+                     {
+-                        var2 = this.field_73264_c.field_77276_a * 16 + (this.field_73261_d[var1] >> 12 & 15);
+-                        var3 = this.field_73261_d[var1] & 255;
+-                        var4 = this.field_73264_c.field_77275_b * 16 + (this.field_73261_d[var1] >> 8 & 15);
+-
+-                        if (PlayerManager.func_72692_a(this.field_73265_a).func_72927_d(var2, var3, var4))
+-                        {
+-                            this.func_73257_a(PlayerManager.func_72692_a(this.field_73265_a).func_72796_p(var2, var3, var4));
+-                        }
++                        this.func_73257_a(PlayerManager.func_72692_a(this.field_73265_a).func_72796_p(var2, var3, var4));
+                     }
+                 }
+             }

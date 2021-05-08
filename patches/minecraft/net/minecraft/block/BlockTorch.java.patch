@@ -1,0 +1,122 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockTorch.java
++++ ../src-work/minecraft/net/minecraft/block/BlockTorch.java
+@@ -10,6 +10,9 @@
+ import net.minecraft.util.Vec3;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.ForgeDirection;
++import static net.minecraftforge.common.ForgeDirection.*;
++
+ public class BlockTorch extends Block
+ {
+     protected BlockTorch(int p_i4013_1_, int p_i4013_2_)
+@@ -48,13 +51,17 @@
+         else
+         {
+             int var5 = p_72125_1_.func_72798_a(p_72125_2_, p_72125_3_, p_72125_4_);
+-            return var5 == Block.field_72031_aZ.field_71990_ca || var5 == Block.field_72098_bB.field_71990_ca || var5 == Block.field_71946_M.field_71990_ca || var5 == Block.field_82515_ce.field_71990_ca;
++            return (Block.field_71973_m[var5] != null && Block.field_71973_m[var5].canPlaceTorchOnTop(p_72125_1_, p_72125_2_, p_72125_3_, p_72125_4_));
+         }
+     }
+ 
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+     {
+-        return p_71930_1_.func_72887_b(p_71930_2_ - 1, p_71930_3_, p_71930_4_, true) ? true : (p_71930_1_.func_72887_b(p_71930_2_ + 1, p_71930_3_, p_71930_4_, true) ? true : (p_71930_1_.func_72887_b(p_71930_2_, p_71930_3_, p_71930_4_ - 1, true) ? true : (p_71930_1_.func_72887_b(p_71930_2_, p_71930_3_, p_71930_4_ + 1, true) ? true : this.func_72125_l(p_71930_1_, p_71930_2_, p_71930_3_ - 1, p_71930_4_))));
++        return p_71930_1_.isBlockSolidOnSide(p_71930_2_ - 1, p_71930_3_, p_71930_4_, EAST,  true) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_ + 1, p_71930_3_, p_71930_4_, WEST,  true) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_, p_71930_3_, p_71930_4_ - 1, SOUTH, true) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_, p_71930_3_, p_71930_4_ + 1, NORTH, true) ||
++                func_72125_l(p_71930_1_, p_71930_2_, p_71930_3_ - 1, p_71930_4_);
+     }
+ 
+     public int func_85104_a(World p_85104_1_, int p_85104_2_, int p_85104_3_, int p_85104_4_, int p_85104_5_, float p_85104_6_, float p_85104_7_, float p_85104_8_, int p_85104_9_)
+@@ -66,22 +73,22 @@
+             var10 = 5;
+         }
+ 
+-        if (p_85104_5_ == 2 && p_85104_1_.func_72887_b(p_85104_2_, p_85104_3_, p_85104_4_ + 1, true))
++        if (p_85104_5_ == 2 && p_85104_1_.isBlockSolidOnSide(p_85104_2_, p_85104_3_, p_85104_4_ + 1, NORTH, true))
+         {
+             var10 = 4;
+         }
+ 
+-        if (p_85104_5_ == 3 && p_85104_1_.func_72887_b(p_85104_2_, p_85104_3_, p_85104_4_ - 1, true))
++        if (p_85104_5_ == 3 && p_85104_1_.isBlockSolidOnSide(p_85104_2_, p_85104_3_, p_85104_4_ - 1, SOUTH, true))
+         {
+             var10 = 3;
+         }
+ 
+-        if (p_85104_5_ == 4 && p_85104_1_.func_72887_b(p_85104_2_ + 1, p_85104_3_, p_85104_4_, true))
++        if (p_85104_5_ == 4 && p_85104_1_.isBlockSolidOnSide(p_85104_2_ + 1, p_85104_3_, p_85104_4_, WEST, true))
+         {
+             var10 = 2;
+         }
+ 
+-        if (p_85104_5_ == 5 && p_85104_1_.func_72887_b(p_85104_2_ - 1, p_85104_3_, p_85104_4_, true))
++        if (p_85104_5_ == 5 && p_85104_1_.isBlockSolidOnSide(p_85104_2_ - 1, p_85104_3_, p_85104_4_, EAST, true))
+         {
+             var10 = 1;
+         }
+@@ -103,19 +110,19 @@
+     {
+         if (p_71861_1_.func_72805_g(p_71861_2_, p_71861_3_, p_71861_4_) == 0)
+         {
+-            if (p_71861_1_.func_72887_b(p_71861_2_ - 1, p_71861_3_, p_71861_4_, true))
++            if (p_71861_1_.isBlockSolidOnSide(p_71861_2_ - 1, p_71861_3_, p_71861_4_, EAST, true))
+             {
+                 p_71861_1_.func_72921_c(p_71861_2_, p_71861_3_, p_71861_4_, 1);
+             }
+-            else if (p_71861_1_.func_72887_b(p_71861_2_ + 1, p_71861_3_, p_71861_4_, true))
++            else if (p_71861_1_.isBlockSolidOnSide(p_71861_2_ + 1, p_71861_3_, p_71861_4_, WEST, true))
+             {
+                 p_71861_1_.func_72921_c(p_71861_2_, p_71861_3_, p_71861_4_, 2);
+             }
+-            else if (p_71861_1_.func_72887_b(p_71861_2_, p_71861_3_, p_71861_4_ - 1, true))
++            else if (p_71861_1_.isBlockSolidOnSide(p_71861_2_, p_71861_3_, p_71861_4_ - 1, SOUTH, true))
+             {
+                 p_71861_1_.func_72921_c(p_71861_2_, p_71861_3_, p_71861_4_, 3);
+             }
+-            else if (p_71861_1_.func_72887_b(p_71861_2_, p_71861_3_, p_71861_4_ + 1, true))
++            else if (p_71861_1_.isBlockSolidOnSide(p_71861_2_, p_71861_3_, p_71861_4_ + 1, NORTH, true))
+             {
+                 p_71861_1_.func_72921_c(p_71861_2_, p_71861_3_, p_71861_4_, 4);
+             }
+@@ -135,22 +142,22 @@
+             int var6 = p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_);
+             boolean var7 = false;
+ 
+-            if (!p_71863_1_.func_72887_b(p_71863_2_ - 1, p_71863_3_, p_71863_4_, true) && var6 == 1)
+-            {
+-                var7 = true;
+-            }
+-
+-            if (!p_71863_1_.func_72887_b(p_71863_2_ + 1, p_71863_3_, p_71863_4_, true) && var6 == 2)
+-            {
+-                var7 = true;
+-            }
+-
+-            if (!p_71863_1_.func_72887_b(p_71863_2_, p_71863_3_, p_71863_4_ - 1, true) && var6 == 3)
+-            {
+-                var7 = true;
+-            }
+-
+-            if (!p_71863_1_.func_72887_b(p_71863_2_, p_71863_3_, p_71863_4_ + 1, true) && var6 == 4)
++            if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_ - 1, p_71863_3_, p_71863_4_, EAST, true) && var6 == 1)
++            {
++                var7 = true;
++            }
++            
++            if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_ + 1, p_71863_3_, p_71863_4_, WEST, true) && var6 == 2)
++            {
++                var7 = true;
++            }
++            
++            if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_, p_71863_3_, p_71863_4_ - 1, SOUTH, true) && var6 == 3)
++            {
++                var7 = true;
++            }
++            
++            if (!p_71863_1_.isBlockSolidOnSide(p_71863_2_, p_71863_3_, p_71863_4_ + 1, NORTH, true) && var6 == 4)
+             {
+                 var7 = true;
+             }

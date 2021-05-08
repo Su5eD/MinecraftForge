@@ -1,0 +1,28 @@
+--- ../src-base/minecraft/net/minecraft/item/EnumToolMaterial.java
++++ ../src-work/minecraft/net/minecraft/item/EnumToolMaterial.java
+@@ -14,6 +14,9 @@
+     private final float field_78010_h;
+     private final int field_78011_i;
+     private final int field_78008_j;
++    
++    //Added by forge for custom Armor materials.
++    public Item customCraftingMaterial = null;
+ 
+     private static final EnumToolMaterial[] $VALUES = new EnumToolMaterial[]{WOOD, STONE, IRON, EMERALD, GOLD};
+ 
+@@ -53,6 +56,14 @@
+ 
+     public int func_82844_f()
+     {
+-        return this == WOOD ? Block.field_71988_x.field_71990_ca : (this == STONE ? Block.field_71978_w.field_71990_ca : (this == GOLD ? Item.field_77717_p.field_77779_bT : (this == IRON ? Item.field_77703_o.field_77779_bT : (this == EMERALD ? Item.field_77702_n.field_77779_bT : 0))));
++        switch (this)
++        {
++            case WOOD:    return Block.field_71988_x.field_71990_ca;
++            case STONE:   return Block.field_71978_w.field_71990_ca;
++            case GOLD:    return Item.field_77717_p.field_77779_bT;
++            case IRON:    return Item.field_77703_o.field_77779_bT;
++            case EMERALD: return Item.field_77702_n.field_77779_bT;
++            default:      return (customCraftingMaterial == null ? 0 : customCraftingMaterial.field_77779_bT);
++        }
+     }
+ }

@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/WorldType.java
 +++ ../src-work/minecraft/net/minecraft/world/WorldType.java
-@@ -3,8 +3,23 @@
+@@ -3,8 +3,26 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  
@@ -11,6 +11,9 @@
 +import com.google.common.collect.ObjectArrays;
 +import com.google.common.collect.Sets;
 +
++import net.minecraft.client.Minecraft;
++import net.minecraft.client.gui.GuiCreateFlatWorld;
++import net.minecraft.client.gui.GuiCreateWorld;
 +import net.minecraft.world.*;
 +import net.minecraft.world.gen.*;
 +import net.minecraft.world.biome.*;
@@ -24,7 +27,7 @@
      public static final WorldType[] field_77139_a = new WorldType[16];
      public static final WorldType field_77137_b = (new WorldType(0, "default", 1)).func_77129_f();
      public static final WorldType field_77138_c = new WorldType(1, "flat");
-@@ -16,6 +31,8 @@
+@@ -16,6 +34,8 @@
      private boolean field_77140_h;
      private boolean field_77141_i;
  
@@ -33,7 +36,7 @@
      public WorldType(int p_i3737_1_, String p_i3737_2_)
      {
          this(p_i3737_1_, p_i3737_2_, 0);
-@@ -28,6 +45,15 @@
+@@ -28,6 +48,15 @@
          this.field_77140_h = true;
          this.field_82748_f = p_i3738_1_;
          field_77139_a[p_i3738_1_] = this;
@@ -49,10 +52,11 @@
      }
  
      public String func_77127_a()
-@@ -91,4 +117,70 @@
+@@ -90,5 +119,103 @@
+     public int func_82747_f()
      {
          return this.field_82748_f;
-     }
++    }
 +
 +    public WorldChunkManager getChunkManager(World world)
 +    {
@@ -119,4 +123,36 @@
 +     * Called when 'Create New World' button is pressed before starting game
 +     */
 +    public void onGUICreateWorldPress() { }
++    
++    /**
++     * Gets the spawn fuzz for players who join the world.
++     * Useful for void world types.
++     * @return Fuzz for entity initial spawn in blocks.
++     */
++    public int getSpawnFuzz()
++    {
++        return 20;
++    }
++    
++    /**
++     * Called when the 'Customize' button is pressed on world creation GUI
++     * @param instance The minecraft instance
++     * @param guiCreateWorld the createworld GUI
++     */
++    @SideOnly(Side.CLIENT)
++    public void onCustomizeButton(Minecraft instance, GuiCreateWorld guiCreateWorld) {
++        if (this == field_77138_c)
++        {
++            instance.func_71373_a(new GuiCreateFlatWorld(guiCreateWorld, guiCreateWorld.field_82290_a));
++        }
++    }
++    
++    /*
++     * Should world creation GUI show 'Customize' button for this world type?
++     * @return if this world type has customization parameters
++     */
++    public boolean isCustomizable()
++    {
++        return this == field_77138_c;
+     }
  }

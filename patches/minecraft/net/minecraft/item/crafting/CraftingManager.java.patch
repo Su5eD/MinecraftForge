@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/item/crafting/CraftingManager.java
++++ ../src-work/minecraft/net/minecraft/item/crafting/CraftingManager.java
+@@ -263,7 +263,7 @@
+             }
+         }
+ 
+-        if (var3 == 2 && var4.field_77993_c == var5.field_77993_c && var4.field_77994_a == 1 && var5.field_77994_a == 1 && Item.field_77698_e[var4.field_77993_c].func_77645_m())
++        if (var3 == 2 && var4.field_77993_c == var5.field_77993_c && var4.field_77994_a == 1 && var5.field_77994_a == 1 && Item.field_77698_e[var4.field_77993_c].isRepairable())
+         {
+             Item var11 = Item.field_77698_e[var4.field_77993_c];
+             int var13 = var11.func_77612_l() - var4.func_77952_i();

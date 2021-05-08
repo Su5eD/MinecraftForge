@@ -1,0 +1,61 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenTaiga2.java
++++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenTaiga2.java
+@@ -2,7 +2,9 @@
+ 
+ import java.util.Random;
+ import net.minecraft.block.Block;
++import net.minecraft.block.BlockSapling;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.ForgeDirection;
+ 
+ public class WorldGenTaiga2 extends WorldGenerator
+ {
+@@ -47,7 +49,9 @@
+                         {
+                             var15 = p_76484_1_.func_72798_a(var13, var11, var14);
+ 
+-                            if (var15 != 0 && var15 != Block.field_71952_K.field_71990_ca)
++                            Block block = Block.field_71973_m[var15];
++                            
++                            if (var15 != 0 && block != null && !block.isLeaves(p_76484_1_, var13, var11, var14))
+                             {
+                                 var10 = false;
+                             }
+@@ -67,10 +71,12 @@
+             else
+             {
+                 var11 = p_76484_1_.func_72798_a(p_76484_3_, p_76484_4_ - 1, p_76484_5_);
++                Block soil = Block.field_71973_m[var11];
++                boolean isValidSoil = soil != null && soil.canSustainPlant(p_76484_1_, p_76484_3_, p_76484_4_ - 1, p_76484_5_, ForgeDirection.UP, (BlockSapling)Block.field_71987_y);
+ 
+-                if ((var11 == Block.field_71980_u.field_71990_ca || var11 == Block.field_71979_v.field_71990_ca) && p_76484_4_ < 256 - var6 - 1)
++                if (isValidSoil && p_76484_4_ < 256 - var6 - 1)
+                 {
+-                    this.func_76486_a(p_76484_1_, p_76484_3_, p_76484_4_ - 1, p_76484_5_, Block.field_71979_v.field_71990_ca);
++                    soil.onPlantGrow(p_76484_1_, p_76484_3_, p_76484_4_ - 1, p_76484_5_, p_76484_3_, p_76484_4_, p_76484_5_);
+                     var21 = p_76484_2_.nextInt(2);
+                     var13 = 1;
+                     byte var22 = 0;
+@@ -89,7 +95,10 @@
+                             {
+                                 int var20 = var19 - p_76484_5_;
+ 
+-                                if ((Math.abs(var18) != var21 || Math.abs(var20) != var21 || var21 <= 0) && !Block.field_71970_n[p_76484_1_.func_72798_a(var17, var16, var19)])
++                                Block block = Block.field_71973_m[p_76484_1_.func_72798_a(var17, var16, var19)];
++                                
++                                if ((Math.abs(var18) != var21 || Math.abs(var20) != var21 || var21 <= 0) && 
++                                        (block == null || block.canBeReplacedByLeaves(p_76484_1_, var17, var16, var19)))
+                                 {
+                                     this.func_76485_a(p_76484_1_, var17, var16, var19, Block.field_71952_K.field_71990_ca, 1);
+                                 }
+@@ -119,7 +128,9 @@
+                     {
+                         var17 = p_76484_1_.func_72798_a(p_76484_3_, p_76484_4_ + var16, p_76484_5_);
+ 
+-                        if (var17 == 0 || var17 == Block.field_71952_K.field_71990_ca)
++                        Block block = Block.field_71973_m[var17];
++                        
++                        if (var17 == 0 || block == null || block.isLeaves(p_76484_1_, p_76484_3_, p_76484_4_ + var16, p_76484_5_))
+                         {
+                             this.func_76485_a(p_76484_1_, p_76484_3_, p_76484_4_ + var16, p_76484_5_, Block.field_71951_J.field_71990_ca, 1);
+                         }

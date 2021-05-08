@@ -7,12 +7,452 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.util.List;
-@@ -207,6 +208,8 @@
+@@ -12,15 +13,13 @@
+ import net.minecraft.entity.item.EntityItemFrame;
+ import net.minecraft.entity.item.EntityPainting;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.potion.Potion;
+ import net.minecraft.potion.PotionHelper;
+ import net.minecraft.stats.StatList;
+-import net.minecraft.util.MathHelper;
+-import net.minecraft.util.MovingObjectPosition;
+-import net.minecraft.util.StatCollector;
+-import net.minecraft.util.StringTranslate;
+-import net.minecraft.util.Vec3;
++import net.minecraft.util.*;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.ChestGenHooks;
+ 
+ public class Item
+ {
+@@ -196,6 +195,9 @@
+     private Item field_77700_c = null;
+     private String field_77785_bY = null;
+     private String field_77774_bZ;
++    
++    /** FORGE: To disable repair recipes. */
++    protected boolean canRepair = true;
+ 
+     public Item(int p_i3659_1_)
+     {
+@@ -203,10 +205,17 @@
+ 
+         if (field_77698_e[256 + p_i3659_1_] != null)
+         {
+-            System.out.println("CONFLICT @ " + p_i3659_1_);
++            System.out.println("CONFLICT @ " + p_i3659_1_ + " item slot already occupied by " + field_77698_e[256 + p_i3659_1_] + " while adding " + this);
          }
  
          field_77698_e[256 + p_i3659_1_] = this;
 +
 +        GameData.newItemAdded(this);
++        
++        if (!(this instanceof ItemBlock))
++        {
++            isDefaultTexture = "/gui/items.png".equals(getTextureFile());
++        }
      }
  
      public Item func_77665_c(int p_77665_1_)
+@@ -234,7 +243,7 @@
+     }
+ 
+     @SideOnly(Side.CLIENT)
+-    public final int func_77650_f(ItemStack p_77650_1_)
++    public int func_77650_f(ItemStack p_77650_1_)
+     {
+         return this.func_77617_a(p_77650_1_.func_77960_j());
+     }
+@@ -436,11 +445,17 @@
+         return this;
+     }
+ 
++    /**
++     * @Deprecated In favor of ItemStack sensitive version
++     */
+     public String func_77666_t()
+     {
+         return this.field_77785_bY;
+     }
+ 
++    /**
++     * @Deprecated In favor of ItemStack sensitive version
++     */
+     public boolean func_77632_u()
+     {
+         return this.field_77785_bY != null;
+@@ -489,6 +504,10 @@
+         float var18 = var15 * var16;
+         float var20 = var14 * var16;
+         double var21 = 5.0D;
++        if (p_77621_2_ instanceof EntityPlayerMP)
++        {
++            var21 = ((EntityPlayerMP)p_77621_2_).field_71134_c.getBlockReachDistance();
++        }
+         Vec3 var23 = var13.func_72441_c((double)var18 * var21, (double)var17 * var21, (double)var20 * var21);
+         return p_77621_1_.func_72831_a(var13, var23, p_77621_3_, !p_77621_3_);
+     }
+@@ -541,5 +560,362 @@
+     static
+     {
+         StatList.func_75925_c();
++    }
++    
++    /* =========================================================== FORGE START ===============================================================*/
++    public boolean isDefaultTexture = true;
++    private String currentTexture = "/gui/items.png";
++    
++    /**
++     * Called when a player drops the item into the world,
++     * returning false from this will prevent the item from
++     * being removed from the players inventory and spawning
++     * in the world
++     *
++     * @param player The player that dropped the item
++     * @param item The item stack, before the item is removed.
++     */
++    public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player)
++    {
++        return true;
++    }
++    
++    /**
++     * This is called when the item is used, before the block is activated.
++     * @param stack The Item Stack
++     * @param player The Player that used the item
++     * @param world The Current World
++     * @param x Target X Position
++     * @param y Target Y Position
++     * @param z Target Z Position
++     * @param side The side of the target hit
++     * @return Return true to prevent any further processing.
++     */
++    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
++    {
++        return false;
++    }
++    
++    /**
++     * Metadata-sensitive version of getStrVsBlock
++     * @param itemstack The Item Stack
++     * @param block The block the item is trying to break
++     * @param metadata The items current metadata
++     * @return The damage strength
++     */
++    public float getStrVsBlock(ItemStack itemstack, Block block, int metadata)
++    {
++        return func_77638_a(itemstack, block);
++    }
++    
++    /**
++     * Called by CraftingManager to determine if an item is reparable.
++     * @return True if reparable
++     */
++    public boolean isRepairable()
++    {
++        return canRepair && func_77645_m();
++    }
++    
++    /**
++     * Call to disable repair recipes.
++     * @return The current Item instance
++     */
++    public Item setNoRepair()
++    {
++        canRepair = false;
++        return this;
++    }
++    
++    /**
++     * Called before a block is broken.  Return true to prevent default block harvesting.
++     *
++     * Note: In SMP, this is called on both client and server sides!
++     *
++     * @param itemstack The current ItemStack
++     * @param X The X Position
++     * @param Y The X Position
++     * @param Z The X Position
++     * @param player The Player that is wielding the item
++     * @return True to prevent harvesting, false to continue as normal
++     */
++    public boolean onBlockStartBreak(ItemStack itemstack, int X, int Y, int Z, EntityPlayer player)
++    {
++        return false;
++    }
++    
++    /**
++     * Called each tick while using an item.
++     * @param stack The Item being used
++     * @param player The Player using the item
++     * @param count The amount of time in tick the item has been used for continuously
++     */
++    public void onUsingItemTick(ItemStack stack, EntityPlayer player, int count)
++    {
++    }
++    
++    /**
++     * Called when the player Left Clicks (attacks) an entity.
++     * Processed before damage is done, if return value is true further processing is canceled
++     * and the entity is not attacked.
++     *
++     * @param stack The Item being used
++     * @param player The player that is attacking
++     * @param entity The entity being attacked
++     * @return True to cancel the rest of the interaction.
++     */
++    public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
++    {
++        return false;
++    }
++    
++    /**
++     * Player, Render pass, and item usage sensitive version of getIconIndex.
++     *
++     * @param stack The item stack to get the icon for. (Usually this, and usingItem will be the same if usingItem is not null)
++     * @param renderPass The pass to get the icon for, 0 is default.
++     * @param player The player holding the item
++     * @param usingItem The item the player is actively using. Can be null if not using anything.
++     * @param useRemaining The ticks remaining for the active item.
++     * @return The icon index
++     */
++    public int getIconIndex(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining)
++    {
++        /*
++         * Here is an example usage for Vanilla bows.
++        if (usingItem != null && usingItem.getItem().shiftedIndex == Item.bow.shiftedIndex)
++        {
++            int k = usingItem.getMaxItemUseDuration() - useRemaining;
++            if (k >= 18) return 133;
++            if (k >  13) return 117;
++            if (k >   0) return 101;
++        }
++         */
++        return func_77650_f(stack);
++    }
++    
++    /**
++     * Returns the number of render passes/layers this item has.
++     * Usually equates to ItemRenderer.renderItem being called for this many passes.
++     * Does not get called unless requiresMultipleRenderPasses() is true;
++     *
++     * @param metadata The item's metadata
++     * @return The number of passes to run.
++     */
++    public int getRenderPasses(int metadata)
++    {
++        return func_77623_v() ? 2 : 1;
++    }
++    
++    /**
++     * Grabs the current texture file used for this block
++     */
++    public String getTextureFile()
++    {
++        if (this instanceof ItemBlock)
++        {
++            return Block.field_71973_m[((ItemBlock)this).func_77883_f()].getTextureFile();
++        }
++        return currentTexture;
++    }
++    
++    /**
++     * Sets the current texture file for this item, used when rendering.
++     * Default is "/gui/items.png"
++     *
++     * @param texture The texture file
++     */
++    public Item setTextureFile(String texture)
++    {
++        currentTexture = texture;
++        isDefaultTexture = false;
++        return this;
++    }
++    
++    /**
++     * ItemStack sensitive version of getContainerItem.
++     * Returns a full ItemStack instance of the result.
++     *
++     * @param itemStack The current ItemStack
++     * @return The resulting ItemStack
++     */
++    public ItemStack getContainerItemStack(ItemStack itemStack)
++    {
++        if (!func_77634_r())
++        {
++            return null;
++        }
++        return new ItemStack(func_77668_q());
++    }
++    
++    /**
++     * Retrieves the normal 'lifespan' of this item when it is dropped on the ground as a EntityItem.
++     * This is in ticks, standard result is 6000, or 5 mins.
++     *
++     * @param itemStack The current ItemStack
++     * @param world The world the entity is in
++     * @return The normal lifespan in ticks.
++     */
++    public int getEntityLifespan(ItemStack itemStack, World world)
++    {
++        return 6000;
++    }
++    
++    /**
++     * Determines if this Item has a special entity for when they are in the world.
++     * Is called when a EntityItem is spawned in the world, if true and Item#createCustomEntity
++     * returns non null, the EntityItem will be destroyed and the new Entity will be added to the world.
++     *
++     * @param stack The current item stack
++     * @return True of the item has a custom entity, If true, Item#createCustomEntity will be called
++     */
++    public boolean hasCustomEntity(ItemStack stack)
++    {
++        return false;
++    }
++    
++    /**
++     * This function should return a new entity to replace the dropped item.
++     * Returning null here will not kill the EntityItem and will leave it to function normally.
++     * Called when the item it placed in a world.
++     *
++     * @param world The world object
++     * @param location The EntityItem object, useful for getting the position of the entity
++     * @param itemstack The current item stack
++     * @return A new Entity object to spawn or null
++     */
++    public Entity createEntity(World world, Entity location, ItemStack itemstack)
++    {
++        return null;
++    }
++    
++    /**
++     * Gets a list of tabs that items belonging to this class can display on,
++     * combined properly with getSubItems allows for a single item to span
++     * many sub-items across many tabs.
++     *
++     * @return A list of all tabs that this item could possibly be one.
++     */
++    public CreativeTabs[] getCreativeTabs()
++    {
++        return new CreativeTabs[]{ func_77640_w() };
++    }
++    
++    /**
++     * Determines the base experience for a player when they remove this item from a furnace slot.
++     * This number must be between 0 and 1 for it to be valid.
++     * This number will be multiplied by the stack size to get the total experience.
++     *
++     * @param item The item stack the player is picking up.
++     * @return The amount to award for each item.
++     */
++    public float getSmeltingExperience(ItemStack item)
++    {
++        return -1; //-1 will default to the old lookups.
++    }
++    
++    /**
++     * Return the correct icon for rendering based on the supplied ItemStack and render pass.
++     *
++     * Defers to {@link #getIconFromDamageForRenderPass(int, int)}
++     * @param stack to render for
++     * @param pass the multi-render pass
++     * @return the icon index
++     */
++    public int getIconIndex(ItemStack stack, int pass)
++    {
++    	return func_77618_c(stack.func_77960_j(), pass);
++    }
++    
++    /**
++     * Generates the base Random item for a specific instance of the chest gen,
++     * Enchanted books use this to pick a random enchantment.
++     *
++     * @param chest The chest category to generate for
++     * @param rnd World RNG
++     * @param original Original result registered with the chest gen hooks.
++     * @return New values to use as the random item, typically this will be original
++     */
++    public WeightedRandomChestContent getChestGenBase(ChestGenHooks chest, Random rnd, WeightedRandomChestContent original)
++    {
++        if (this instanceof ItemEnchantedBook)
++        {
++            return ((ItemEnchantedBook)this).func_92112_a(rnd,
++                    original.field_76295_d,
++                    original.field_76296_e, original.field_76292_a);
++        }
++        return original;
++    }
++    
++    /**
++     *
++     * Should this item, when held, allow sneak-clicks to pass through to the underlying block?
++     *
++     * @param par2World
++     * @param par4
++     * @param par5
++     * @param par6
++     * @return
++     */
++    public boolean shouldPassSneakingClickToBlock(World par2World, int par4, int par5, int par6)
++    {
++        return false;
++    }
++    
++    
++    /**
++     * Called to tick armor in the armor slot. Override to do something
++     *
++     * @param world
++     * @param player
++     * @param itemStack
++     */
++    public void onArmorTickUpdate(World world, EntityPlayer player, ItemStack itemStack)
++    {
++    
++    }
++    
++    /**
++     * Determines if the specific ItemStack can be placed in the specified armor slot.
++     * 
++     * @param stack The ItemStack
++     * @param armorType Armor slot ID: 0: Helmet, 1: Chest, 2: Legs, 3: Boots
++     * @return True if the given ItemStack can be inserted in the slot
++     */
++    public boolean isValidArmor(ItemStack stack, int armorType)
++    {
++        if (this instanceof ItemArmor)
++        {
++            return ((ItemArmor)this).field_77881_a == armorType;
++        }
++    
++        if (armorType == 0)
++        {
++            return field_77779_bT == Block.field_72061_ba.field_71990_ca || field_77779_bT == Item.field_82799_bQ.field_77779_bT;
++        }
++    
++        return false;
++    }
++    
++    /**
++     * ItemStack sensitive version of isPotionIngredient
++     * 
++     * @param stack The item stack
++     * @return True if this stack can be used as a potion ingredient
++     */
++    public boolean isPotionIngredient(ItemStack stack)
++    {
++        return func_77632_u();
++    }
++    
++    /**
++     * ItemStack sensitive version of getPotionEffect
++     * 
++     * @param stack The item stack
++     * @return A string containing the bit manipulation to apply the the potion.
++     */
++    public String getPotionEffect(ItemStack stack)
++    {
++        return func_77666_t();
+     }
+ }

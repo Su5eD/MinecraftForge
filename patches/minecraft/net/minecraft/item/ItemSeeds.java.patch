@@ -1,0 +1,53 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemSeeds.java
++++ ../src-work/minecraft/net/minecraft/item/ItemSeeds.java
+@@ -1,10 +1,14 @@
+ package net.minecraft.item;
+ 
++import net.minecraft.block.Block;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.EnumPlantType;
++import net.minecraftforge.common.ForgeDirection;
++import net.minecraftforge.common.IPlantable;
+ 
+-public class ItemSeeds extends Item
++public class ItemSeeds extends Item implements IPlantable
+ {
+     private int field_77839_a;
+     private int field_77838_b;
+@@ -26,8 +30,9 @@
+         else if (p_77648_2_.func_82247_a(p_77648_4_, p_77648_5_, p_77648_6_, p_77648_7_, p_77648_1_) && p_77648_2_.func_82247_a(p_77648_4_, p_77648_5_ + 1, p_77648_6_, p_77648_7_, p_77648_1_))
+         {
+             int var11 = p_77648_3_.func_72798_a(p_77648_4_, p_77648_5_, p_77648_6_);
++            Block soil = Block.field_71973_m[var11];
+ 
+-            if (var11 == this.field_77838_b && p_77648_3_.func_72799_c(p_77648_4_, p_77648_5_ + 1, p_77648_6_))
++            if (soil != null && soil.canSustainPlant(p_77648_3_, p_77648_4_, p_77648_5_, p_77648_6_, ForgeDirection.UP, this) && p_77648_3_.func_72799_c(p_77648_4_, p_77648_5_ + 1, p_77648_6_))
+             {
+                 p_77648_3_.func_72859_e(p_77648_4_, p_77648_5_ + 1, p_77648_6_, this.field_77839_a);
+                 --p_77648_1_.field_77994_a;
+@@ -42,5 +47,23 @@
+         {
+             return false;
+         }
++    }
++    
++    @Override
++    public EnumPlantType getPlantType(World world, int x, int y, int z)
++    {
++        return (field_77839_a == Block.field_72094_bD.field_71990_ca ? EnumPlantType.Nether : EnumPlantType.Crop);
++    }
++    
++    @Override
++    public int getPlantID(World world, int x, int y, int z)
++    {
++        return field_77839_a;
++    }
++    
++    @Override
++    public int getPlantMetadata(World world, int x, int y, int z)
++    {
++        return 0;
+     }
+ }

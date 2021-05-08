@@ -7,21 +7,65 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import net.minecraft.block.Block;
-@@ -40,7 +41,12 @@
+@@ -12,14 +13,18 @@
+ import net.minecraft.client.renderer.entity.RenderManager;
+ import net.minecraft.client.renderer.entity.RenderPlayer;
+ import net.minecraft.entity.EntityLiving;
+-import net.minecraft.item.EnumAction;
+-import net.minecraft.item.Item;
+-import net.minecraft.item.ItemStack;
++import net.minecraft.item.*;
+ import net.minecraft.util.MathHelper;
+ import net.minecraft.world.storage.MapData;
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GL12;
+ 
++import net.minecraftforge.client.ForgeHooksClient;
++import net.minecraftforge.client.IItemRenderer;
++import net.minecraftforge.client.MinecraftForgeClient;
++import static net.minecraftforge.client.IItemRenderer.ItemRenderType.*;
++import static net.minecraftforge.client.IItemRenderer.ItemRendererHelper.*;
++
+ @SideOnly(Side.CLIENT)
+ public class ItemRenderer
+ {
+@@ -40,23 +45,22 @@
      public void func_78443_a(EntityLiving p_78443_1_, ItemStack p_78443_2_, int p_78443_3_)
      {
          GL11.glPushMatrix();
 -        Block var4 = Block.field_71973_m[p_78443_2_.field_77993_c];
-+
-+        Block var4 = null;
-+        if (p_78443_2_.field_77993_c < Block.field_71973_m.length)
-+        {
-+            var4 = Block.field_71973_m[p_78443_2_.field_77993_c];
-+        }
  
-         if (var4 != null && RenderBlocks.func_78597_b(var4.func_71857_b()))
+-        if (var4 != null && RenderBlocks.func_78597_b(var4.func_71857_b()))
+-        {
+-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_78455_a.field_71446_o.func_78341_b("/terrain.png"));
+-            this.field_78452_e.func_78600_a(var4, p_78443_2_.func_77960_j(), 1.0F);
++        IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(p_78443_2_, EQUIPPED);
++        
++        if (customRenderer != null)
++        {
++            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_78455_a.field_71446_o.func_78341_b(p_78443_2_.func_77973_b().getTextureFile()));
++            ForgeHooksClient.renderEquippedItem(customRenderer, field_78452_e, p_78443_1_, p_78443_2_);
++        }
++        else if (p_78443_2_.func_77973_b() instanceof ItemBlock && RenderBlocks.func_78597_b(Block.field_71973_m[p_78443_2_.field_77993_c].func_71857_b()))
++        {
++            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_78455_a.field_71446_o.func_78341_b(p_78443_2_.func_77973_b().getTextureFile()));
++            this.field_78452_e.func_78600_a(Block.field_71973_m[p_78443_2_.field_77993_c], p_78443_2_.func_77960_j(), 1.0F);
+         }
+         else
          {
-@@ -136,10 +142,17 @@
+-            if (var4 != null)
+-            {
+-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_78455_a.field_71446_o.func_78341_b("/terrain.png"));
+-            }
+-            else
+-            {
+-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_78455_a.field_71446_o.func_78341_b("/gui/items.png"));
+-            }
++            GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.field_78455_a.field_71446_o.func_78341_b(p_78443_2_.func_77973_b().getTextureFile()));
+ 
+             Tessellator var5 = Tessellator.field_78398_a;
+             int var6 = p_78443_1_.func_70620_b(p_78443_2_, p_78443_3_);
+@@ -136,10 +140,17 @@
          float var9;
          float var10;
  
@@ -42,7 +86,7 @@
              var10 = var6 * var8;
              p_78439_0_.func_78374_a((double)var10, 0.0D, (double)(0.0F - p_78439_5_), (double)var9, (double)p_78439_4_);
              p_78439_0_.func_78374_a((double)var10, 0.0D, 0.0D, (double)var9, (double)p_78439_4_);
-@@ -151,11 +164,11 @@
+@@ -151,11 +162,11 @@
          p_78439_0_.func_78382_b();
          p_78439_0_.func_78375_b(1.0F, 0.0F, 0.0F);
  
@@ -58,7 +102,7 @@
              p_78439_0_.func_78374_a((double)var10, 1.0D, (double)(0.0F - p_78439_5_), (double)var9, (double)p_78439_2_);
              p_78439_0_.func_78374_a((double)var10, 1.0D, 0.0D, (double)var9, (double)p_78439_2_);
              p_78439_0_.func_78374_a((double)var10, 0.0D, 0.0D, (double)var9, (double)p_78439_4_);
-@@ -166,11 +179,11 @@
+@@ -166,11 +177,11 @@
          p_78439_0_.func_78382_b();
          p_78439_0_.func_78375_b(0.0F, 1.0F, 0.0F);
  
@@ -74,7 +118,7 @@
              p_78439_0_.func_78374_a(0.0D, (double)var10, 0.0D, (double)p_78439_1_, (double)var9);
              p_78439_0_.func_78374_a((double)var6, (double)var10, 0.0D, (double)p_78439_3_, (double)var9);
              p_78439_0_.func_78374_a((double)var6, (double)var10, (double)(0.0F - p_78439_5_), (double)p_78439_3_, (double)var9);
-@@ -181,10 +194,10 @@
+@@ -181,10 +192,10 @@
          p_78439_0_.func_78382_b();
          p_78439_0_.func_78375_b(0.0F, -1.0F, 0.0F);
  
@@ -88,3 +132,59 @@
              var10 = var6 * var8;
              p_78439_0_.func_78374_a((double)var6, (double)var10, 0.0D, (double)p_78439_3_, (double)var9);
              p_78439_0_.func_78374_a(0.0D, (double)var10, 0.0D, (double)p_78439_1_, (double)var9);
+@@ -248,8 +259,9 @@
+         Render var24;
+         RenderPlayer var26;
+ 
+-        if (var17 != null && var17.field_77993_c == Item.field_77744_bd.field_77779_bT)
++        if (var17 != null && var17.func_77973_b() instanceof ItemMap)
+         {
++            IItemRenderer custom = MinecraftForgeClient.getItemRenderer(var17, FIRST_PERSON_MAP);
+             GL11.glPushMatrix();
+             var7 = 0.8F;
+             var19 = var3.func_70678_g(p_78440_1_);
+@@ -315,11 +327,17 @@
+             var27.func_78374_a((double)(128 + var28), (double)(0 - var28), 0.0D, 1.0D, 0.0D);
+             var27.func_78374_a((double)(0 - var28), (double)(0 - var28), 0.0D, 0.0D, 0.0D);
+             var27.func_78381_a();
+-            MapData var16 = Item.field_77744_bd.func_77873_a(var17, this.field_78455_a.field_71441_e);
+-
+-            if (var16 != null)
+-            {
+-                this.field_78449_f.func_78319_a(this.field_78455_a.field_71439_g, this.field_78455_a.field_71446_o, var16);
++            MapData var16 = ((ItemMap)var17.func_77973_b()).func_77873_a(var17, this.field_78455_a.field_71441_e);
++            if (custom == null)
++            {
++                if (var16 != null)
++                {
++                    this.field_78449_f.func_78319_a(this.field_78455_a.field_71439_g, this.field_78455_a.field_71446_o, var16);
++                }
++            }
++            else
++            {
++                custom.renderItem(FIRST_PERSON_MAP, var17, field_78455_a.field_71439_g, field_78455_a.field_71446_o, var16);
+             }
+ 
+             GL11.glPopMatrix();
+@@ -422,12 +440,15 @@
+             if (var17.func_77973_b().func_77623_v())
+             {
+                 this.func_78443_a(var3, var17, 0);
+-                int var25 = Item.field_77698_e[var17.field_77993_c].func_82790_a(var17, 1);
+-                var13 = (float)(var25 >> 16 & 255) / 255.0F;
+-                var14 = (float)(var25 >> 8 & 255) / 255.0F;
+-                var15 = (float)(var25 & 255) / 255.0F;
+-                GL11.glColor4f(var6 * var13, var6 * var14, var6 * var15, 1.0F);
+-                this.func_78443_a(var3, var17, 1);
++                for (int x = 1; x < var17.func_77973_b().getRenderPasses(var17.func_77960_j()); x++)
++                {
++                    int var25 = Item.field_77698_e[var17.field_77993_c].func_82790_a(var17, x);
++                    var13 = (float)(var25 >> 16 & 255) / 255.0F;
++                    var14 = (float)(var25 >> 8 & 255) / 255.0F;
++                    var15 = (float)(var25 & 255) / 255.0F;
++                    GL11.glColor4f(var6 * var13, var6 * var14, var6 * var15, 1.0F);
++                    this.func_78443_a(var3, var17, x);
++                }
+             }
+             else
+             {

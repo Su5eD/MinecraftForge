@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/item/crafting/ShapedRecipes.java
++++ ../src-work/minecraft/net/minecraft/item/crafting/ShapedRecipes.java
+@@ -9,7 +9,7 @@
+ {
+     public final int field_77576_b;
+     public final int field_77577_c;
+-    public final ItemStack[] field_77574_d;
++    public ItemStack[] field_77574_d;
+     private ItemStack field_77575_e;
+     public final int field_77578_a;
+     private boolean field_92101_f = false;

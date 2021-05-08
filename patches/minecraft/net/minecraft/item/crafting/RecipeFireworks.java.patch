@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraft/item/crafting/RecipeFireworks.java
++++ ../src-work/minecraft/net/minecraft/item/crafting/RecipeFireworks.java
+@@ -88,9 +88,9 @@
+             {
+                 this.field_92102_a = new ItemStack(Item.field_92104_bU);
+ 
++                var16 = new NBTTagCompound();
+                 if (var6 > 0)
+                 {
+-                    var16 = new NBTTagCompound();
+                     var19 = new NBTTagCompound("Fireworks");
+                     NBTTagList var25 = new NBTTagList("Explosions");
+ 
+@@ -107,9 +107,9 @@
+                     var19.func_74782_a("Explosions", var25);
+                     var19.func_74774_a("Flight", (byte)var4);
+                     var16.func_74782_a("Fireworks", var19);
+-                    this.field_92102_a.func_77982_d(var16);
+                 }
+ 
++                this.field_92102_a.func_77982_d(var16);
+                 return true;
+             }
+             else if (var4 == 1 && var3 == 0 && var6 == 0 && var5 > 0 && var8 <= 1)

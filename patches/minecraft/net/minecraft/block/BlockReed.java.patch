@@ -1,0 +1,50 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockReed.java
++++ ../src-work/minecraft/net/minecraft/block/BlockReed.java
+@@ -8,7 +8,11 @@
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.World;
+ 
+-public class BlockReed extends Block
++import net.minecraftforge.common.EnumPlantType;
++import net.minecraftforge.common.ForgeDirection;
++import net.minecraftforge.common.IPlantable;
++
++public class BlockReed extends Block implements IPlantable
+ {
+     protected BlockReed(int p_i3989_1_, int p_i3989_2_)
+     {
+@@ -49,8 +53,8 @@
+ 
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+     {
+-        int var5 = p_71930_1_.func_72798_a(p_71930_2_, p_71930_3_ - 1, p_71930_4_);
+-        return var5 == this.field_71990_ca ? true : (var5 != Block.field_71980_u.field_71990_ca && var5 != Block.field_71979_v.field_71990_ca && var5 != Block.field_71939_E.field_71990_ca ? false : (p_71930_1_.func_72803_f(p_71930_2_ - 1, p_71930_3_ - 1, p_71930_4_) == Material.field_76244_g ? true : (p_71930_1_.func_72803_f(p_71930_2_ + 1, p_71930_3_ - 1, p_71930_4_) == Material.field_76244_g ? true : (p_71930_1_.func_72803_f(p_71930_2_, p_71930_3_ - 1, p_71930_4_ - 1) == Material.field_76244_g ? true : p_71930_1_.func_72803_f(p_71930_2_, p_71930_3_ - 1, p_71930_4_ + 1) == Material.field_76244_g))));
++        Block block = Block.field_71973_m[p_71930_1_.func_72798_a(p_71930_2_, p_71930_3_ - 1, p_71930_4_)];
++        return (block != null && block.canSustainPlant(p_71930_1_, p_71930_2_, p_71930_3_ - 1, p_71930_4_, ForgeDirection.UP, this));
+     }
+ 
+     public void func_71863_a(World p_71863_1_, int p_71863_2_, int p_71863_3_, int p_71863_4_, int p_71863_5_)
+@@ -101,5 +105,23 @@
+     public int func_71922_a(World p_71922_1_, int p_71922_2_, int p_71922_3_, int p_71922_4_)
+     {
+         return Item.field_77758_aJ.field_77779_bT;
++    }
++    
++    @Override
++    public EnumPlantType getPlantType(World world, int x, int y, int z)
++    {
++        return EnumPlantType.Beach;
++    }
++    
++    @Override
++    public int getPlantID(World world, int x, int y, int z)
++    {
++        return field_71990_ca;
++    }
++    
++    @Override
++    public int getPlantMetadata(World world, int x, int y, int z)
++    {
++        return world.func_72805_g(x, y, z);
+     }
+ }

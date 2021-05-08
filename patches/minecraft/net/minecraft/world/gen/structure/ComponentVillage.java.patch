@@ -1,0 +1,35 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentVillage.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentVillage.java
+@@ -6,6 +6,10 @@
+ import net.minecraft.entity.passive.EntityVillager;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.*;
++import net.minecraftforge.event.Event.*;
++import net.minecraftforge.event.terraingen.*;
++
+ public abstract class ComponentVillage extends StructureComponent
+ {
+     private int field_74896_a;
+@@ -106,6 +110,10 @@
+ 
+     protected int func_74890_d(int p_74890_1_, int p_74890_2_)
+     {
++        BiomeEvent.GetVillageBlockID event = new BiomeEvent.GetVillageBlockID(field_74897_k.biome, p_74890_1_, p_74890_2_);
++        MinecraftForge.TERRAIN_GEN_BUS.post(event);
++        if (event.getResult() == Result.DENY) return event.replacement;
++        
+         if (this.field_74897_k.field_74927_b)
+         {
+             if (p_74890_1_ == Block.field_71951_J.field_71990_ca)
+@@ -144,6 +152,10 @@
+ 
+     protected int func_74892_e(int p_74892_1_, int p_74892_2_)
+     {
++        BiomeEvent.GetVillageBlockMeta event = new BiomeEvent.GetVillageBlockMeta(field_74897_k.biome, p_74892_1_, p_74892_2_);
++        MinecraftForge.TERRAIN_GEN_BUS.post(event);
++        if (event.getResult() == Result.DENY) return event.replacement;
++        
+         if (this.field_74897_k.field_74927_b)
+         {
+             if (p_74892_1_ == Block.field_71951_J.field_71990_ca)

@@ -1,0 +1,22 @@
+--- ../src-base/minecraft/net/minecraft/nbt/CompressedStreamTools.java
++++ ../src-work/minecraft/net/minecraft/nbt/CompressedStreamTools.java
+@@ -130,8 +130,7 @@
+     {
+         NBTBase.func_74731_a(p_74800_0_, p_74800_1_);
+     }
+-
+-    @SideOnly(Side.CLIENT)
++    
+     public static void func_74795_b(NBTTagCompound p_74795_0_, File p_74795_1_) throws IOException
+     {
+         DataOutputStream var2 = new DataOutputStream(new FileOutputStream(p_74795_1_));
+@@ -145,8 +144,7 @@
+             var2.close();
+         }
+     }
+-
+-    @SideOnly(Side.CLIENT)
++    
+     public static NBTTagCompound func_74797_a(File p_74797_0_) throws IOException
+     {
+         if (!p_74797_0_.exists())

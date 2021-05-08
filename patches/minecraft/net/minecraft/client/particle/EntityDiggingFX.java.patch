@@ -1,0 +1,27 @@
+--- ../src-base/minecraft/net/minecraft/client/particle/EntityDiggingFX.java
++++ ../src-work/minecraft/net/minecraft/client/particle/EntityDiggingFX.java
+@@ -10,20 +10,22 @@
+ public class EntityDiggingFX extends EntityFX
+ {
+     private Block field_70597_a;
++    private int side;
+ 
+     public EntityDiggingFX(World p_i3185_1_, double p_i3185_2_, double p_i3185_4_, double p_i3185_6_, double p_i3185_8_, double p_i3185_10_, double p_i3185_12_, Block p_i3185_14_, int p_i3185_15_, int p_i3185_16_)
+     {
+         super(p_i3185_1_, p_i3185_2_, p_i3185_4_, p_i3185_6_, p_i3185_8_, p_i3185_10_, p_i3185_12_);
+         this.field_70597_a = p_i3185_14_;
+-        this.func_70536_a(p_i3185_14_.func_71858_a(0, p_i3185_16_));
++        this.func_70536_a(p_i3185_14_.func_71858_a(p_i3185_15_, p_i3185_16_));
+         this.field_70545_g = p_i3185_14_.field_72017_co;
+         this.field_70552_h = this.field_70553_i = this.field_70551_j = 0.6F;
+         this.field_70544_f /= 2.0F;
++        this.side = p_i3185_15_;
+     }
+ 
+     public EntityDiggingFX func_70596_a(int p_70596_1_, int p_70596_2_, int p_70596_3_)
+     {
+-        if (this.field_70597_a == Block.field_71980_u)
++        if (this.field_70597_a == Block.field_71980_u && this.side != 1)
+         {
+             return this;
+         }

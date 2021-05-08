@@ -1,0 +1,87 @@
+--- ../src-base/minecraft/net/minecraft/network/packet/Packet56MapChunks.java
++++ ../src-work/minecraft/net/minecraft/network/packet/Packet56MapChunks.java
+@@ -6,6 +6,7 @@
+ import java.io.DataOutputStream;
+ import java.io.IOException;
+ import java.util.List;
++import java.util.concurrent.Semaphore;
+ import java.util.zip.DataFormatException;
+ import java.util.zip.Deflater;
+ import java.util.zip.Inflater;
+@@ -22,6 +23,9 @@
+     private int field_73585_g;
+     private boolean field_92076_h;
+     private static byte[] field_73591_h = new byte[0];
++    private int maxLen = 0;
++    
++    private Semaphore deflateGate;
+ 
+     public Packet56MapChunks()
+     {
+@@ -42,15 +46,7 @@
+         {
+             Chunk var5 = (Chunk)p_i3324_1_.get(var4);
+             Packet51MapChunkData var6 = Packet51MapChunk.func_73594_a(var5, true, 65535);
+-
+-            if (field_73591_h.length < var3 + var6.field_74582_a.length)
+-            {
+-                byte[] var7 = new byte[var3 + var6.field_74582_a.length];
+-                System.arraycopy(field_73591_h, 0, var7, 0, field_73591_h.length);
+-                field_73591_h = var7;
+-            }
+-
+-            System.arraycopy(var6.field_74582_a, 0, field_73591_h, var3, var6.field_74582_a.length);
++            
+             var3 += var6.field_74582_a.length;
+             this.field_73589_c[var4] = var5.field_76635_g;
+             this.field_73586_d[var4] = var5.field_76647_h;
+@@ -58,15 +54,29 @@
+             this.field_73588_b[var4] = var6.field_74581_c;
+             this.field_73584_f[var4] = var6.field_74582_a;
+         }
++        deflateGate = new Semaphore(1);
++        maxLen = var3;
++    }
++    
++    private void deflate()
++    {
++        byte[] data = new byte[maxLen];
++        int offset = 0;
++        for (int x = 0; x < field_73584_f.length; x++)
++        {
++            System.arraycopy(field_73584_f[x], 0, data, offset, field_73584_f[x].length);
++            offset += field_73584_f[x].length;
++        }
+ 
+         Deflater var11 = new Deflater(-1);
+ 
+         try
+         {
+-            var11.setInput(field_73591_h, 0, var3);
++            var11.setInput(data, 0, maxLen);
+             var11.finish();
+-            this.field_73587_e = new byte[var3];
+-            this.field_73585_g = var11.deflate(this.field_73587_e);
++            byte[] deflated = new byte[maxLen];
++            this.field_73585_g = var11.deflate(deflated);
++            this.field_73587_e = deflated;
+         }
+         finally
+         {
+@@ -142,6 +152,16 @@
+ 
+     public void func_73273_a(DataOutputStream p_73273_1_) throws IOException
+     {
++        if (this.field_73587_e == null)
++        {
++            deflateGate.acquireUninterruptibly();
++            if (this.field_73587_e == null)
++            {
++                deflate();
++            }
++            deflateGate.release();
++        }
++        
+         p_73273_1_.writeShort(this.field_73589_c.length);
+         p_73273_1_.writeInt(this.field_73585_g);
+         p_73273_1_.writeBoolean(this.field_92076_h);

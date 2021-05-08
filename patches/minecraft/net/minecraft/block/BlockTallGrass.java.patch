@@ -1,0 +1,86 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockTallGrass.java
++++ ../src-work/minecraft/net/minecraft/block/BlockTallGrass.java
+@@ -2,6 +2,8 @@
+ 
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
++
++import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.block.material.Material;
+@@ -15,7 +17,10 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
+-public class BlockTallGrass extends BlockFlower
++import net.minecraftforge.common.ForgeHooks;
++import net.minecraftforge.common.IShearable;
++
++public class BlockTallGrass extends BlockFlower implements IShearable
+ {
+     protected BlockTallGrass(int p_i4002_1_, int p_i4002_2_)
+     {
+@@ -31,7 +36,7 @@
+ 
+     public int func_71885_a(int p_71885_1_, Random p_71885_2_, int p_71885_3_)
+     {
+-        return p_71885_2_.nextInt(8) == 0 ? Item.field_77690_S.field_77779_bT : -1;
++        return -1;
+     }
+ 
+     public int func_71910_a(int p_71910_1_, Random p_71910_2_)
+@@ -41,15 +46,7 @@
+ 
+     public void func_71893_a(World p_71893_1_, EntityPlayer p_71893_2_, int p_71893_3_, int p_71893_4_, int p_71893_5_, int p_71893_6_)
+     {
+-        if (!p_71893_1_.field_72995_K && p_71893_2_.func_71045_bC() != null && p_71893_2_.func_71045_bC().field_77993_c == Item.field_77745_be.field_77779_bT)
+-        {
+-            p_71893_2_.func_71064_a(StatList.field_75934_C[this.field_71990_ca], 1);
+-            this.func_71929_a(p_71893_1_, p_71893_3_, p_71893_4_, p_71893_5_, new ItemStack(Block.field_71962_X, 1, p_71893_6_));
+-        }
+-        else
+-        {
+-            super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
+-        }
++        super.func_71893_a(p_71893_1_, p_71893_2_, p_71893_3_, p_71893_4_, p_71893_5_, p_71893_6_);
+     }
+ 
+     @SideOnly(Side.CLIENT)
+@@ -85,5 +82,36 @@
+         {
+             p_71879_3_.add(new ItemStack(p_71879_1_, 1, var4));
+         }
++    }
++    
++    @Override
++    public ArrayList<ItemStack> getBlockDropped(World world, int x, int y, int z, int meta, int fortune)
++    {
++        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
++        if (world.field_73012_v.nextInt(8) != 0)
++        {
++            return ret;
++        }
++    
++        ItemStack item = ForgeHooks.getGrassSeed(world);
++        if (item != null)
++        {
++            ret.add(item);
++        }
++        return ret;
++    }
++    
++    @Override
++    public boolean isShearable(ItemStack item, World world, int x, int y, int z)
++    {
++        return true;
++    }
++    
++    @Override
++    public ArrayList<ItemStack> onSheared(ItemStack item, World world, int x, int y, int z, int fortune)
++    {
++        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
++        ret.add(new ItemStack(this, 1, world.func_72805_g(x, y, z)));
++        return ret;
+     }
+ }

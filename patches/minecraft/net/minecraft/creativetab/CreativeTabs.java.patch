@@ -1,0 +1,103 @@
+--- ../src-base/minecraft/net/minecraft/creativetab/CreativeTabs.java
++++ ../src-work/minecraft/net/minecraft/creativetab/CreativeTabs.java
+@@ -7,6 +7,7 @@
+ import net.minecraft.enchantment.EnchantmentData;
+ import net.minecraft.enchantment.EnumEnchantmentType;
+ import net.minecraft.item.Item;
++import net.minecraft.item.ItemStack;
+ import net.minecraft.util.StringTranslate;
+ 
+ public class CreativeTabs
+@@ -29,9 +30,23 @@
+     private String field_78043_p = "list_items.png";
+     private boolean field_78042_q = true;
+     private boolean field_78041_r = true;
++    
++    public CreativeTabs(String label)
++    {
++        this(getNextID(), label);
++    }
+ 
+     public CreativeTabs(int p_i3642_1_, String p_i3642_2_)
+     {
++        if (p_i3642_1_ >= field_78032_a.length)
++        {
++            CreativeTabs[] tmp = new CreativeTabs[p_i3642_1_ + 1];
++            for (int x = 0; x < field_78032_a.length; x++)
++            {
++                tmp[x] = field_78032_a[x];
++            }
++            field_78032_a = tmp;
++        }
+         this.field_78033_n = p_i3642_1_;
+         this.field_78034_o = p_i3642_2_;
+         field_78032_a[p_i3642_1_] = this;
+@@ -106,12 +121,21 @@
+     @SideOnly(Side.CLIENT)
+     public int func_78020_k()
+     {
++        if (field_78033_n > 11)
++        {
++            return ((field_78033_n - 12) % 10) % 5;
++        }
++        
+         return this.field_78033_n % 6;
+     }
+ 
+     @SideOnly(Side.CLIENT)
+     public boolean func_78023_l()
+     {
++        if (field_78033_n > 11)
++        {
++            return ((field_78033_n - 12) % 10) < 5;
++        }
+         return this.field_78033_n < 6;
+     }
+ 
+@@ -125,11 +149,41 @@
+         {
+             Item var5 = var2[var4];
+ 
+-            if (var5 != null && var5.func_77640_w() == this)
+-            {
+-                var5.func_77633_a(var5.field_77779_bT, this, p_78018_1_);
+-            }
+-        }
++            if (var5 == null)
++            {
++                continue;
++            }
++            
++            for(CreativeTabs tab : var5.getCreativeTabs())
++            {
++                if (tab == this)
++                {
++                    var5.func_77633_a(var5.field_77779_bT, this, p_78018_1_);
++                }
++            }
++        }
++    }
++    
++    public int getTabPage()
++    {
++        if (field_78033_n > 11)
++        {
++            return ((field_78033_n - 12) / 10) + 1;
++        }
++        return 0;
++    }
++    
++    public static int getNextID()
++    {
++        return field_78032_a.length;
++    }
++    
++    /**
++     * Get the ItemStack that will be rendered to the tab.
++     */
++    public ItemStack getIconItemStack()
++    {
++        return new ItemStack(func_78016_d());
+     }
+ 
+     @SideOnly(Side.CLIENT)

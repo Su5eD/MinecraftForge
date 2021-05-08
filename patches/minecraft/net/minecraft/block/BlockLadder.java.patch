@@ -1,0 +1,101 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockLadder.java
++++ ../src-work/minecraft/net/minecraft/block/BlockLadder.java
+@@ -9,6 +9,9 @@
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.ForgeDirection;
++import static net.minecraftforge.common.ForgeDirection.*;
++
+ public class BlockLadder extends Block
+ {
+     protected BlockLadder(int p_i3960_1_, int p_i3960_2_)
+@@ -77,29 +80,32 @@
+ 
+     public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
+     {
+-        return p_71930_1_.func_72809_s(p_71930_2_ - 1, p_71930_3_, p_71930_4_) ? true : (p_71930_1_.func_72809_s(p_71930_2_ + 1, p_71930_3_, p_71930_4_) ? true : (p_71930_1_.func_72809_s(p_71930_2_, p_71930_3_, p_71930_4_ - 1) ? true : p_71930_1_.func_72809_s(p_71930_2_, p_71930_3_, p_71930_4_ + 1)));
++        return p_71930_1_.isBlockSolidOnSide(p_71930_2_ - 1, p_71930_3_, p_71930_4_, EAST ) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_ + 1, p_71930_3_, p_71930_4_, WEST ) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_, p_71930_3_, p_71930_4_ - 1, SOUTH) ||
++                p_71930_1_.isBlockSolidOnSide(p_71930_2_, p_71930_3_, p_71930_4_ + 1, NORTH);
+     }
+ 
+     public int func_85104_a(World p_85104_1_, int p_85104_2_, int p_85104_3_, int p_85104_4_, int p_85104_5_, float p_85104_6_, float p_85104_7_, float p_85104_8_, int p_85104_9_)
+     {
+         int var10 = p_85104_9_;
+ 
+-        if ((p_85104_9_ == 0 || p_85104_5_ == 2) && p_85104_1_.func_72809_s(p_85104_2_, p_85104_3_, p_85104_4_ + 1))
++        if ((var10 == 0 || p_85104_5_ == 2) && p_85104_1_.isBlockSolidOnSide(p_85104_2_, p_85104_3_, p_85104_4_ + 1, NORTH))
+         {
+             var10 = 2;
+         }
+ 
+-        if ((var10 == 0 || p_85104_5_ == 3) && p_85104_1_.func_72809_s(p_85104_2_, p_85104_3_, p_85104_4_ - 1))
++        if ((var10 == 0 || p_85104_5_ == 3) && p_85104_1_.isBlockSolidOnSide(p_85104_2_, p_85104_3_, p_85104_4_ - 1, SOUTH))
+         {
+             var10 = 3;
+         }
+ 
+-        if ((var10 == 0 || p_85104_5_ == 4) && p_85104_1_.func_72809_s(p_85104_2_ + 1, p_85104_3_, p_85104_4_))
++        if ((var10 == 0 || p_85104_5_ == 4) && p_85104_1_.isBlockSolidOnSide(p_85104_2_ + 1, p_85104_3_, p_85104_4_, WEST))
+         {
+             var10 = 4;
+         }
+ 
+-        if ((var10 == 0 || p_85104_5_ == 5) && p_85104_1_.func_72809_s(p_85104_2_ - 1, p_85104_3_, p_85104_4_))
++        if ((var10 == 0 || p_85104_5_ == 5) && p_85104_1_.isBlockSolidOnSide(p_85104_2_ - 1, p_85104_3_, p_85104_4_, EAST))
+         {
+             var10 = 5;
+         }
+@@ -112,22 +118,22 @@
+         int var6 = p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_);
+         boolean var7 = false;
+ 
+-        if (var6 == 2 && p_71863_1_.func_72809_s(p_71863_2_, p_71863_3_, p_71863_4_ + 1))
+-        {
+-            var7 = true;
+-        }
+-
+-        if (var6 == 3 && p_71863_1_.func_72809_s(p_71863_2_, p_71863_3_, p_71863_4_ - 1))
+-        {
+-            var7 = true;
+-        }
+-
+-        if (var6 == 4 && p_71863_1_.func_72809_s(p_71863_2_ + 1, p_71863_3_, p_71863_4_))
+-        {
+-            var7 = true;
+-        }
+-
+-        if (var6 == 5 && p_71863_1_.func_72809_s(p_71863_2_ - 1, p_71863_3_, p_71863_4_))
++        if (var6 == 2 && p_71863_1_.isBlockSolidOnSide(p_71863_2_, p_71863_3_, p_71863_4_ + 1, NORTH))
++        {
++            var7 = true;
++        }
++
++        if (var6 == 3 && p_71863_1_.isBlockSolidOnSide(p_71863_2_, p_71863_3_, p_71863_4_ - 1, SOUTH))
++        {
++            var7 = true;
++        }
++
++        if (var6 == 4 && p_71863_1_.isBlockSolidOnSide(p_71863_2_ + 1, p_71863_3_, p_71863_4_, WEST))
++        {
++            var7 = true;
++        }
++
++        if (var6 == 5 && p_71863_1_.isBlockSolidOnSide(p_71863_2_ - 1, p_71863_3_, p_71863_4_, EAST))
+         {
+             var7 = true;
+         }
+@@ -144,5 +150,11 @@
+     public int func_71925_a(Random p_71925_1_)
+     {
+         return 1;
++    }
++    
++    @Override
++    public boolean isLadder(World world, int x, int y, int z)
++    {
++        return true;
+     }
+ }

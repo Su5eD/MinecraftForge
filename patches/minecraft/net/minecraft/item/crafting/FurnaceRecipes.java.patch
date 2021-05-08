@@ -1,0 +1,92 @@
+--- ../src-base/minecraft/net/minecraft/item/crafting/FurnaceRecipes.java
++++ ../src-work/minecraft/net/minecraft/item/crafting/FurnaceRecipes.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.item.crafting;
+ 
++import java.util.Arrays;
+ import java.util.HashMap;
++import java.util.List;
+ import java.util.Map;
+ import net.minecraft.block.Block;
+ import net.minecraft.item.Item;
+@@ -11,6 +13,8 @@
+     private static final FurnaceRecipes field_77606_a = new FurnaceRecipes();
+     private Map field_77604_b = new HashMap();
+     private Map field_77605_c = new HashMap();
++    private HashMap<List<Integer>, ItemStack> metaSmeltingList = new HashMap<List<Integer>, ItemStack>();
++    private HashMap<List<Integer>, Float> metaExperience = new HashMap<List<Integer>, Float>();
+ 
+     public static final FurnaceRecipes func_77602_a()
+     {
+@@ -44,6 +48,7 @@
+         this.field_77605_c.put(Integer.valueOf(p_77600_2_.field_77993_c), Float.valueOf(p_77600_3_));
+     }
+ 
++    @Deprecated //In favor of ItemStack sensitive version
+     public ItemStack func_77603_b(int p_77603_1_)
+     {
+         return (ItemStack)this.field_77604_b.get(Integer.valueOf(p_77603_1_));
+@@ -54,8 +59,63 @@
+         return this.field_77604_b;
+     }
+ 
++    @Deprecated //In favor of ItemStack sensitive version
+     public float func_77601_c(int p_77601_1_)
+     {
+         return this.field_77605_c.containsKey(Integer.valueOf(p_77601_1_)) ? ((Float)this.field_77605_c.get(Integer.valueOf(p_77601_1_))).floatValue() : 0.0F;
++    }
++    
++    /**
++     * A metadata sensitive version of adding a furnace recipe.
++     */
++    public void addSmelting(int itemID, int metadata, ItemStack itemstack, float experience)
++    {
++        metaSmeltingList.put(Arrays.asList(itemID, metadata), itemstack);
++        metaExperience.put(Arrays.asList(itemID, metadata), experience);
++    }
++    
++    /**
++     * Used to get the resulting ItemStack form a source ItemStack
++     * @param item The Source ItemStack
++     * @return The result ItemStack
++     */
++    public ItemStack getSmeltingResult(ItemStack item) 
++    {
++        if (item == null)
++        {
++            return null;
++        }
++        ItemStack ret = (ItemStack)metaSmeltingList.get(Arrays.asList(item.field_77993_c, item.func_77960_j()));
++        if (ret != null) 
++        {
++            return ret;
++        }
++        return (ItemStack)field_77604_b.get(Integer.valueOf(item.field_77993_c));
++    }
++    
++    /**
++     * Grabs the amount of base experience for this item to give when pulled from the furnace slot.
++     */
++    public float getExperience(ItemStack item)
++    {
++        if (item == null || item.func_77973_b() == null)
++        {
++            return 0;
++        }
++        float ret = item.func_77973_b().getSmeltingExperience(item);
++        if (ret < 0 && metaExperience.containsKey(Arrays.asList(item.field_77993_c, item.func_77960_j())))
++        {
++            ret = metaExperience.get(Arrays.asList(item.field_77993_c, item.func_77960_j()));
++        }
++        if (ret < 0 && field_77605_c.containsKey(item.field_77993_c))
++        {
++            ret = ((Float)field_77605_c.get(item.field_77993_c)).floatValue();
++        }
++        return (ret < 0 ? 0 : ret);
++    }
++    
++    public Map<List<Integer>, ItemStack> getMetaSmeltingList()
++    {
++        return metaSmeltingList;
+     }
+ }

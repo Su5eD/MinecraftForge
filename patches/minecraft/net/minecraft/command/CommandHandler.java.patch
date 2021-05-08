@@ -1,0 +1,28 @@
+--- ../src-base/minecraft/net/minecraft/command/CommandHandler.java
++++ ../src-work/minecraft/net/minecraft/command/CommandHandler.java
+@@ -9,6 +9,8 @@
+ import java.util.Set;
+ import java.util.Map.Entry;
+ import net.minecraft.entity.player.EntityPlayerMP;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.CommandEvent;
+ 
+ public class CommandHandler implements ICommandManager
+ {
+@@ -37,6 +39,16 @@
+ 
+             if (var5.func_71519_b(p_71556_1_))
+             {
++                CommandEvent event = new CommandEvent(var5, p_71556_1_, var3);
++                if (MinecraftForge.EVENT_BUS.post(event))
++                {
++                    if (event.exception != null)
++                    {
++                        throw event.exception;
++                    }
++                    return;
++                }
++                
+                 if (var6 > -1)
+                 {
+                     EntityPlayerMP[] var7 = PlayerSelector.func_82380_c(p_71556_1_, var3[var6]);

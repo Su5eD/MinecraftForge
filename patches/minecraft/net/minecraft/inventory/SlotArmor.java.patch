@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraft/inventory/SlotArmor.java
++++ ../src-work/minecraft/net/minecraft/inventory/SlotArmor.java
+@@ -27,7 +27,8 @@
+ 
+     public boolean func_75214_a(ItemStack p_75214_1_)
+     {
+-        return p_75214_1_ == null ? false : (p_75214_1_.func_77973_b() instanceof ItemArmor ? ((ItemArmor)p_75214_1_.func_77973_b()).field_77881_a == this.field_75236_a : (p_75214_1_.func_77973_b().field_77779_bT != Block.field_72061_ba.field_71990_ca && p_75214_1_.func_77973_b().field_77779_bT != Item.field_82799_bQ.field_77779_bT ? false : this.field_75236_a == 0));
++        Item item = (p_75214_1_ == null ? null : p_75214_1_.func_77973_b());
++        return item != null && item.isValidArmor(p_75214_1_, field_75236_a);
+     }
+ 
+     @SideOnly(Side.CLIENT)

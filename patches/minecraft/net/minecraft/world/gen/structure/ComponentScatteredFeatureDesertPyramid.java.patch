@@ -1,0 +1,30 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentScatteredFeatureDesertPyramid.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentScatteredFeatureDesertPyramid.java
+@@ -7,6 +7,9 @@
+ import net.minecraft.util.WeightedRandomChestContent;
+ import net.minecraft.world.World;
+ 
++import net.minecraftforge.common.ChestGenHooks;
++import static net.minecraftforge.common.ChestGenHooks.*;
++
+ public class ComponentScatteredFeatureDesertPyramid extends ComponentScatteredFeature
+ {
+     private boolean[] field_74940_h = new boolean[4];
+@@ -208,14 +211,15 @@
+         this.func_74864_a(p_74875_1_, 0, 0, 10, -10, 12, p_74875_3_);
+         this.func_74864_a(p_74875_1_, Block.field_71957_Q.field_71990_ca, 1, 10, -10, 13, p_74875_3_);
+         this.func_74864_a(p_74875_1_, Block.field_71957_Q.field_71990_ca, 2, 10, -11, 13, p_74875_3_);
+-
++        
++        ChestGenHooks info = ChestGenHooks.getInfo(PYRAMID_DESERT_CHEST);
+         for (var10 = 0; var10 < 4; ++var10)
+         {
+             if (!this.field_74940_h[var10])
+             {
+                 int var11 = Direction.field_71583_a[var10] * 2;
+                 int var12 = Direction.field_71581_b[var10] * 2;
+-                this.field_74940_h[var10] = this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 10 + var11, -11, 10 + var12, WeightedRandomChestContent.func_92080_a(field_74941_i, new WeightedRandomChestContent[] {Item.field_92105_bW.func_92114_b(p_74875_2_)}), 2 + p_74875_2_.nextInt(5));
++                this.field_74940_h[var10] = this.func_74879_a(p_74875_1_, p_74875_3_, p_74875_2_, 10 + var11, -11, 10 + var12, info.getItems(p_74875_2_), info.getCount(p_74875_2_));
+             }
+         }
+ 

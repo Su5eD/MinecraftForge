@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFluid.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFluid.java
+@@ -49,7 +49,7 @@
+             {
+                 for (int var9 = -1; var9 <= 1; ++var9)
+                 {
+-                    int var10 = p_71920_1_.func_72807_a(p_71920_2_ + var9, p_71920_4_ + var8).field_76759_H;
++                    int var10 = p_71920_1_.func_72807_a(p_71920_2_ + var9, p_71920_4_ + var8).getWaterColorMultiplier();
+                     var5 += (var10 & 16711680) >> 16;
+                     var6 += (var10 & 65280) >> 8;
+                     var7 += var10 & 255;

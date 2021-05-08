@@ -1,0 +1,21 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFarmland.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFarmland.java
+@@ -8,6 +8,8 @@
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.World;
++import net.minecraftforge.common.ForgeDirection;
++import net.minecraftforge.common.IPlantable;
+ 
+ public class BlockFarmland extends Block
+ {
+@@ -84,7 +86,8 @@
+             {
+                 int var8 = p_72248_1_.func_72798_a(var6, p_72248_3_ + 1, var7);
+ 
+-                if (var8 == Block.field_72058_az.field_71990_ca || var8 == Block.field_71999_bt.field_71990_ca || var8 == Block.field_71996_bs.field_71990_ca || var8 == Block.field_82514_ch.field_71990_ca || var8 == Block.field_82513_cg.field_71990_ca)
++                Block plant = field_71973_m[var8];
++                if (plant instanceof IPlantable && canSustainPlant(p_72248_1_, p_72248_2_, p_72248_3_, p_72248_4_, ForgeDirection.UP, (IPlantable)plant))
+                 {
+                     return true;
+                 }

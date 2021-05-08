@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockGrass.java
++++ ../src-work/minecraft/net/minecraft/block/BlockGrass.java
+@@ -81,7 +81,7 @@
+     {
+         if (!p_71847_1_.field_72995_K)
+         {
+-            if (p_71847_1_.func_72957_l(p_71847_2_, p_71847_3_ + 1, p_71847_4_) < 4 && Block.field_71971_o[p_71847_1_.func_72798_a(p_71847_2_, p_71847_3_ + 1, p_71847_4_)] > 2)
++            if (p_71847_1_.func_72957_l(p_71847_2_, p_71847_3_ + 1, p_71847_4_) < 4 && p_71847_1_.func_72952_b(p_71847_2_, p_71847_3_ + 1, p_71847_4_) > 2)
+             {
+                 p_71847_1_.func_72859_e(p_71847_2_, p_71847_3_, p_71847_4_, Block.field_71979_v.field_71990_ca);
+             }
+@@ -94,7 +94,7 @@
+                     int var9 = p_71847_4_ + p_71847_5_.nextInt(3) - 1;
+                     int var10 = p_71847_1_.func_72798_a(var7, var8 + 1, var9);
+ 
+-                    if (p_71847_1_.func_72798_a(var7, var8, var9) == Block.field_71979_v.field_71990_ca && p_71847_1_.func_72957_l(var7, var8 + 1, var9) >= 4 && Block.field_71971_o[var10] <= 2)
++                    if (p_71847_1_.func_72798_a(var7, var8, var9) == Block.field_71979_v.field_71990_ca && p_71847_1_.func_72957_l(var7, var8 + 1, var9) >= 4 && p_71847_1_.func_72952_b(var7, var8 + 1, var9) <= 2)
+                     {
+                         p_71847_1_.func_72859_e(var7, var8, var9, Block.field_71980_u.field_71990_ca);
+                     }
