@@ -1,26 +1,30 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import net.minecraftforge.gradle.common.task.*
+import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.task.DownloadMCPConfigTask
-import net.minecraftforge.gradle.patcher.PatcherExtension
-import net.minecraftforge.gradle.patcher.task.GenerateBinPatches
-import net.minecraftforge.gradle.patcher.task.TaskApplyPatches
-import net.minecraftforge.gradle.patcher.task.TaskGeneratePatches
-import net.minecraftforge.gradle.patcher.task.TaskGenerateUserdevConfig
-import net.minecraftforge.gradle.patcher.task.TaskReobfuscateJar
 import net.minecraftforge.gradle.mcp.task.GenerateSRG
+import net.minecraftforge.gradle.patcher.PatcherExtension
+import net.minecraftforge.gradle.patcher.task.*
+import org.apache.commons.io.FileUtils
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.errors.RepositoryNotFoundException
+import org.eclipse.jgit.lib.ObjectId
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
+import java.net.HttpURLConnection
+import java.net.URL
 import java.nio.file.Files
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
-import org.eclipse.jgit.errors.RepositoryNotFoundException
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ObjectId
+import java.util.zip.ZipFile
 
 buildscript {
     repositories {
@@ -29,12 +33,16 @@ buildscript {
         maven {
             url = uri("https://maven.minecraftforge.net/")
         }
+        maven {
+            url = uri("https://plugins.gradle.org/m2/")
+        }
     }
     dependencies {
         classpath("net.minecraftforge.gradle:ForgeGradle:4.1.7")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
+        classpath("com.github.jengelman.gradle.plugins:shadow:6.1.0")
         
         classpath(kotlin("gradle-plugin", version = "1.5.0"))
         classpath(kotlin("serialization", version = "1.5.0"))
@@ -77,6 +85,14 @@ var jarSigner: Map<String, Any?> = if (project.hasProperty("keystore")) {
     ) 
 } else emptyMap()    
 
+val extraTxts = files(
+        "CREDITS-fml.txt",
+        "CREDITS-MinecraftForge.txt",
+        "LICENSE-fml.txt",
+        "LICENSE-MinecraftForge.txt",
+        "LICENSE-Paulscode IBXM Library.txt",
+        "LICENSE-Paulscode SoundSystem CodecIBXM.txt"
+)
 
 project(":mcp") {
     apply(plugin = "net.minecraftforge.gradle.mcp")
@@ -98,9 +114,6 @@ project(":clean") {
     }
 
     repositories {
-        maven {
-            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-        }
         maven {
             name = "artifactory"
             url = uri("https://su5ed.jfrog.io/artifactory/maven/")
@@ -171,6 +184,7 @@ project(":forge") {
     apply(plugin = "net.minecraftforge.gradle.patcher")
     apply(plugin = "net.minecrell.licenser")
     apply(plugin = "de.undercouch.download")
+    apply(plugin = "com.github.johnrengelman.shadow")
 
     tasks.named<JavaCompile>("compileJava") { // Need this here so eclipse task generates correctly.
         sourceCompatibility = "1.8"
@@ -222,13 +236,22 @@ project(":forge") {
 
     repositories {
         maven {
-            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-        }
-        maven {
             name = "artifactory"
             url = uri("https://su5ed.jfrog.io/artifactory/maven/")
         }
         mavenCentral()
+        
+        exclusiveContent { 
+            forRepository {
+                maven {
+                    name = "argo"
+                    url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+                }
+            }
+            filter {
+                includeGroup("net.sourceforge.argo")
+            }
+        }
     }
     
     var specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
@@ -348,11 +371,17 @@ project(":forge") {
 
         afterEvaluate {
             named<GenerateBinPatches>("genClientBinPatches") {
-                cleanJar = net.minecraftforge.gradle.common.util.MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
+                val reobfShadowJar = getByName<TaskReobfuscateJar>("reobfShadowJar")
+                dependsOn(reobfShadowJar)
+                cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
+                dirtyJar = reobfShadowJar.output
             }
             
             named<GenerateBinPatches>("genServerBinPatches") {
-                cleanJar = net.minecraftforge.gradle.common.util.MavenArtifactDownloader.generate(project, "net.minecraft:server:$minecraftVersion", true)
+                val reobfShadowJar = getByName<TaskReobfuscateJar>("reobfShadowJar")
+                dependsOn(reobfShadowJar)
+                cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:server:$minecraftVersion", true)
+                dirtyJar = reobfShadowJar.output
             }
             
             tasks.named<GenerateBinPatches>("genRuntimeBinPatches") {
@@ -423,7 +452,7 @@ project(":forge") {
             
             doLast {
                 val vanilla: MutableMap<String, Int> = kotlin.collections.HashMap()
-                val zip = java.util.zip.ZipFile(cleanJar)
+                val zip = ZipFile(cleanJar)
                 zip.entries().toList()
                     .filter { !it.isDirectory && it.name.endsWith(".class") }
                     .forEach { entry ->
@@ -520,6 +549,53 @@ project(":forge") {
                             }
                     }
                     f.writeText(lines.joinToString(separator = "\n"))
+                }
+            }
+        }
+        
+        named<ShadowJar>("shadowJar") {
+            archiveClassifier.set("")
+            configurations = listOf()
+            
+            relocate("net.minecraft.src.", "")
+        }
+        
+        register<TaskReobfuscateJar>("reobfShadowJar") {
+            val jar = getByName<ShadowJar>("shadowJar")
+            val genSrg = getByName<GenerateSRG>(if (project.extensions.getByType(PatcherExtension::class).notchObf) "createMcp2Obf" else "createMcp2Srg")
+            dependsOn(jar, "downloadMappings")
+            
+            input = jar.archiveFile.get().asFile
+            classpath = configurations.getByName("minecraftImplementation")
+            srg = genSrg.output
+        }
+        
+        replace("universalJar", ShadowJar::class).run {
+            val genRuntimeBinPatches = getByName<GenerateBinPatches>("genRuntimeBinPatches")
+            dependsOn(genRuntimeBinPatches)
+            from(genRuntimeBinPatches.output) {
+                rename { "binpatches.pack.lzma" }
+            }
+            relocate("net.minecraft.src.", "")
+            from(extraTxts)
+            
+            doFirst {
+                val classpath = StringBuilder()
+                val artifacts = getArtifacts(project.configurations.getByName("installer"), false)
+                artifacts.forEach { (_, lib) ->
+                    classpath.append("libraries/${lib.jsonObject["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")?.jsonPrimitive?.content} ")
+                }
+                classpath.append("minecraft_server.$minecraftVersion.jar")
+                manifests.forEach { (pkg, values) ->
+                    if (pkg == "/") {
+                        values += mutableMapOf(
+                                "Main-Class" to "cpw.mods.fml.relauncher.ServerLaunchWrapper",
+                                "Class-Path" to classpath.toString()
+                        )
+                        manifest.attributes(values)
+                    } else {
+                        manifest.attributes(values, pkg)
+                    }
                 }
             }
         }
@@ -653,34 +729,6 @@ project(":forge") {
             config = project(":mcp").tasks.getByName<DownloadMCPConfigTask>("downloadConfig").output
         }
         
-        named<Jar>("universalJar") {
-            val genRuntimeBinPatches = getByName<GenerateBinPatches>("genRuntimeBinPatches")
-            from(extraTxts)
-            dependsOn(genRuntimeBinPatches)
-            from(genRuntimeBinPatches.output) {
-                rename { "binpatches.pack.lzma" }
-            }
-            doFirst {
-                val classpath = StringBuilder()
-                val artifacts = getArtifacts(project.configurations.getByName("installer"), false)
-                artifacts.forEach { (_, lib) ->
-                    classpath.append("libraries/${lib.jsonObject["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")?.jsonPrimitive?.content} ")
-                }
-                classpath.append("minecraft_server.$minecraftVersion.jar")
-                manifests.forEach { (pkg, values) ->
-                    if (pkg == "/") {
-                        values += mutableMapOf(
-                            "Main-Class" to "cpw.mods.fml.relauncher.ServerLaunchWrapper",
-                            "Class-Path" to classpath.toString()
-                        )
-                        manifest.attributes(values)
-                    } else {
-                        manifest.attributes(values, pkg)
-                    }
-                }
-            }
-        }
-        
         register<DownloadMavenArtifact>("downloadInstaller") {
             artifact = "net.minecraftforge:installer:2.0.+:shrunk"
             changing = true
@@ -744,12 +792,14 @@ project(":forge") {
                         exclude(it)
                 }
                 filter(org.apache.tools.ant.filters.ReplaceTokens::class, mapOf(
-                    "FORGE_VERSION" to project.version,
-                    "FORGE_GROUP" to project.group,
-                    "FORGE_NAME" to project.name,
-                    "MC_VERSION" to minecraftVersion,
-                    "MAPPING_CHANNEL" to mappingsChannel,
-                    "MAPPING_VERSION" to mappingsVersion
+                    "tokens" to mapOf(
+                            "FORGE_VERSION" to project.version,
+                            "FORGE_GROUP" to project.group,
+                            "FORGE_NAME" to project.name,
+                            "MC_VERSION" to minecraftVersion,
+                            "MAPPING_CHANNEL" to mappingsChannel,
+                            "MAPPING_VERSION" to mappingsVersion
+                    )
                 ))
                 rename("gitignore\\.txt", ".gitignore")
             }
@@ -761,6 +811,8 @@ project(":forge") {
                 addLibrary(lib["name"]?.jsonPrimitive?.content)
             }
             addLibrary("net.minecraftforge:legacydev:0.2.3.+:fatjar")
+            addLibrary("net.sourceforge.argo:argo:2.25")
+            addLibrary("org.bouncycastle:bcprov-jdk15on:1.47")
             addUniversalFilter("^(?!binpatches\\.pack\\.lzma\$).*\$")
 
             runs {
@@ -812,7 +864,7 @@ project(":forge") {
             val createMcp2Srg = getByName<GenerateSRG>("createMcp2Srg")
             dependsOn(userdevExtras, createMcp2Srg)
             input = userdevExtras.archiveFile.get().asFile
-            classpath = project.configurations.getByName("implementation") // TODO compileClasspath / runtimeClasspath ?
+            classpath = project.configurations.getByName("compileClasspath")
             srg = createMcp2Srg.output
         }
         
@@ -832,6 +884,20 @@ project(":forge") {
         
         named("eclipse") {
             dependsOn("genEclipseRuns")
+        }
+        
+        named<TaskGeneratePatches>("genPatches") {
+            doLast {
+                val outputPath = output.toPath()
+                Files.walk(outputPath)
+                        .filter { path -> 
+                            val relative = outputPath.relativize(path).toString()
+                            relative.isNotEmpty() && !relative.startsWith("net") && path.toFile().isDirectory
+                        }
+                        .forEach { path ->
+                            FileUtils.deleteDirectory(path.toFile())
+                        }
+            }
         }
     }
     
@@ -853,6 +919,7 @@ project(":forge") {
         header = file("$rootDir/LICENSE-header.txt")
     
         include("cpw/mods/fml/")
+        ignoreFailures = true // TODO
             
         tasks {
             register("main") {
@@ -912,30 +979,30 @@ project(":forge") {
         testImplementation("org.opentest4j:opentest4j:1.0.0") // needed for junit 5
         testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
 
-        implementation("net.sourceforge.argo:argo:2.26")
-        implementation("org.bouncycastle:bcprov-jdk15on:1.47")
         implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
         implementation("org.apache.logging.log4j:log4j-core:2.5")
+        implementation("net.sourceforge.argo:argo:2.25")
+        implementation("org.bouncycastle:bcprov-jdk15on:1.47")
     }
 
     val changelog = rootProject.file("build/changelog.txt")
     if (changelog.exists())
-        extraTxts.add(changelog)
+        extraTxts.from(changelog)
     
     configure<PublishingExtension> {
         publications { 
             create<MavenPublication>("mavenJava") {
-                artifact("universalJar")
+                artifact(tasks.getByName("universalJar"))
                 if (changelog.exists()) {
                     artifact(changelog) {
                         classifier = "changelog"
                     }
                 }
                 
-                artifact("installerJar")
-                artifact("makeMdk")
-                artifact("userdevJar")
-                artifact("sourcesJar")
+                artifact(tasks.getByName("installerJar"))
+                artifact(tasks.getByName("makeMdk"))
+                artifact(tasks.getByName("userdevJar"))
+                artifact(tasks.getByName("sourcesJar"))
                 
                 pom {
                     name.set("forge")
@@ -964,6 +1031,7 @@ project(":forge") {
             }
         }
         repositories {
+            mavenLocal()
             maven {
                 if (project.hasProperty("forgeMavenPassword")) {
                     credentials {
@@ -978,13 +1046,6 @@ project(":forge") {
         }
     }
 }
-
-val extraTxts = mutableListOf(
-    rootProject.file("CREDITS.txt"),
-    rootProject.file("LICENSE.txt"),
-    rootProject.file("LICENSE-Paulscode IBXM Library.txt"),
-    rootProject.file("LICENSE-Paulscode SoundSystem CodecIBXM.txt")
-)
 
 fun getLibArtifacts(versionJson: File): Set<JsonObject> {
     val json = Json.decodeFromString<JsonObject>(versionJson.readText())
@@ -1001,13 +1062,13 @@ fun getLibArtifacts(versionJson: File): Set<JsonObject> {
 }
 
 fun dateToIso8601(date: Date): String {
-    val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
     val result = format.format(date)
     return result.substring(0..21) + ":" + result.substring(22)
 }
 
 fun sha1(file: File): String {
-    val bytes = java.security.MessageDigest.getInstance("SHA-1").digest(file.readBytes())
+    val bytes = MessageDigest.getInstance("SHA-1").digest(file.readBytes())
     return bytes.joinToString("") { "%02x".format(it) }
 }
 
@@ -1059,7 +1120,7 @@ tasks.register("setup") {
 }
 
 fun checkExists(url: String): Boolean {
-    val conn = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+    val conn = URL(url).openConnection() as HttpURLConnection
     conn.requestMethod = "HEAD"
     conn.connect()
     return conn.responseCode == 200

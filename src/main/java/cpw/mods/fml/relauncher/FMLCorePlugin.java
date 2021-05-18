@@ -21,7 +21,7 @@ public class FMLCorePlugin implements IFMLLoadingPlugin
     @Override
     public String[] getLibraryRequestClass()
     {
-        return new String[] {"cpw.mods.fml.relauncher.CoreFMLLibraries"};
+        return null;
     }
 
     @Override

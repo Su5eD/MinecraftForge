@@ -27,6 +27,7 @@ public class FMLRelauncher
     public static String logFileNamePattern;
     private static String side;
     private LaunchClassLoader launchClassLoader;
+    public File minecraftHome;
     private Object newApplet;
     private Class<? super Object> appletClass;
 
@@ -38,6 +39,7 @@ public class FMLRelauncher
         
         FMLRelauncher instance = instance();
         instance.launchClassLoader = classLoader;
+        instance.minecraftHome = minecraftHome;
         instance.setupHome(minecraftHome);
     }
     
@@ -47,6 +49,7 @@ public class FMLRelauncher
         
         FMLRelauncher instance = instance();
         instance.launchClassLoader = classLoader;
+        instance.minecraftHome = minecraftHome;
         instance.setupHome(minecraftHome);
     }
 
@@ -199,25 +202,15 @@ public class FMLRelauncher
         Class<? super Object> mcMaster = ReflectionHelper.getClass(launchClassLoader, "net.minecraft.client.Minecraft");
         // If we get the system property we inject into the old MC, setup the
         // dir, then pull the value
+        File mcHome;
         String str = System.getProperty("minecraft.applet.TargetDirectory");
-        if (str != null)
-        {
+        if (str == null) mcHome = this.minecraftHome;
+        else {
             str = str.replace('/', File.separatorChar);
-            ReflectionHelper.setPrivateValue(mcMaster, null, new File(str), "minecraftDir", "an", "minecraftDir");
+            mcHome = new File(str);
         }
-        // We force minecraft to setup it's homedir very early on so we can
-        // inject stuff into it
-        Method setupHome = ReflectionHelper.findMethod(mcMaster, null, new String[] { "getMinecraftDir", "getMinecraftDir", "b" });
-        try
-        {
-            setupHome.invoke(null);
-        }
-        catch (Exception e)
-        {
-            // Hmmm
-        }
-        File minecraftHome = ReflectionHelper.getPrivateValue(mcMaster, null, "minecraftDir", "an", "minecraftDir");
-        return minecraftHome;
+        ReflectionHelper.setPrivateValue(mcMaster, null, mcHome, "minecraftDir", "an", "minecraftDir");
+        return mcHome;
     }
 
     public static void appletEntry(Applet minecraftApplet)

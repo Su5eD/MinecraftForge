@@ -76,14 +76,14 @@ public class ClassPatchManager {
                 int inputChecksum = Hashing.adler32().hashBytes(inputData).asInt();
                 if (patch.inputChecksum != inputChecksum) {
                     LOGGER.error(String.format("There is a binary discrepency between the expected input class %s (%s) and the actual class. Checksum on disk is %x, in patch %x. Things are probably about to go very wrong. Did you put something into the jar file?", mappedName, name, inputChecksum, patch.inputChecksum));
-                    /*if (!Boolean.parseBoolean(System.getProperty("fml.ignorePatchDiscrepancies", "false"))) {
+                    if (!Boolean.parseBoolean(System.getProperty("fml.ignorePatchDiscrepancies", "false"))) {
                         LOGGER.error("The game is going to exit, because this is a critical error, and it is very improbable that the modded game will work, please obtain clean jar files.");
                         System.exit(1);
                     } else {
                         LOGGER.error("FML is going to ignore this error, note that the patch will not be applied, and there is likely to be a malfunctioning behaviour, including not running at all");
                         ignoredError = true;
                         continue;
-                    }*/
+                    }
                 }
             }
             synchronized (patcher) {

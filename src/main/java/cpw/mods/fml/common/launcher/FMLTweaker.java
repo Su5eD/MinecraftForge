@@ -20,17 +20,19 @@ public class FMLTweaker implements ITweaker {
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
         classLoader.addClassLoaderExclusion("org.apache.");
-        classLoader.addClassLoaderExclusion("com.google.common.");
         classLoader.addClassLoaderExclusion("com.google.gson.");
         classLoader.addClassLoaderExclusion("LZMA.");
         classLoader.addClassLoaderExclusion("net.minecraftforge.classloading.");
-        classLoader.addClassLoaderExclusion("cpw.mods.fml.common.asm.transformers");
-        classLoader.addClassLoaderExclusion("cpw.mods.fml.relauncher");
+        classLoader.addClassLoaderExclusion("cpw.mods.fml.common.asm.transformers.");
+        classLoader.addClassLoaderExclusion("cpw.mods.fml.relauncher.");
         
+        classLoader.addTransformerExclusion("com.google.common.");
         classLoader.addTransformerExclusion("cpw.mods.fml.repackage.");
         classLoader.addTransformerExclusion("cpw.mods.fml.relauncher.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.asm.transformers.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.patcher.");
+        
+        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.ClassLoaderTransformer");
         
         configureTweaker(classLoader);
     }

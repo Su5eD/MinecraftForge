@@ -1,26 +1,23 @@
 package net.minecraftforge.transformers;
 
-import java.util.List;
-
+import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.event.Event;
-import net.minecraftforge.event.ListenerList;
-
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Type.*;
-import static org.objectweb.asm.ClassWriter.*;
+import static org.objectweb.asm.Type.VOID_TYPE;
+import static org.objectweb.asm.Type.getMethodDescriptor;
 
-import cpw.mods.fml.relauncher.IClassTransformer;
-
+@SuppressWarnings("unused")
 public class EventTransformer implements IClassTransformer
 {
-    public EventTransformer()
-    {
-    }
-
     @Override
-    public byte[] transform(String name, byte[] bytes)
+    public byte[] transform(String name, String transformedName, byte[] bytes)
     {
         if (bytes == null || name.equals("net.minecraftforge.event.Event") || name.startsWith("net.minecraft.") || name.indexOf('.') == -1)
         {
@@ -52,7 +49,6 @@ public class EventTransformer implements IClassTransformer
         return bytes;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean buildEvents(ClassNode classNode) throws Exception
     {
         Class<?> parent = this.getClass().getClassLoader().loadClass(classNode.superName.replace('/', '.'));
@@ -68,7 +64,7 @@ public class EventTransformer implements IClassTransformer
         Class<?> listenerListClazz = Class.forName("net.minecraftforge.event.ListenerList", false, getClass().getClassLoader());
         Type tList = Type.getType(listenerListClazz);
 
-        for (MethodNode method : (List<MethodNode>)classNode.methods)
+        for (MethodNode method : classNode.methods)
         {
                 if (method.name.equals("setup") &&
                     method.desc.equals(Type.getMethodDescriptor(VOID_TYPE)) &&
@@ -114,7 +110,7 @@ public class EventTransformer implements IClassTransformer
          */
         MethodNode method = new MethodNode(ASM4, ACC_PUBLIC, "<init>", getMethodDescriptor(VOID_TYPE), null, null);
         method.instructions.add(new VarInsnNode(ALOAD, 0));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE)));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE), false));
         method.instructions.add(new InsnNode(RETURN));
         if (!hasDefaultCtr)
         {
@@ -134,7 +130,7 @@ public class EventTransformer implements IClassTransformer
          */
         method = new MethodNode(ASM4, ACC_PROTECTED, "setup", getMethodDescriptor(VOID_TYPE), null, null);
         method.instructions.add(new VarInsnNode(ALOAD, 0));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "setup", getMethodDescriptor(VOID_TYPE)));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "setup", getMethodDescriptor(VOID_TYPE), false));
         method.instructions.add(new FieldInsnNode(GETSTATIC, classNode.name, "LISTENER_LIST", tList.getDescriptor()));
         LabelNode initLisitener = new LabelNode();
         method.instructions.add(new JumpInsnNode(IFNULL, initLisitener));
@@ -144,8 +140,8 @@ public class EventTransformer implements IClassTransformer
         method.instructions.add(new TypeInsnNode(NEW, tList.getInternalName()));
         method.instructions.add(new InsnNode(DUP));
         method.instructions.add(new VarInsnNode(ALOAD, 0));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "getListenerList", getMethodDescriptor(tList)));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tList.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE, tList)));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "getListenerList", getMethodDescriptor(tList), false));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tList.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE, tList), false));
         method.instructions.add(new FieldInsnNode(PUTSTATIC, classNode.name, "LISTENER_LIST", tList.getDescriptor()));
         method.instructions.add(new InsnNode(RETURN));
         classNode.methods.add(method);

@@ -15,6 +15,7 @@
 package cpw.mods.fml.common.asm.transformers;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
@@ -93,7 +94,7 @@ public class AccessTransformer implements IClassTransformer
         }
         else
         {
-            rulesResource = Resources.getResource(rulesFile);
+            rulesResource = getResource(rulesFile);
         }
         Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>()
         {
@@ -417,5 +418,11 @@ public class AccessTransformer implements IClassTransformer
         m.setTargetAccess("public");
         m.modifyClassVisibility = true;
         modifiers.put(modClazzName, m);
+    }
+    
+    public URL getResource(String resourceName) {
+        URL url = getClass().getClassLoader().getResource(resourceName);
+        Preconditions.checkArgument(url != null, "resource %s not found.", resourceName);
+        return url;
     }
 }
