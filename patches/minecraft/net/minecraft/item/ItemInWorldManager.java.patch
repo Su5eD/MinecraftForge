@@ -5,7 +5,7 @@
  import net.minecraft.world.World;
  import net.minecraft.world.WorldServer;
 +import net.minecraftforge.common.MinecraftForge;
-+import net.minecraftforge.event.Event;
++import net.minecraftforge.event.Event.Result;
 +import net.minecraftforge.event.ForgeEventFactory;
 +import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 +import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -50,7 +50,7 @@
 +                
 +                if (block != null)
 +                {
-+                    if (event.useBlock != Event.Result.DENY)
++                    if (event.useBlock != Result.DENY)
 +                    {
 +                        block.func_71921_a(field_73092_a, p_73074_1_, p_73074_2_, p_73074_3_, field_73090_b);
 +                        field_73092_a.func_72886_a(field_73090_b, p_73074_1_, p_73074_2_, p_73074_3_, p_73074_4_);
@@ -62,7 +62,7 @@
 +                    var5 = block.func_71908_a(field_73090_b, field_73090_b.field_70170_p, p_73074_1_, p_73074_2_, p_73074_3_);
 +                }
 +                
-+                if (event.useItem == Event.Result.DENY)
++                if (event.useItem == Result.DENY)
 +                {
 +                    if (var5 >= 1.0f)
 +                    {
@@ -180,18 +180,18 @@
 +        
 +        if (block != null && (!p_73078_1_.func_70093_af() || ( p_73078_1_.func_70694_bm() == null || p_73078_1_.func_70694_bm().func_77973_b().shouldPassSneakingClickToBlock(p_73078_2_, p_73078_4_, p_73078_5_, p_73078_6_))))
 +        {
-+            if (event.useBlock != Event.Result.DENY)
++            if (event.useBlock != Result.DENY)
 +            {
 +                result = block.func_71903_a(p_73078_2_, p_73078_4_, p_73078_5_, p_73078_6_, p_73078_1_, p_73078_7_, p_73078_8_, p_73078_9_, p_73078_10_);
 +            }
 +            else
 +            {
 +                field_73090_b.field_71135_a.func_72567_b(new Packet53BlockChange(p_73078_4_, p_73078_5_, p_73078_6_, field_73092_a));
-+                result = event.useItem != Event.Result.ALLOW;
++                result = event.useItem != Result.ALLOW;
 +            }
 +        }
 +        
-+        if (p_73078_3_ != null && !result && event.useItem != Event.Result.DENY)
++        if (p_73078_3_ != null && !result && event.useItem != Result.DENY)
 +        {
 +            int meta = p_73078_3_.func_77960_j();
 +            int size = p_73078_3_.field_77994_a;
@@ -205,7 +205,7 @@
 +        }
 +        
 +        /* Re-enable if this causes bukkit incompatibility, or re-write client side to only send a single packet per right click.
-+        if (par3ItemStack != null && ((!result && event.useItem != Event.Result.DENY) || event.useItem == Event.Result.ALLOW))
++        if (par3ItemStack != null && ((!result && event.useItem != Result.DENY) || event.useItem == Result.ALLOW))
 +        {
 +            this.tryUseItem(thisPlayerMP, par2World, par3ItemStack);
 +        }*/

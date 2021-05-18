@@ -114,16 +114,23 @@ project(":clean") {
     }
 
     repositories {
-        maven {
-            name = "artifactory"
-            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+        exclusiveContent { 
+            forRepository {
+                maven {
+                    name = "argo"
+                    url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+                }
+            }
+            filter {
+                includeGroup("net.sourceforge.argo")
+            }
         }
     }
 
     dependencies {
         "implementation"("net.minecraftforge:mergetool:0.2.3.3:cpw")
         "implementation"("org.bouncycastle:bcprov-jdk15on:1.47")
-        "implementation"("net.sourceforge.argo:argo:2.26")
+        "implementation"("net.sourceforge.argo:argo:2.25")
     }
 
     configure<PatcherExtension> {

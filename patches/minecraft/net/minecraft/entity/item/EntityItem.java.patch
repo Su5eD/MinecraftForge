@@ -14,7 +14,7 @@
  import net.minecraft.util.StatCollector;
  import net.minecraft.world.World;
 +import net.minecraftforge.common.MinecraftForge;
-+import net.minecraftforge.event.Event;
++import net.minecraftforge.event.Event.Result;
 +import net.minecraftforge.event.entity.item.ItemExpireEvent;
 +import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
  
@@ -108,7 +108,7 @@
              int var3 = var2.field_77994_a;
  
 -            if (this.field_70293_c == 0 && p_70100_1_.field_71071_by.func_70441_a(var2))
-+            if (this.field_70293_c <= 0 && (event.getResult() == Event.Result.ALLOW || var3 <= 0 || p_70100_1_.field_71071_by.func_70441_a(var2)))
++            if (this.field_70293_c <= 0 && (event.getResult() == Result.ALLOW || var3 <= 0 || p_70100_1_.field_71071_by.func_70441_a(var2)))
              {
                  if (var2.field_77993_c == Block.field_71951_J.field_71990_ca)
                  {

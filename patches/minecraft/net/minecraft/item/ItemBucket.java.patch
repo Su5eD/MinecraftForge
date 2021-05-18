@@ -5,7 +5,7 @@
  import net.minecraft.util.MovingObjectPosition;
  import net.minecraft.world.World;
 +import net.minecraftforge.common.MinecraftForge;
-+import net.minecraftforge.event.Event;
++import net.minecraftforge.event.Event.Result;
 +import net.minecraftforge.event.entity.player.FillBucketEvent;
  
  public class ItemBucket extends Item
@@ -20,7 +20,7 @@
 +                return p_77659_1_;
 +            }
 +            
-+            if (event.getResult() == Event.Result.ALLOW)
++            if (event.getResult() == Result.ALLOW)
 +            {
 +                if (p_77659_3_.field_71075_bZ.field_75098_d)
 +                {
