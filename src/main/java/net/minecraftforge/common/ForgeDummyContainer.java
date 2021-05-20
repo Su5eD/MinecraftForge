@@ -1,27 +1,18 @@
 package net.minecraftforge.common;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
-
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.management.PlayerInstance;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
-import cpw.mods.fml.common.DummyModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModMetadata;
-import cpw.mods.fml.common.WorldAccessContainer;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-
-import static net.minecraftforge.common.ForgeVersion.*;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Map;
 
 public class ForgeDummyContainer extends DummyModContainer implements WorldAccessContainer
 {
@@ -33,14 +24,14 @@ public class ForgeDummyContainer extends DummyModContainer implements WorldAcces
         ModMetadata meta = getMetadata();
         meta.modId       = "Forge";
         meta.name        = "Minecraft Forge";
-        meta.version     = String.format("%d.%d.%d.%d", majorVersion, minorVersion, revisionVersion, buildVersion);
+        meta.version     = ForgeVersion.version;
         meta.credits     = "Made possible with help from many people";
         meta.authorList  = Arrays.asList("LexManos", "Eloraam", "Spacetoad");
         meta.description = "Minecraft Forge is a common open source API allowing a broad range of mods " +
                            "to work cooperatively together. It allows many mods to be created without " +
                            "them editing the main Minecraft code.";
-        meta.url         = "http://MinecraftForge.net";
-        meta.updateUrl   = "http://MinecraftForge.net/forum/index.php/topic,5.0.html";
+        meta.url         = "https://MinecraftForge.net";
+        meta.updateUrl   = "https://MinecraftForge.net/forum/index.php/topic,5.0.html";
         meta.screenshots = new String[0];
         meta.logoFile    = "/forge_logo.png";
 

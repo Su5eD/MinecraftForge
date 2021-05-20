@@ -27,10 +27,7 @@ import java.util.logging.Level;
 public class FMLInjectionData
 {
     static File minecraftHome;
-    static String major;
-    static String minor;
-    static String rev;
-    static String build;
+    static String fmlversion;
     static String mccversion;
     static String mcpversion;
     public static List<String> containers = new ArrayList<String>();
@@ -38,7 +35,7 @@ public class FMLInjectionData
     static void build(File mcHome, LaunchClassLoader classLoader)
     {
         minecraftHome = mcHome;
-        InputStream stream = classLoader.getResourceAsStream("fmlversion.properties");
+        InputStream stream = classLoader.getResourceAsStream("forgeversion.properties");
         Properties properties = new Properties();
 
         if (stream != null)
@@ -52,19 +49,14 @@ public class FMLInjectionData
                 FMLRelaunchLog.log(Level.SEVERE, ex, "Could not get FML version information - corrupted installation detected!");
             }
         }
-
-        major = properties.getProperty("fmlbuild.major.number", "missing");
-        minor = properties.getProperty("fmlbuild.minor.number", "missing");
-        rev = properties.getProperty("fmlbuild.revision.number", "missing");
-        build = properties.getProperty("fmlbuild.build.number", "missing");
+        
+        fmlversion = properties.getProperty("fmlbuild.fmlversion", "missing");
         mccversion = properties.getProperty("fmlbuild.mcversion", "missing");
         mcpversion = properties.getProperty("fmlbuild.mcpversion", "missing");
-
-
     }
 
     public static Object[] data()
     {
-        return new Object[] { major, minor, rev, build, mccversion, mcpversion, minecraftHome, containers };
+        return new Object[] { fmlversion, mccversion, mcpversion, minecraftHome, containers };
     }
 }

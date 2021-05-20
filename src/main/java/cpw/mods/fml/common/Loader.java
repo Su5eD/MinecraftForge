@@ -83,10 +83,7 @@ public class Loader
     /**
      * Build information for tracking purposes.
      */
-    private static String major;
-    private static String minor;
-    private static String rev;
-    private static String build;
+    private static String fmlversion;
     private static String mccversion;
     private static String mcpversion;
 
@@ -135,14 +132,11 @@ public class Loader
 
     public static void injectData(Object... data)
     {
-        major = (String) data[0];
-        minor = (String) data[1];
-        rev = (String) data[2];
-        build = (String) data[3];
-        mccversion = (String) data[4];
-        mcpversion = (String) data[5];
-        minecraftDir = (File) data[6];
-        injectedContainers = (List<String>)data[7];
+        fmlversion = (String) data[0];
+        mccversion = (String) data[1];
+        mcpversion = (String) data[2];
+        minecraftDir = (File) data[3];
+        injectedContainers = (List<String>)data[4];
     }
 
     private Loader()
@@ -562,7 +556,7 @@ public class Loader
 
     public String getFMLVersionString()
     {
-        return String.format("%s.%s.%s.%s", major, minor, rev, build);
+        return fmlversion;
     }
 
     public ClassLoader getModClassLoader()

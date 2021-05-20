@@ -11,6 +11,7 @@ import net.minecraftforge.gradle.mcp.task.GenerateSRG
 import net.minecraftforge.gradle.patcher.PatcherExtension
 import net.minecraftforge.gradle.patcher.task.*
 import org.apache.commons.io.FileUtils
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.ObjectId
@@ -29,7 +30,9 @@ import java.util.zip.ZipFile
 
 buildscript {
     repositories {
-        mavenLocal()
+        maven {
+            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+        }
         mavenCentral()
         maven {
             url = uri("https://maven.minecraftforge.net/")
@@ -39,7 +42,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:4.1.7")
+        classpath("net.minecraftforge.gradle:ForgeGradle:4.1-dev-SNAPSHOT")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
@@ -59,7 +62,6 @@ buildscript {
                 "keystore" to project.properties["keystore"]
             ))
         }
-        set("MCP_VERSION", "7.26")
     }
 }
 
@@ -72,7 +74,8 @@ plugins {
 
 val minecraftVersion = "1.4.7"
 val mappingsChannel = "stable"
-val mappingsVersion = "7.26-1.4.7"
+val mcpVersion = "7.26"
+val mappingsVersion = "$mcpVersion-$minecraftVersion"
 val postProcessor = mapOf(
     "tool" to "net.minecraftforge:mcpcleanup:2.3.2:fatjar",
     "repo" to "https://maven.minecraftforge.net/",
@@ -336,6 +339,19 @@ project(":forge") {
             "Implementation-Version" to (project.version as String).substring(minecraftVersion.length + 1),
             "Implementation-Vendor" to "Forge Development LLC"
         )
+    )
+    
+    val tokenMap = mapOf(
+            "tokens" to mapOf(
+                    "FORGE_VERSION" to project.version,
+                    "FORGE_VERSION_RAW" to project.version.toString().split("-")[1],
+                    "FORGE_GROUP" to project.group,
+                    "FORGE_NAME" to project.name,
+                    "MC_VERSION" to minecraftVersion,
+                    "MCP_VERSION" to mcpVersion,
+                    "MAPPING_CHANNEL" to mappingsChannel,
+                    "MAPPING_VERSION" to mappingsVersion
+            )
     )
     
     configurations {
@@ -871,17 +887,14 @@ project(":forge") {
                     if (it.trim().isNotEmpty() && !it.trim().startsWith('#'))
                         exclude(it)
                 }
-                filter(org.apache.tools.ant.filters.ReplaceTokens::class, mapOf(
-                    "tokens" to mapOf(
-                            "FORGE_VERSION" to project.version,
-                            "FORGE_GROUP" to project.group,
-                            "FORGE_NAME" to project.name,
-                            "MC_VERSION" to minecraftVersion,
-                            "MAPPING_CHANNEL" to mappingsChannel,
-                            "MAPPING_VERSION" to mappingsVersion
-                    )
-                ))
+                filter(ReplaceTokens::class, tokenMap)
                 rename("gitignore\\.txt", ".gitignore")
+            }
+        }
+        
+        named<ProcessResources>("processResources") {
+            filesMatching("*.properties") {
+                filter(ReplaceTokens::class, tokenMap)
             }
         }
         
@@ -893,6 +906,7 @@ project(":forge") {
             addLibrary("net.minecraftforge:legacydev:0.2.3.+:fatjar")
             addLibrary("net.sourceforge.argo:argo:2.25")
             addLibrary("org.bouncycastle:bcprov-jdk15on:1.47")
+            addLibrary("com.nothome:javaxdelta:2.0.1")
             addUniversalFilter("^(?!binpatches\\.pack\\.lzma\$).*\$")
 
             runs {
@@ -1068,6 +1082,15 @@ project(":forge") {
                 } else {
                     url = uri("file://${rootProject.file("repo").absolutePath}")
                 }
+                
+                if (project.hasProperty("artifactoryPassword")) {
+                    name = "artifactory"
+                    url = uri("https://su5ed.jfrog.io/artifactory/maven")
+                    credentials { 
+                        username = project.properties["artifactoryUser"] as String
+                        password = project.properties["artifactoryPassword"] as String
+                    }
+                }
             }
         }
     }
@@ -1178,7 +1201,7 @@ fun artifactTree(project: Project, artifact: String): Map<String, JsonObject> {
 }
 
 fun gitInfo(): Map<String, String> {
-    val legacyBuild = 565 // Base build number to not conflict with existing build numbers
+    val legacyBuild = 534 // Base build number to not conflict with existing build numbers
     val git: Git
     try {
         git = Git.open(rootProject.file("."))
