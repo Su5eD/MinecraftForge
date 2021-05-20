@@ -31,7 +31,6 @@ public class ObfuscationReflectionHelper
 {
     public static boolean obfuscation;
 
-    @SuppressWarnings("unchecked")
     public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, int fieldIndex)
     {
         try
@@ -45,7 +44,6 @@ public class ObfuscationReflectionHelper
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, String... fieldNames)
     {
         try

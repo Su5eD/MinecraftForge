@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import de.undercouch.gradle.tasks.download.DownloadAction
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
@@ -336,6 +337,68 @@ project(":forge") {
             "Implementation-Vendor" to "Forge Development LLC"
         )
     )
+    
+    configurations {
+        val installer = register("installer") {
+            isTransitive = false //Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
+        }.get()
+    
+        named("api") {
+            extendsFrom(installer)
+        }
+    
+        register("fmllauncherImplementation") {
+            extendsFrom(installer)
+        }
+            
+        val shade = register("shade")
+        getByName("implementation").extendsFrom(shade.get())
+    }
+
+    dependencies {
+        val installer = configurations.getByName("installer")
+        val testImplementation = configurations.getByName("testImplementation")
+        val implementation = configurations.getByName("implementation")
+        val shade = configurations.getByName("shade")
+
+        installer("org.ow2.asm:asm-debug-all:5.2")
+        installer("net.minecraft:launchwrapper:1.12")
+        installer("org.jline:jline:3.5.1")
+        installer("com.typesafe.akka:akka-actor_2.11:2.3.3")
+        installer("com.typesafe:config:1.2.1")
+        installer("org.scala-lang:scala-actors-migration_2.11:1.1.0")
+        installer("org.scala-lang:scala-compiler:2.11.1")
+        installer("org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2_mc")  //We change the version so old installs don"t break, as our clone of the jar is different the maven central
+        installer("org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2_mc") // --^
+        installer("org.scala-lang:scala-library:2.11.1")
+        installer("org.scala-lang:scala-parser-combinators_2.11:1.0.1")
+        installer("org.scala-lang:scala-reflect:2.11.1")
+        installer("org.scala-lang:scala-swing_2.11:1.0.1")
+        installer("org.scala-lang:scala-xml_2.11:1.0.2")
+        installer("lzma:lzma:0.0.1")
+        installer("java3d:vecmath:1.5.2")
+        installer("net.sf.trove4j:trove4j:3.0.3")
+        installer("org.apache.maven:maven-artifact:3.5.3")
+        installer("net.sf.jopt-simple:jopt-simple:5.0.3")
+        installer("org.apache.logging.log4j:log4j-api:2.8.1")
+        installer("org.apache.logging.log4j:log4j-core:2.8.1")
+        installer("com.google.guava:guava:14.0")
+        installer("com.google.code.gson:gson:2.3")
+        installer("net.sourceforge.argo:argo:2.25")
+
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
+        testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
+        testImplementation("org.opentest4j:opentest4j:1.0.0") // needed for junit 5
+        testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
+
+        implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
+        implementation("org.apache.logging.log4j:log4j-core:2.5")
+        implementation("org.bouncycastle:bcprov-jdk15on:1.47")
+
+        shade("com.nothome:javaxdelta:2.0.1") {
+            exclude(group = "trove")
+        }
+    }
 
     tasks {
         named<TaskApplyPatches>("applyPatches") {
@@ -391,7 +454,7 @@ project(":forge") {
                 dirtyJar = reobfShadowJar.output
             }
             
-            tasks.named<GenerateBinPatches>("genRuntimeBinPatches") {
+            named<GenerateBinPatches>("genRuntimeBinPatches") {
                 val genClientBinPatches = getByName<GenerateBinPatches>("genClientBinPatches")
 
                 cleanJar = genClientBinPatches.cleanJar
@@ -427,7 +490,7 @@ project(":forge") {
                     val target = file("build/libraries/" + art["path"]?.jsonPrimitive?.content)
                     if (!target.exists()) {
                         download {
-                            this.configure(closureOf<de.undercouch.gradle.tasks.download.DownloadAction> {
+                            this.configure(closureOf<DownloadAction> {
                                 src(art["url"]?.jsonPrimitive?.content)
                                 dest(target.absolutePath)
                             })
@@ -562,9 +625,11 @@ project(":forge") {
         
         named<ShadowJar>("shadowJar") {
             archiveClassifier.set("")
-            configurations = listOf()
+            configurations = listOf(project.configurations.getByName("shade"))
+            exclude("at/spardat/xma/xdelta/**", "com/nothome/delta/text/**")
             
             relocate("net.minecraft.src.", "")
+            relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
         }
         
         register<TaskReobfuscateJar>("reobfShadowJar") {
@@ -583,7 +648,15 @@ project(":forge") {
             from(genRuntimeBinPatches.output) {
                 rename { "binpatches.pack.lzma" }
             }
+            
+            val shadowJar = getByName<ShadowJar>("shadowJar")
+            dependsOn(shadowJar)
+            from(zipTree(shadowJar.archiveFile.get().asFile)) {
+                include("cpw/mods/fml/repackage/**")
+            }
+            
             relocate("net.minecraft.src.", "")
+            relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
             from(extraTxts)
             
             doFirst {
@@ -936,60 +1009,6 @@ project(":forge") {
                 files = files("$rootDir/src/test/java")
             }
         }
-    }
-    
-    configurations {
-        val installer = register("installer") {
-            isTransitive = false //Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
-        }.get()
-
-        named("api") {
-            extendsFrom(installer)
-        }
-
-        register("fmllauncherImplementation") {
-            extendsFrom(installer)
-        }
-    }
-
-    dependencies {
-        val installer = configurations.getByName("installer")
-        val testImplementation = configurations.getByName("testImplementation")
-        val implementation = configurations.getByName("implementation")
-
-        installer("org.ow2.asm:asm-debug-all:5.2")
-        installer("net.minecraft:launchwrapper:1.12")
-        installer("org.jline:jline:3.5.1")
-        installer("com.typesafe.akka:akka-actor_2.11:2.3.3")
-        installer("com.typesafe:config:1.2.1")
-        installer("org.scala-lang:scala-actors-migration_2.11:1.1.0")
-        installer("org.scala-lang:scala-compiler:2.11.1")
-        installer("org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2_mc")  //We change the version so old installs don"t break, as our clone of the jar is different the maven central
-        installer("org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2_mc") // --^
-        installer("org.scala-lang:scala-library:2.11.1")
-        installer("org.scala-lang:scala-parser-combinators_2.11:1.0.1")
-        installer("org.scala-lang:scala-reflect:2.11.1")
-        installer("org.scala-lang:scala-swing_2.11:1.0.1")
-        installer("org.scala-lang:scala-xml_2.11:1.0.2")
-        installer("lzma:lzma:0.0.1")
-        installer("java3d:vecmath:1.5.2")
-        installer("net.sf.trove4j:trove4j:3.0.3")
-        installer("org.apache.maven:maven-artifact:3.5.3")
-        installer("net.sf.jopt-simple:jopt-simple:5.0.3")
-        installer("org.apache.logging.log4j:log4j-api:2.8.1")
-        installer("org.apache.logging.log4j:log4j-core:2.8.1")
-        installer("com.google.guava:guava:14.0")
-        installer("com.google.code.gson:gson:2.3")
-
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
-        testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
-        testImplementation("org.opentest4j:opentest4j:1.0.0") // needed for junit 5
-        testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
-
-        implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
-        implementation("org.apache.logging.log4j:log4j-core:2.5")
-        implementation("net.sourceforge.argo:argo:2.25")
-        implementation("org.bouncycastle:bcprov-jdk15on:1.47")
     }
 
     val changelog = rootProject.file("build/changelog.txt")

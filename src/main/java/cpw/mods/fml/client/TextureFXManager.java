@@ -43,7 +43,7 @@ public class TextureFXManager
 {
     private static final TextureFXManager INSTANCE = new TextureFXManager();
 
-    private class TextureProperties
+    private static class TextureProperties
     {
         private int textureId;
         private Dimension dim;

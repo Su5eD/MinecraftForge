@@ -3,7 +3,7 @@ package cpw.mods.fml.common.patcher;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import cpw.mods.fml.repackage.com.nothome.delta.Delta;
+import com.nothome.delta.Delta;
 
 import java.io.File;
 import java.io.IOException;

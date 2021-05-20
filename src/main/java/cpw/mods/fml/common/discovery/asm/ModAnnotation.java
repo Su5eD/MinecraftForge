@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class ModAnnotation
 {
-    public class EnumHolder
+    public static class EnumHolder
     {
 
         private String desc;

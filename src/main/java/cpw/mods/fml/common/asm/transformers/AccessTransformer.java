@@ -43,7 +43,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class AccessTransformer implements IClassTransformer
 {
     private static final boolean DEBUG = false;
-    private class Modifier
+    private static class Modifier
     {
         public String name = "";
         public String desc = "";
@@ -144,7 +144,6 @@ public class AccessTransformer implements IClassTransformer
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes)
     {

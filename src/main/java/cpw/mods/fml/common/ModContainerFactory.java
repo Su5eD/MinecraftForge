@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class ModContainerFactory
 {
-    private static Pattern modClass = Pattern.compile(".*(\\.|)(mod\\_[^\\s$]+)$");
+    private static Pattern modClass = Pattern.compile(".*(\\.|)(mod_[^\\s$]+)$");
     private static Pattern minecraftPackage = Pattern.compile("^net\\.minecraft\\.src\\.");
     private static ModContainerFactory INSTANCE = new ModContainerFactory();
     public static ModContainerFactory instance() {

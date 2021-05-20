@@ -394,7 +394,6 @@ public class MCPMerger
         return classNode;
     }
 
-    @SuppressWarnings("unchecked")
     private static void processFields(ClassNode cClass, ClassNode sClass, ClassInfo info)
     {
         List<FieldNode> cFields = cClass.fields;
@@ -508,7 +507,6 @@ public class MCPMerger
             return Objects.toStringHelper(this).add("name", node.name).add("desc",node.desc).add("server",server).add("client",client).toString();
         }
     }
-    @SuppressWarnings("unchecked")
     private static void processMethods(ClassNode cClass, ClassNode sClass, ClassInfo info)
     {
         List<MethodNode> cMethods = (List<MethodNode>)cClass.methods;

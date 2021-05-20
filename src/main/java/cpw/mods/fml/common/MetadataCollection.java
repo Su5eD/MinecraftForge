@@ -25,6 +25,7 @@ import cpw.mods.fml.common.versioning.VersionParser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -46,7 +47,10 @@ public class MetadataCollection
             try
             {
                 MetadataCollection collection;
-                Gson gson = new GsonBuilder().registerTypeAdapter(ArtifactVersion.class, new ArtifactVersionAdapter()).create();
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(ArtifactVersion.class, new ArtifactVersionAdapter())
+                        .setFieldNamingStrategy(f -> f.getName().toLowerCase(Locale.ROOT))
+                        .create();
                 JsonParser parser = new JsonParser();
                 JsonElement rootElement = parser.parse(reader);
                 if (rootElement.isJsonArray())

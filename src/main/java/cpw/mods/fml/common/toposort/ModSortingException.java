@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class ModSortingException extends RuntimeException
 {
-    public class SortingExceptionData<T>
+    public static class SortingExceptionData<T>
     {
         public SortingExceptionData(T node, Set<T> visitedNodes)
         {

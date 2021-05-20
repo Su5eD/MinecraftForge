@@ -251,21 +251,19 @@ public class RelaunchLibraryManager
             
             plugin.injectData(data);
             String setupClass = plugin.getSetupClass();
+            IFMLCallHook call;
             if (setupClass != null)
             {
                 try
                 {
-                    IFMLCallHook call = (IFMLCallHook) Class.forName(setupClass, true, actualClassLoader).newInstance();
-                    Map<String,Object> callData = new HashMap<String, Object>();
-                    callData.put("classLoader", actualClassLoader);
-                    call.injectData(callData);
-                    call.call();
+                    call = (IFMLCallHook) Class.forName(setupClass, true, actualClassLoader).newInstance();
                 }
                 catch (Exception e)
                 {
                     throw new RuntimeException(e);
                 }
             }
+            else call = null;
             
             TransformerExclusions trExclusions = plugin.getClass().getAnnotation(TransformerExclusions.class);
             if (trExclusions!=null)
@@ -289,6 +287,20 @@ public class RelaunchLibraryManager
                     FMLRelaunchLog.log(Level.SEVERE, e, "Error initializing transformer "+xFormClass);
                 }
             }
+            
+            if (call != null) {
+                try
+                {
+                    Map<String,Object> callData = new HashMap<String, Object>();
+                    callData.put("classLoader", actualClassLoader);
+                    call.injectData(callData);
+                    call.call();
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            
             downloadMonitor.updateProgressString("Coremod plugin %s run successfully", plugin.getClass().getSimpleName());
 
             String modContainer = plugin.getModContainerClass();

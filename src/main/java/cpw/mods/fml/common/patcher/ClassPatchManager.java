@@ -11,7 +11,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.repackage.com.nothome.delta.GDiffPatcher;
+import com.nothome.delta.GDiffPatcher;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

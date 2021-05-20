@@ -32,7 +32,6 @@ public class SideTransformer implements IClassTransformer
 {
     private static String SIDE = FMLRelauncher.side();
     private static final boolean DEBUG = false;
-    @SuppressWarnings("unchecked")
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes)
     {

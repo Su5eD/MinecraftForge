@@ -324,7 +324,7 @@ public class Loader
         return discoverer;
     }
 
-    private class ModIdComparator implements Comparator<ModContainer>
+    private static class ModIdComparator implements Comparator<ModContainer>
     {
         @Override
         public int compare(ModContainer o1, ModContainer o2)

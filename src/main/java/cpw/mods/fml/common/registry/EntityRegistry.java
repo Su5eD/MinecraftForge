@@ -34,7 +34,7 @@ import java.util.logging.Level;
 
 public class EntityRegistry
 {
-    public class EntityRegistration
+    public static class EntityRegistration
     {
         private Class<? extends Entity> entityClass;
         private ModContainer container;
