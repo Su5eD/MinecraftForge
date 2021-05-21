@@ -13,7 +13,7 @@ public class FMLServerTweaker extends FMLTweaker {
 
     @Override
     protected void configureTweaker(LaunchClassLoader classLoader) {
-        FMLRelauncher.configureServer(getGameDir(), classLoader);
+        FMLRelauncher.configureServer(getGameDir(), assetsDir, classLoader);
         ClassPatchManager.INSTANCE.setup(Side.SERVER);
     }
 }

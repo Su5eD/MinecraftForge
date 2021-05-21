@@ -11,10 +11,12 @@ import java.util.List;
 
 public class FMLTweaker implements ITweaker {
     private File gameDir;
+    protected File assetsDir;
     
     @Override
     public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
         this.gameDir = gameDir;
+        this.assetsDir = assetsDir;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class FMLTweaker implements ITweaker {
     }
     
     protected void configureTweaker(LaunchClassLoader classLoader) {
-        FMLRelauncher.configureClient(getGameDir(), classLoader);
+        FMLRelauncher.configureClient(getGameDir(), assetsDir, classLoader);
         ClassPatchManager.INSTANCE.setup(Side.CLIENT);
     }
     

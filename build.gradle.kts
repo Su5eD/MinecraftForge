@@ -639,6 +639,11 @@ project(":forge") {
             }
         }
         
+        named<Jar>("jar") {
+            finalizedBy("shadowJar")
+            enabled = false
+        }
+        
         named<ShadowJar>("shadowJar") {
             archiveClassifier.set("")
             configurations = listOf(project.configurations.getByName("shade"))

@@ -28,29 +28,32 @@ public class FMLRelauncher
     private static String side;
     private LaunchClassLoader launchClassLoader;
     public File minecraftHome;
+    public File assetsDir;
     private Object newApplet;
     private Class<? super Object> appletClass;
 
     JDialog popupWindow;
     
-    public static void configureClient(File minecraftHome, LaunchClassLoader classLoader) {
+    public static void configureClient(File minecraftHome, File assetsDir, LaunchClassLoader classLoader) {
         side = "CLIENT";
         logFileNamePattern = "ForgeModLoader-client-%g.log";
         
         FMLRelauncher instance = instance();
         instance.launchClassLoader = classLoader;
         instance.minecraftHome = minecraftHome;
-        instance.setupHome(minecraftHome);
+        instance.assetsDir = assetsDir;
+        instance.setupHome(minecraftHome, assetsDir);
     }
     
-    public static void configureServer(File minecraftHome, LaunchClassLoader classLoader) {
+    public static void configureServer(File minecraftHome, File assetsDir, LaunchClassLoader classLoader) {
         side = "SERVER";
         logFileNamePattern = "ForgeModLoader-server-%g.log";
         
         FMLRelauncher instance = instance();
         instance.launchClassLoader = classLoader;
         instance.minecraftHome = minecraftHome;
-        instance.setupHome(minecraftHome);
+        instance.assetsDir = assetsDir;
+        instance.setupHome(minecraftHome, assetsDir);
     }
 
     public static void handleClientRelaunch(ArgsWrapper wrap)
@@ -148,7 +151,7 @@ public class FMLRelauncher
         }
     }
 
-    private void setupHome(File minecraftHome)
+    private void setupHome(File minecraftHome, File assetsDir)
     {
         FMLInjectionData.build(minecraftHome, launchClassLoader);
         FMLRelaunchLog.minecraftHome = minecraftHome;
@@ -157,7 +160,7 @@ public class FMLRelauncher
         try
         {
             showWindow(true);
-            RelaunchLibraryManager.handleLaunch(minecraftHome, launchClassLoader);
+            RelaunchLibraryManager.handleLaunch(minecraftHome, assetsDir, launchClassLoader);
         }
         catch (Throwable t)
         {
@@ -246,7 +249,7 @@ public class FMLRelauncher
         }
 
         File mcDir = computeExistingClientHome();
-        setupHome(mcDir);
+        setupHome(mcDir, this.assetsDir);
         setupNewClientHome(mcDir);
 
         Class<? super Object> parentAppletClass = ReflectionHelper.getClass(launchClassLoader, "java.applet.Applet");
