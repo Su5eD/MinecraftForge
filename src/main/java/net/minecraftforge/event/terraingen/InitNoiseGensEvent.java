@@ -1,19 +1,17 @@
 package net.minecraftforge.event.terraingen;
 
-import java.util.Random;
-
 import net.minecraft.world.World;
 import net.minecraft.world.gen.NoiseGeneratorOctaves;
-import net.minecraftforge.event.world.*;
+import net.minecraftforge.event.world.WorldEvent;
 
-public class InitNoiseGensEvent extends WorldEvent
-{
+import java.util.Random;
+
+public class InitNoiseGensEvent extends WorldEvent {
     public final Random rand;
     public final NoiseGeneratorOctaves[] originalNoiseGens;
     public NoiseGeneratorOctaves[] newNoiseGens;
-    
-    public InitNoiseGensEvent(World world, Random rand, NoiseGeneratorOctaves[] original)
-    {
+
+    public InitNoiseGensEvent(World world, Random rand, NoiseGeneratorOctaves[] original) {
         super(world);
         this.rand = rand;
         originalNoiseGens = original;

@@ -13,14 +13,16 @@ public class ClassLoaderTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
-        if (bytes == null) { return null; }
-        
+        if (bytes == null) {
+            return null;
+        }
+
         ClassReader classReader = new ClassReader(bytes);
-        
+
         ClassWriter oldClassWriter = new ClassWriter(0);
         classReader.accept(oldClassWriter, 0);
         byte[] oldBytes = oldClassWriter.toByteArray();
-        
+
         ClassWriter classWriter = new ClassWriter(0);
         Remapper remapper = new SimpleRemapper("cpw/mods/fml/relauncher/RelaunchClassLoader", "net/minecraft/launchwrapper/LaunchClassLoader");
         ClassRemapper classRemapper = new ClassRemapper(classWriter, remapper);

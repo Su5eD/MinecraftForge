@@ -1110,8 +1110,10 @@ project(":forge") {
                 } else {
                     url = uri("file://${rootProject.file("repo").absolutePath}")
                 }
-                
-                if (project.hasProperty("artifactoryPassword")) {
+            }
+            
+            if (project.hasProperty("artifactoryPassword")) {
+                maven {
                     name = "artifactory"
                     url = uri("https://su5ed.jfrog.io/artifactory/maven")
                     credentials { 
@@ -1267,7 +1269,8 @@ fun getVersion(info: Map<String, String>): String {
             "HEAD",
             minecraftVersion,
             "$minecraftVersion.0",
-            minecraftVersion.substring(0, minecraftVersion.lastIndexOf(".")) + ".x"
+            minecraftVersion.substring(0, minecraftVersion.lastIndexOf(".")) + ".x",
+            "$minecraftVersion-FG4"        
         )
     )
         return "${minecraftVersion}-${info["tag"]}.${info["offset"]}"

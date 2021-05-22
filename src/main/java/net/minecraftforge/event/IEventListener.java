@@ -1,8 +1,6 @@
 package net.minecraftforge.event;
 
 
-
-public interface IEventListener
-{
-    public void invoke(Event event);
+public interface IEventListener {
+    void invoke(Event event);
 }

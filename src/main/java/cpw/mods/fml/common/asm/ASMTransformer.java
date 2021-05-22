@@ -22,13 +22,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
-public class ASMTransformer implements IClassTransformer
-{
+public class ASMTransformer implements IClassTransformer {
     @Override
-    public byte[] transform(String name, String transformedName, byte[] bytes)
-    {
-        if ("net.minecraft.src.Block".equals(name))
-        {
+    public byte[] transform(String name, String transformedName, byte[] bytes) {
+        if ("net.minecraft.src.Block".equals(name)) {
             ClassReader cr = new ClassReader(bytes);
             ClassNode cn = new ClassNode(Opcodes.ASM4);
             cr.accept(cn, ClassReader.EXPAND_FRAMES);
@@ -37,7 +34,7 @@ public class ASMTransformer implements IClassTransformer
             cn.accept(cw);
             return cw.toByteArray();
         }
-        
+
         return bytes;
     }
 

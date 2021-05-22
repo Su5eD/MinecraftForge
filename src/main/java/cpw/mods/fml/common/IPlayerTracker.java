@@ -18,10 +18,8 @@ import net.minecraft.entity.player.EntityPlayer;
 
 /**
  * @author cpw
- *
  */
-public interface IPlayerTracker
-{
+public interface IPlayerTracker {
     void onPlayerLogin(EntityPlayer player);
 
     void onPlayerLogout(EntityPlayer player);

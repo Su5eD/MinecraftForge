@@ -21,15 +21,14 @@ import com.google.common.io.ByteArrayDataOutput;
  * A interface for Entities that need extra information to be communicated
  * between the server and client when they are spawned.
  */
-public interface IEntityAdditionalSpawnData
-{
+public interface IEntityAdditionalSpawnData {
     /**
      * Called by the server when constructing the spawn packet.
      * Data should be added to the provided stream.
      *
      * @param data The packet data stream
      */
-    public void writeSpawnData(ByteArrayDataOutput data);
+    void writeSpawnData(ByteArrayDataOutput data);
 
     /**
      * Called by the client when it receives a Entity spawn packet.
@@ -37,5 +36,5 @@ public interface IEntityAdditionalSpawnData
      *
      * @param data The packet data stream
      */
-    public void readSpawnData(ByteArrayDataInput data);
+    void readSpawnData(ByteArrayDataInput data);
 }

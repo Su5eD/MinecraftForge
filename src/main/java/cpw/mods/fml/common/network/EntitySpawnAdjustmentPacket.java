@@ -21,11 +21,9 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.NetHandler;
 
-public class EntitySpawnAdjustmentPacket extends FMLPacket
-{
+public class EntitySpawnAdjustmentPacket extends FMLPacket {
 
-    public EntitySpawnAdjustmentPacket()
-    {
+    public EntitySpawnAdjustmentPacket() {
         super(Type.ENTITYSPAWNADJUSTMENT);
     }
 
@@ -35,8 +33,7 @@ public class EntitySpawnAdjustmentPacket extends FMLPacket
     public int serverZ;
 
     @Override
-    public byte[] generatePacket(Object... data)
-    {
+    public byte[] generatePacket(Object... data) {
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
         dat.writeInt((Integer) data[0]);
         dat.writeInt((Integer) data[1]);
@@ -46,8 +43,7 @@ public class EntitySpawnAdjustmentPacket extends FMLPacket
     }
 
     @Override
-    public FMLPacket consumePacket(byte[] data)
-    {
+    public FMLPacket consumePacket(byte[] data) {
         ByteArrayDataInput dat = ByteStreams.newDataInput(data);
         entityId = dat.readInt();
         serverX = dat.readInt();
@@ -57,8 +53,7 @@ public class EntitySpawnAdjustmentPacket extends FMLPacket
     }
 
     @Override
-    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName)
-    {
+    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName) {
         FMLCommonHandler.instance().adjustEntityLocationOnClient(this);
     }
 

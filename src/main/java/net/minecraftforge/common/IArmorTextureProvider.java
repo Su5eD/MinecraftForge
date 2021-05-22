@@ -12,15 +12,14 @@ import net.minecraft.item.ItemStack;
  * It allows for the application of a custom texture file to the player skin
  * when the armor is worn.
  */
-public interface IArmorTextureProvider
-{
+public interface IArmorTextureProvider {
 
     /**
      * This interface has to return the path to a file that is the same
      * format as iron_1.png (or any of the other armor files). It will be
      * applied to the player skin when the armor is worn.
      */
-    public String getArmorTextureFile(ItemStack itemstack);
+    String getArmorTextureFile(ItemStack itemstack);
 
 }
 

@@ -9,14 +9,13 @@ import net.minecraftforge.event.Event;
 
 @Cancelable
 @Event.HasResult
-public class FillBucketEvent extends PlayerEvent
-{
+public class FillBucketEvent extends PlayerEvent {
     /**
-     * This event is fired when a player attempts to use a Empty bucket, it 
+     * This event is fired when a player attempts to use a Empty bucket, it
      * can be canceled to completely prevent any further processing.
-     * 
-     * If you set the result to 'ALLOW', it means that you have processed 
-     * the event and wants the basic functionality of adding the new 
+     * <p>
+     * If you set the result to 'ALLOW', it means that you have processed
+     * the event and wants the basic functionality of adding the new
      * ItemStack to your inventory and reducing the stack size to process.
      * setResult(ALLOW) is the same as the old setHandeled();
      */
@@ -27,8 +26,7 @@ public class FillBucketEvent extends PlayerEvent
 
     public ItemStack result;
 
-    public FillBucketEvent(EntityPlayer player, ItemStack current, World world, MovingObjectPosition target)
-    {
+    public FillBucketEvent(EntityPlayer player, ItemStack current, World world, MovingObjectPosition target) {
         super(player);
         this.current = current;
         this.world = world;

@@ -10,8 +10,8 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import cpw.mods.fml.relauncher.Side;
 import com.nothome.delta.GDiffPatcher;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,7 +91,6 @@ public class ClassPatchManager {
                     inputData = patcher.patch(inputData, patch.patch);
                 } catch (IOException e) {
                     LOGGER.debug(String.format("Encountered problem runtime patching class %s", name), e);
-                    continue;
                 }
             }
         }
@@ -152,12 +151,10 @@ public class ClassPatchManager {
         patchedClasses.clear();
     }
 
-    private ClassPatch readPatch(JarEntry patchEntry, JarInputStream jis)
-    {
+    private ClassPatch readPatch(JarEntry patchEntry, JarInputStream jis) {
         LOGGER.debug(String.format("Reading patch data from %s", patchEntry.getName()));
         ByteArrayDataInput input;
-        try
-        {
+        try {
             input = ByteStreams.newDataInput(ByteStreams.toByteArray(jis));
         } catch (IOException e) {
             LOGGER.warn(String.format("Unable to read binpatch file %s - ignoring", patchEntry.getName()), e);
@@ -168,8 +165,7 @@ public class ClassPatchManager {
         String targetClassName = input.readUTF();
         boolean exists = input.readBoolean();
         int inputChecksum = 0;
-        if (exists)
-        {
+        if (exists) {
             inputChecksum = input.readInt();
         }
         int patchLength = input.readInt();

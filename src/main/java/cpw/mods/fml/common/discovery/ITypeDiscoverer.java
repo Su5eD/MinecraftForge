@@ -19,9 +19,8 @@ import cpw.mods.fml.common.ModContainer;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public interface ITypeDiscoverer
-{
-    public static Pattern classFile = Pattern.compile("([^\\s$]+).class$");
+public interface ITypeDiscoverer {
+    Pattern classFile = Pattern.compile("([^\\s$]+).class$");
 
-    public List<ModContainer> discover(ModCandidate candidate, ASMDataTable table);
+    List<ModContainer> discover(ModCandidate candidate, ASMDataTable table);
 }

@@ -24,39 +24,32 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 
-public class FMLInjectionData
-{
+public class FMLInjectionData {
     static File minecraftHome;
     static String fmlversion;
     static String mccversion;
     static String mcpversion;
-    public static List<String> containers = new ArrayList<String>();
+    public static List<String> containers = new ArrayList<>();
 
-    static void build(File mcHome, LaunchClassLoader classLoader)
-    {
+    static void build(File mcHome, LaunchClassLoader classLoader) {
         minecraftHome = mcHome;
         InputStream stream = classLoader.getResourceAsStream("forgeversion.properties");
         Properties properties = new Properties();
 
-        if (stream != null)
-        {
-            try
-            {
+        if (stream != null) {
+            try {
                 properties.load(stream);
-            }
-            catch (IOException ex)
-            {
+            } catch (IOException ex) {
                 FMLRelaunchLog.log(Level.SEVERE, ex, "Could not get FML version information - corrupted installation detected!");
             }
         }
-        
+
         fmlversion = properties.getProperty("fmlbuild.fmlversion", "missing");
         mccversion = properties.getProperty("fmlbuild.mcversion", "missing");
         mcpversion = properties.getProperty("fmlbuild.mcpversion", "missing");
     }
 
-    public static Object[] data()
-    {
-        return new Object[] { fmlversion, mccversion, mcpversion, minecraftHome, containers };
+    public static Object[] data() {
+        return new Object[]{fmlversion, mccversion, mcpversion, minecraftHome, containers};
     }
 }

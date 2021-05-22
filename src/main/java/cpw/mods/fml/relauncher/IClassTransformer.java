@@ -14,7 +14,6 @@
 
 package cpw.mods.fml.relauncher;
 
-public interface IClassTransformer
-{
-    public byte[] transform(String name, byte[] bytes);
+public interface IClassTransformer {
+    byte[] transform(String name, byte[] bytes);
 }

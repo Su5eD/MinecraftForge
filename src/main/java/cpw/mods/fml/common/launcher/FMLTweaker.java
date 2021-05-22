@@ -12,7 +12,7 @@ import java.util.List;
 public class FMLTweaker implements ITweaker {
     private File gameDir;
     protected File assetsDir;
-    
+
     @Override
     public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
         this.gameDir = gameDir;
@@ -27,23 +27,23 @@ public class FMLTweaker implements ITweaker {
         classLoader.addClassLoaderExclusion("net.minecraftforge.classloading.");
         classLoader.addClassLoaderExclusion("cpw.mods.fml.common.asm.transformers.");
         classLoader.addClassLoaderExclusion("cpw.mods.fml.relauncher.");
-        
+
         classLoader.addTransformerExclusion("com.google.common.");
         classLoader.addTransformerExclusion("cpw.mods.fml.repackage.");
         classLoader.addTransformerExclusion("cpw.mods.fml.relauncher.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.asm.transformers.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.patcher.");
-        
+
         classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.ClassLoaderTransformer");
-        
+
         configureTweaker(classLoader);
     }
-    
+
     protected void configureTweaker(LaunchClassLoader classLoader) {
         FMLRelauncher.configureClient(getGameDir(), assetsDir, classLoader);
         ClassPatchManager.INSTANCE.setup(Side.CLIENT);
     }
-    
+
     protected File getGameDir() {
         return gameDir == null ? new File(".") : gameDir;
     }

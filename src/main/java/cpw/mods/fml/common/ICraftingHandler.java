@@ -22,10 +22,8 @@ import net.minecraft.item.ItemStack;
  * Return a crafting handler for the mod container to call
  *
  * @author cpw
- *
  */
-public interface ICraftingHandler
-{
+public interface ICraftingHandler {
     /**
      * The object array contains these three arguments
      *
@@ -37,6 +35,7 @@ public interface ICraftingHandler
 
     /**
      * The object array contains these two arguments
+     *
      * @param player
      * @param item
      */

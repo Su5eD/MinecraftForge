@@ -33,11 +33,9 @@ import java.util.Set;
  * </p>
  *
  * @author cpw
- *
  */
 
-public interface ModContainer
-{
+public interface ModContainer {
     /**
      * The globally unique modid for this mod
      */

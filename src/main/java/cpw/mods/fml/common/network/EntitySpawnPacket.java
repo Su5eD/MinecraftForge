@@ -35,8 +35,7 @@ import java.io.*;
 import java.util.List;
 import java.util.logging.Level;
 
-public class EntitySpawnPacket extends FMLPacket
-{
+public class EntitySpawnPacket extends FMLPacket {
 
     public int networkId;
     public int modEntityId;
@@ -57,14 +56,12 @@ public class EntitySpawnPacket extends FMLPacket
     public int rawY;
     public int rawZ;
 
-    public EntitySpawnPacket()
-    {
+    public EntitySpawnPacket() {
         super(Type.ENTITYSPAWN);
     }
 
     @Override
-    public byte[] generatePacket(Object... data)
-    {
+    public byte[] generatePacket(Object... data) {
         EntityRegistration er = (EntityRegistration) data[0];
         Entity ent = (Entity) data[1];
         NetworkModHandler handler = (NetworkModHandler) data[2];
@@ -85,30 +82,23 @@ public class EntitySpawnPacket extends FMLPacket
         dat.writeByte((byte) (ent.rotationPitch * 256.0F / 360.0F));
 
         // head yaw
-        if (ent instanceof EntityLiving)
-        {
-            dat.writeByte((byte) (((EntityLiving)ent).rotationYawHead * 256.0F / 360.0F));
-        }
-        else
-        {
+        if (ent instanceof EntityLiving) {
+            dat.writeByte((byte) (((EntityLiving) ent).rotationYawHead * 256.0F / 360.0F));
+        } else {
             dat.writeByte(0);
         }
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
-        try
-        {
+        try {
             ent.getDataWatcher().writeWatchableObjects(dos);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // unpossible
         }
 
         dat.write(bos.toByteArray());
 
-        if (ent instanceof IThrowableEntity)
-        {
-            Entity owner = ((IThrowableEntity)ent).getThrower();
+        if (ent instanceof IThrowableEntity) {
+            Entity owner = ((IThrowableEntity) ent).getThrower();
             dat.writeInt(owner == null ? ent.entityId : owner.entityId);
             double maxVel = 3.9D;
             double mX = ent.motionX;
@@ -117,28 +107,24 @@ public class EntitySpawnPacket extends FMLPacket
             if (mX < -maxVel) mX = -maxVel;
             if (mY < -maxVel) mY = -maxVel;
             if (mZ < -maxVel) mZ = -maxVel;
-            if (mX >  maxVel) mX =  maxVel;
-            if (mY >  maxVel) mY =  maxVel;
-            if (mZ >  maxVel) mZ =  maxVel;
-            dat.writeInt((int)(mX * 8000D));
-            dat.writeInt((int)(mY * 8000D));
-            dat.writeInt((int)(mZ * 8000D));
-        }
-        else
-        {
+            if (mX > maxVel) mX = maxVel;
+            if (mY > maxVel) mY = maxVel;
+            if (mZ > maxVel) mZ = maxVel;
+            dat.writeInt((int) (mX * 8000D));
+            dat.writeInt((int) (mY * 8000D));
+            dat.writeInt((int) (mZ * 8000D));
+        } else {
             dat.writeInt(0);
         }
-        if (ent instanceof IEntityAdditionalSpawnData)
-        {
-            ((IEntityAdditionalSpawnData)ent).writeSpawnData(dat);
+        if (ent instanceof IEntityAdditionalSpawnData) {
+            ((IEntityAdditionalSpawnData) ent).writeSpawnData(dat);
         }
 
         return dat.toByteArray();
     }
 
     @Override
-    public FMLPacket consumePacket(byte[] data)
-    {
+    public FMLPacket consumePacket(byte[] data) {
         ByteArrayDataInput dat = ByteStreams.newDataInput(data);
         networkId = dat.readInt();
         modEntityId = dat.readInt();
@@ -154,18 +140,14 @@ public class EntitySpawnPacket extends FMLPacket
         scaledHeadYaw = dat.readByte() * 360F / 256F;
         ByteArrayInputStream bis = new ByteArrayInputStream(data, 27, data.length - 27);
         DataInputStream dis = new DataInputStream(bis);
-        try
-        {
+        try {
             metadata = DataWatcher.readWatchableObjects(dis);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // Nope
         }
         dat.skipBytes(data.length - bis.available() - 27);
         throwerId = dat.readInt();
-        if (throwerId != 0)
-        {
+        if (throwerId != 0) {
             speedScaledX = dat.readInt() / 8000D;
             speedScaledY = dat.readInt() / 8000D;
             speedScaledZ = dat.readInt() / 8000D;
@@ -176,15 +158,13 @@ public class EntitySpawnPacket extends FMLPacket
     }
 
     @Override
-    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName)
-    {
+    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName) {
         NetworkModHandler nmh = handler.findNetworkModHandler(networkId);
         ModContainer mc = nmh.getContainer();
 
         EntityRegistration registration = EntityRegistry.instance().lookupModSpawn(mc, modEntityId);
-        Class<? extends Entity> cls =  registration.getEntityClass();
-        if (cls == null)
-        {
+        Class<? extends Entity> cls = registration.getEntityClass();
+        if (cls == null) {
             FMLLog.log(Level.WARNING, "Missing mod entity information for %s : %d", mc.getModId(), modEntityId);
             return;
         }

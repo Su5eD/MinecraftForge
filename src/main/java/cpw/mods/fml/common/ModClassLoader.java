@@ -30,12 +30,9 @@ import java.util.logging.Level;
 /**
  * A simple delegating class loader used to load mods into the system
  *
- *
  * @author cpw
- *
  */
-public class ModClassLoader extends URLClassLoader
-{
+public class ModClassLoader extends URLClassLoader {
     private static final List<String> STANDARD_LIBRARIES = ImmutableList.of("jinput.jar", "lwjgl.jar", "lwjgl_util.jar");
     private LaunchClassLoader mainClassLoader;
 
@@ -44,44 +41,36 @@ public class ModClassLoader extends URLClassLoader
         this.mainClassLoader = (LaunchClassLoader) parent;
     }
 
-    public void addFile(File modFile) throws MalformedURLException
-    {
-            URL url = modFile.toURI().toURL();
+    public void addFile(File modFile) throws MalformedURLException {
+        URL url = modFile.toURI().toURL();
         mainClassLoader.addURL(url);
     }
 
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException
-    {
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
         return mainClassLoader.loadClass(name);
     }
 
     public File[] getParentSources() {
-        List<URL> urls=mainClassLoader.getSources();
-        File[] sources=new File[urls.size()];
-        try
-        {
-            for (int i = 0; i<urls.size(); i++)
-            {
-                sources[i]=new File(urls.get(i).toURI());
+        List<URL> urls = mainClassLoader.getSources();
+        File[] sources = new File[urls.size()];
+        try {
+            for (int i = 0; i < urls.size(); i++) {
+                sources[i] = new File(urls.get(i).toURI());
             }
             return sources;
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             FMLLog.log(Level.SEVERE, e, "Unable to process our input to locate the minecraft code");
             throw new LoaderException(e);
         }
     }
 
-    public List<String> getDefaultLibraries()
-    {
+    public List<String> getDefaultLibraries() {
         return STANDARD_LIBRARIES;
     }
 
-    public Class<? extends BaseModProxy> loadBaseModClass(String modClazzName) throws Exception
-    {
-        AccessTransformer transformer = (AccessTransformer)mainClassLoader.getTransformers().get(2);
+    public Class<? extends BaseModProxy> loadBaseModClass(String modClazzName) throws Exception {
+        AccessTransformer transformer = (AccessTransformer) mainClassLoader.getTransformers().get(2);
         transformer.ensurePublicAccessFor(modClazzName);
         return (Class<? extends BaseModProxy>) Class.forName(modClazzName, true, this);
     }
