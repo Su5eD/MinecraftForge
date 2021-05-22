@@ -44,7 +44,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:4.1-dev-SNAPSHOT")
+        classpath("net.minecraftforge.gradle:ForgeGradle:4.1.legacy-SNAPSHOT")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
