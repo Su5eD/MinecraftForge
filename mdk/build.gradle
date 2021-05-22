@@ -144,6 +144,7 @@ jar {
 }
 
 tasks.whenTaskAdded {
+    // Add the obfuscated forge jar to the classpath when deobfuscating dependencies. This is required for live inheritance to work
     if (it.name.startsWith("_RenameObf2Mcp_")) {
         it.setClasspath(files(file("build/fg_cache/${forgeGroup.replace('.', '/')}/$forgeName/$forgeVersion/$forgeName-$forgeVersion-obf.jar"), getConfigurations().getByName(UserDevPlugin.OBF)))
     }

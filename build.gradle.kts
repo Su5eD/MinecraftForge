@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import net.minecraftforge.gradle.common.task.*
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
+import net.minecraftforge.gradle.common.util.MinecraftRepo
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.task.DownloadMCPConfigTask
 import net.minecraftforge.gradle.mcp.task.GenerateSRG
@@ -26,6 +27,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
+import java.util.function.Predicate
 import java.util.zip.ZipFile
 
 buildscript {
@@ -72,6 +74,8 @@ plugins {
     eclipse
 }
 
+MinecraftRepo.MCP_URL = "https://su5ed.jfrog.io/artifactory/maven/"
+
 val minecraftVersion = "1.4.7"
 val mappingsChannel = "stable"
 val mcpVersion = "7.26"
@@ -112,9 +116,17 @@ project(":clean") {
     apply(plugin = "eclipse")
     apply(plugin = "net.minecraftforge.gradle.patcher")
     
-    tasks.named<JavaCompile>("compileJava") { // Need this here so eclipse task generates correctly.
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
+    tasks {
+        named<JavaCompile>("compileJava") { // Need this here so eclipse task generates correctly.
+            sourceCompatibility = "1.8"
+            targetCompatibility = "1.8"
+        }
+        
+        named<ExtractZip>("extractMapped") {
+            filter = Predicate { zipEntry ->
+                zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
+            }
+        }
     }
 
     repositories {
@@ -197,11 +209,6 @@ project(":forge") {
     apply(plugin = "de.undercouch.download")
     apply(plugin = "com.github.johnrengelman.shadow")
 
-    tasks.named<JavaCompile>("compileJava") { // Need this here so eclipse task generates correctly.
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-
     group = "net.minecraftforge"
 
     configure<SourceSetContainer> {
@@ -265,7 +272,7 @@ project(":forge") {
         }
     }
     
-    var specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
+    val specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
     val mcpArtifact = project(":mcp").extensions.getByName<MCPExtension>("mcp").config
     val versionJson = project(":mcp").file("build/mcp/downloadJson/version.json")
     val binpatchTool = "net.minecraftforge:binarypatcher:1.1.1:fatjar"
@@ -417,6 +424,11 @@ project(":forge") {
     }
 
     tasks {
+        named<JavaCompile>("compileJava") { // Need this here so eclipse task generates correctly.
+            sourceCompatibility = "1.8"
+            targetCompatibility = "1.8"
+        }
+        
         named<TaskApplyPatches>("applyPatches") {
             maxFuzzOffset = 3
             originalPrefix = "../src-base/minecraft/"
@@ -675,10 +687,14 @@ project(":forge") {
             from(zipTree(shadowJar.archiveFile.get().asFile)) {
                 include("cpw/mods/fml/repackage/**")
             }
+            from(extraTxts)
             
             relocate("net.minecraft.src.", "")
             relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
-            from(extraTxts)
+            
+            filesMatching("*.properties") {
+                filter(ReplaceTokens::class, tokenMap)
+            }
             
             doFirst {
                 val classpath = StringBuilder()
@@ -913,6 +929,7 @@ project(":forge") {
             addLibrary("org.bouncycastle:bcprov-jdk15on:1.47")
             addLibrary("com.nothome:javaxdelta:2.0.1")
             addUniversalFilter("^(?!binpatches\\.pack\\.lzma\$).*\$")
+            addSourceFilter("^(?!argo|org/bouncycastle).*")
 
             runs {
                 register("client") {
@@ -996,6 +1013,12 @@ project(":forge") {
                         .forEach { path ->
                             FileUtils.deleteDirectory(path.toFile())
                         }
+            }
+        }
+        
+        named<ExtractZip>("extractMapped") {
+            filter = Predicate { zipEntry ->
+                zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
             }
         }
     }
