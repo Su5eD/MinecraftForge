@@ -469,17 +469,11 @@ project(":forge") {
 
         afterEvaluate {
             named<GenerateBinPatches>("genClientBinPatches") {
-                val reobfShadowJar = getByName<TaskReobfuscateJar>("reobfShadowJar")
-                dependsOn(reobfShadowJar)
                 cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
-                dirtyJar = reobfShadowJar.output
             }
             
             named<GenerateBinPatches>("genServerBinPatches") {
-                val reobfShadowJar = getByName<TaskReobfuscateJar>("reobfShadowJar")
-                dependsOn(reobfShadowJar)
                 cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:server:$minecraftVersion", true)
-                dirtyJar = reobfShadowJar.output
             }
             
             named<GenerateBinPatches>("genRuntimeBinPatches") {
@@ -661,18 +655,7 @@ project(":forge") {
             configurations = listOf(project.configurations.getByName("shade"))
             exclude("at/spardat/xma/xdelta/**", "com/nothome/delta/text/**")
             
-            relocate("net.minecraft.src.", "")
             relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
-        }
-        
-        register<TaskReobfuscateJar>("reobfShadowJar") {
-            val jar = getByName<ShadowJar>("shadowJar")
-            val genSrg = getByName<GenerateSRG>(if (project.extensions.getByType(PatcherExtension::class).notchObf) "createMcp2Obf" else "createMcp2Srg")
-            dependsOn(jar, "downloadMappings")
-            
-            input = jar.archiveFile.get().asFile
-            classpath = configurations.getByName("minecraftImplementation")
-            srg = genSrg.output
         }
         
         replace("universalJar", ShadowJar::class).run {
@@ -689,7 +672,6 @@ project(":forge") {
             }
             from(extraTxts)
             
-            relocate("net.minecraft.src.", "")
             relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
             
             filesMatching("*.properties") {

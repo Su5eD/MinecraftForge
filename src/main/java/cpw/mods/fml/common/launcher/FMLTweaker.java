@@ -34,7 +34,7 @@ public class FMLTweaker implements ITweaker {
         classLoader.addTransformerExclusion("cpw.mods.fml.common.asm.transformers.");
         classLoader.addTransformerExclusion("cpw.mods.fml.common.patcher.");
 
-        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.ClassLoaderTransformer");
+        classLoader.registerTransformer("cpw.mods.fml.common.asm.transformers.RemappingTransformer");
 
         configureTweaker(classLoader);
     }

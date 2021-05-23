@@ -25,7 +25,7 @@ import org.objectweb.asm.tree.ClassNode;
 public class ASMTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
-        if ("net.minecraft.src.Block".equals(name)) {
+        if ("net.minecraft.block.Block".equals(name)) {
             ClassReader cr = new ClassReader(bytes);
             ClassNode cn = new ClassNode(Opcodes.ASM4);
             cr.accept(cn, ClassReader.EXPAND_FRAMES);

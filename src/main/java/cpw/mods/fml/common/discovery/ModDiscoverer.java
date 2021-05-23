@@ -24,11 +24,13 @@ import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.RelaunchLibraryManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 
 public class ModDiscoverer {
     private static Pattern zipJar = Pattern.compile("(.+).(zip|jar)$");
@@ -52,15 +54,38 @@ public class ModDiscoverer {
                         FMLLog.finer("Skipping known library file %s", minecraftSources[i].getAbsolutePath());
                     } else {
                         FMLLog.fine("Found a minecraft related file at %s, examining for mod candidates", minecraftSources[i].getAbsolutePath());
-                        candidates.add(new ModCandidate(minecraftSources[i], minecraftSources[i], ContainerType.JAR, i == 0, true));
+                        candidates.add(new ModCandidate(minecraftSources[i], minecraftSources[i], ContainerType.JAR, isMinecraft(minecraftSources[i], ContainerType.JAR), true));
                     }
                 } else if (minecraftSources[i].isDirectory()) {
                     FMLLog.fine("Found a minecraft related directory at %s, examining for mod candidates", minecraftSources[i].getAbsolutePath());
-                    candidates.add(new ModCandidate(minecraftSources[i], minecraftSources[i], ContainerType.DIR, i == 0, true));
+                    candidates.add(new ModCandidate(minecraftSources[i], minecraftSources[i], ContainerType.DIR, isMinecraft(minecraftSources[i], ContainerType.DIR), true));
                 }
             }
         }
-
+    }
+    
+    private static boolean isMinecraft(File file, ContainerType type) {
+        if (type == ContainerType.JAR) {
+            try {
+                ZipFile container = new ZipFile(file);
+                return entryExists(container, "net/minecraft/server/MinecraftServer.class") || 
+                        entryExists(container, "cpw/mods/fml/common/Mod.class");
+            } catch (IOException ignored) {}
+        } else {
+            return fileExists(file, "net/minecraft/server/MinecraftServer.class") ||
+                    fileExists(file, "cpw/mods/fml/common/Mod.class");
+        }
+        
+        return false;
+    }
+    
+    private static boolean entryExists(ZipFile file, String entry) {
+        return file.getEntry(entry) != null;
+    }
+    
+    private static boolean fileExists(File dir, String path) {
+        File file = new File(dir, path);
+        return file.exists() && file.isFile();
     }
 
     public void findModDirMods(File modsDir) {

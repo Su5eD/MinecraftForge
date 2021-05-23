@@ -89,7 +89,7 @@ public class RelaunchLibraryManager {
                 String location = URLDecoder.decode(coreModClass.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8");
                 String ext = location.contains(".jar") ? ".jar" : location.contains(".zip") ? ".zip" : null;
                 if (ext != null) 
-                    pluginLocations.put(plugin, new File(location.substring(6, location.indexOf(ext) + ext.length())));
+                    pluginLocations.put(plugin, new File(location.substring(6, location.lastIndexOf(ext))));
 
                 if (plugin.getLibraryRequestClass() != null) {
                     for (String libName : plugin.getLibraryRequestClass()) {
