@@ -70,7 +70,10 @@ public class ModClassLoader extends URLClassLoader {
     }
 
     public Class<? extends BaseModProxy> loadBaseModClass(String modClazzName) throws Exception {
-        AccessTransformer transformer = (AccessTransformer) mainClassLoader.getTransformers().get(2);
+        AccessTransformer transformer = (AccessTransformer) mainClassLoader.getTransformers().stream()
+                .filter(AccessTransformer.class::isInstance)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Could not find the AccessTransformer transformer"));
         transformer.ensurePublicAccessFor(modClazzName);
         return (Class<? extends BaseModProxy>) Class.forName(modClazzName, true, this);
     }
