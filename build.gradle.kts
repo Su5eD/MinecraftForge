@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import de.undercouch.gradle.tasks.download.DownloadAction
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -39,16 +38,12 @@ buildscript {
         maven {
             url = uri("https://maven.minecraftforge.net/")
         }
-        maven {
-            url = uri("https://plugins.gradle.org/m2/")
-        }
     }
     dependencies {
         classpath("net.minecraftforge.gradle:ForgeGradle:4.1.legacy-SNAPSHOT")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
-        classpath("com.github.jengelman.gradle.plugins:shadow:6.1.0")
         
         classpath(kotlin("gradle-plugin", version = "1.5.0"))
         classpath(kotlin("serialization", version = "1.5.0"))
@@ -207,7 +202,6 @@ project(":forge") {
     apply(plugin = "net.minecraftforge.gradle.patcher")
     apply(plugin = "net.minecrell.licenser")
     apply(plugin = "de.undercouch.download")
-    apply(plugin = "com.github.johnrengelman.shadow")
 
     group = "net.minecraftforge"
 
@@ -408,6 +402,9 @@ project(":forge") {
         installer("com.google.guava:guava:14.0")
         installer("com.google.code.gson:gson:2.3")
         installer("net.sourceforge.argo:argo:2.25")
+        installer("com.nothome:javaxdelta:2.0.1") {
+            exclude(group = "trove")
+        }
 
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
         testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
@@ -417,10 +414,6 @@ project(":forge") {
         implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
         implementation("org.apache.logging.log4j:log4j-core:2.5")
         implementation("org.bouncycastle:bcprov-jdk15on:1.47")
-
-        shade("com.nothome:javaxdelta:2.0.1") {
-            exclude(group = "trove")
-        }
     }
 
     tasks {
@@ -645,34 +638,13 @@ project(":forge") {
             }
         }
         
-        named<Jar>("jar") {
-            finalizedBy("shadowJar")
-            enabled = false
-        }
-        
-        named<ShadowJar>("shadowJar") {
-            archiveClassifier.set("")
-            configurations = listOf(project.configurations.getByName("shade"))
-            exclude("at/spardat/xma/xdelta/**", "com/nothome/delta/text/**")
-            
-            relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
-        }
-        
-        replace("universalJar", ShadowJar::class).run {
+        named<Jar>("universalJar") {
             val genRuntimeBinPatches = getByName<GenerateBinPatches>("genRuntimeBinPatches")
             dependsOn(genRuntimeBinPatches)
             from(genRuntimeBinPatches.output) {
                 rename { "binpatches.pack.lzma" }
             }
-            
-            val shadowJar = getByName<ShadowJar>("shadowJar")
-            dependsOn(shadowJar)
-            from(zipTree(shadowJar.archiveFile.get().asFile)) {
-                include("cpw/mods/fml/repackage/**")
-            }
             from(extraTxts)
-            
-            relocate("com.nothome.delta", "cpw.mods.fml.repackage.com.nothome.delta")
             
             filesMatching("*.properties") {
                 filter(ReplaceTokens::class, tokenMap)
