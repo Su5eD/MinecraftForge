@@ -1,15 +1,13 @@
 --- ../src-base/minecraft/net/minecraft/server/MinecraftServer.java
 +++ ../src-work/minecraft/net/minecraft/server/MinecraftServer.java
-@@ -1,5 +1,8 @@
+@@ -1,5 +1,6 @@
  package net.minecraft.server;
  
 +import cpw.mods.fml.common.FMLCommonHandler;
-+import cpw.mods.fml.relauncher.ArgsWrapper;
-+import cpw.mods.fml.relauncher.FMLRelauncher;
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.awt.GraphicsEnvironment;
-@@ -7,10 +10,7 @@
+@@ -7,10 +8,7 @@
  import java.io.IOException;
  import java.security.KeyPair;
  import java.text.SimpleDateFormat;
@@ -21,7 +19,7 @@
  import java.util.logging.Level;
  import java.util.logging.Logger;
  import net.minecraft.block.BlockDispenser;
-@@ -62,6 +62,9 @@
+@@ -62,6 +60,9 @@
  import net.minecraft.world.storage.ISaveFormat;
  import net.minecraft.world.storage.ISaveHandler;
  import net.minecraft.world.storage.WorldInfo;
@@ -31,7 +29,7 @@
  
  public abstract class MinecraftServer implements ICommandSender, Runnable, IPlayerUsage
  {
-@@ -98,7 +101,8 @@
+@@ -98,7 +99,8 @@
      public final long[] field_71313_h = new long[100];
      public final long[] field_71314_i = new long[100];
      public final long[] field_71311_j = new long[100];
@@ -41,7 +39,7 @@
      private KeyPair field_71292_I;
      private String field_71293_J;
      private String field_71294_K;
-@@ -171,8 +175,6 @@
+@@ -171,8 +173,6 @@
      {
          this.func_71237_c(p_71247_1_);
          this.func_71192_d("menu.loadingLevel");
@@ -50,7 +48,7 @@
          ISaveHandler var7 = this.field_71310_m.func_75804_a(p_71247_1_, true);
          WorldInfo var9 = var7.func_75757_d();
          WorldSettings var8;
-@@ -192,45 +194,22 @@
+@@ -192,45 +192,22 @@
              var8.func_77159_a();
          }
  
@@ -104,22 +102,23 @@
  
          this.func_71226_c(this.func_71232_g());
          this.func_71222_d();
-@@ -342,7 +321,14 @@
+@@ -342,8 +319,15 @@
              for (int var1 = 0; var1 < this.field_71305_c.length; ++var1)
              {
                  WorldServer var2 = this.field_71305_c[var1];
 +                MinecraftForge.EVENT_BUS.post(new WorldEvent.Unload(var2));
                  var2.func_73041_k();
-+            }
+             }
 +            
 +            WorldServer[] tmp = field_71305_c;
 +            for (WorldServer world : tmp)
 +            {
 +                DimensionManager.setWorld(world.field_73011_w.field_76574_g, null);
-             }
++            }
  
              if (this.field_71307_n != null && this.field_71307_n.func_76468_d())
-@@ -378,7 +364,11 @@
+             {
+@@ -378,7 +362,11 @@
          {
              if (this.func_71197_b())
              {
@@ -131,7 +130,7 @@
  
                  for (long var50 = 0L; this.field_71317_u; this.field_71296_Q = true)
                  {
-@@ -417,6 +407,7 @@
+@@ -417,6 +405,7 @@
  
                      Thread.sleep(1L);
                  }
@@ -139,7 +138,7 @@
              }
              else
              {
-@@ -425,6 +416,10 @@
+@@ -425,6 +414,10 @@
          }
          catch (Throwable var48)
          {
@@ -150,7 +149,7 @@
              var48.printStackTrace();
              field_71306_a.log(Level.SEVERE, "Encountered an unexpected exception " + var48.getClass().getSimpleName(), var48);
              CrashReport var2 = null;
-@@ -455,6 +450,10 @@
+@@ -455,6 +448,10 @@
          {
              try
              {
@@ -161,7 +160,7 @@
                  this.func_71260_j();
                  this.field_71316_v = true;
              }
-@@ -464,6 +463,7 @@
+@@ -464,6 +461,7 @@
              }
              finally
              {
@@ -169,7 +168,7 @@
                  this.func_71240_o();
              }
          }
-@@ -484,8 +484,10 @@
+@@ -484,8 +482,10 @@
  
      public void func_71217_p()
      {
@@ -180,7 +179,7 @@
          ++this.field_71315_w;
  
          if (this.field_71295_T)
-@@ -531,6 +533,7 @@
+@@ -531,6 +531,7 @@
  
          this.field_71304_b.func_76319_b();
          this.field_71304_b.func_76319_b();
@@ -188,7 +187,7 @@
      }
  
      public void func_71190_q()
-@@ -538,13 +541,15 @@
+@@ -538,13 +539,15 @@
          this.field_71304_b.func_76320_a("levels");
          int var1;
  
@@ -207,7 +206,7 @@
                  this.field_71304_b.func_76320_a(var4.func_72912_H().func_76065_j());
                  this.field_71304_b.func_76320_a("pools");
                  var4.func_82732_R().func_72343_a();
-@@ -558,6 +563,7 @@
+@@ -558,6 +561,7 @@
                  }
  
                  this.field_71304_b.func_76320_a("tick");
@@ -215,7 +214,7 @@
                  CrashReport var6;
  
                  try
-@@ -582,6 +588,7 @@
+@@ -582,6 +586,7 @@
                      throw new ReportedException(var6);
                  }
  
@@ -223,7 +222,7 @@
                  this.field_71304_b.func_76319_b();
                  this.field_71304_b.func_76320_a("tracker");
                  var4.func_73039_n().func_72788_a();
-@@ -589,8 +596,11 @@
+@@ -589,8 +594,11 @@
                  this.field_71304_b.func_76319_b();
              }
  
@@ -236,7 +235,7 @@
  
          this.field_71304_b.func_76318_c("connection");
          this.func_71212_ac().func_71747_b();
-@@ -633,7 +643,13 @@
+@@ -633,7 +641,13 @@
  
      public WorldServer func_71218_a(int p_71218_1_)
      {
@@ -251,7 +250,7 @@
      }
  
      @SideOnly(Side.SERVER)
-@@ -709,7 +725,7 @@
+@@ -709,7 +723,7 @@
  
      public String getServerModName()
      {
@@ -260,7 +259,7 @@
      }
  
      public CrashReport func_71230_b(CrashReport p_71230_1_)
-@@ -931,6 +947,7 @@
+@@ -931,6 +945,7 @@
  
              if (var2 != null)
              {
@@ -268,31 +267,3 @@
                  var2.func_73041_k();
              }
          }
-@@ -1150,6 +1167,13 @@
-     @SideOnly(Side.SERVER)
-     public static void main(String[] p_main_0_)
-     {
-+        FMLRelauncher.handleServerRelaunch(new ArgsWrapper(p_main_0_));
-+    }
-+    
-+    @SideOnly(Side.SERVER)
-+    public static void fmlReentry(ArgsWrapper wrap)
-+    {
-+        String[] par0ArrayOfStr = wrap.args;
-         StatList.func_75919_a();
- 
-         try
-@@ -1162,10 +1186,10 @@
-             boolean var6 = false;
-             int var7 = -1;
- 
--            for (int var8 = 0; var8 < p_main_0_.length; ++var8)
-+            for (int var8 = 0; var8 < par0ArrayOfStr.length; ++var8)
-             {
--                String var9 = p_main_0_[var8];
--                String var10 = var8 == p_main_0_.length - 1 ? null : p_main_0_[var8 + 1];
-+                String var9 = par0ArrayOfStr[var8];
-+                String var10 = var8 == par0ArrayOfStr.length - 1 ? null : par0ArrayOfStr[var8 + 1];
-                 boolean var11 = false;
- 
-                 if (!var9.equals("nogui") && !var9.equals("--nogui"))

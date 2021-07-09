@@ -1,18 +1,16 @@
 --- ../src-base/minecraft/net/minecraft/client/Minecraft.java
 +++ ../src-work/minecraft/net/minecraft/client/Minecraft.java
-@@ -1,5 +1,11 @@
+@@ -1,5 +1,9 @@
  package net.minecraft.client;
  
 +import cpw.mods.fml.client.FMLClientHandler;
 +import cpw.mods.fml.common.FMLCommonHandler;
 +import cpw.mods.fml.common.registry.GameData;
 +import cpw.mods.fml.common.registry.ItemData;
-+import cpw.mods.fml.relauncher.ArgsWrapper;
-+import cpw.mods.fml.relauncher.FMLRelauncher;
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.awt.BorderLayout;
-@@ -107,6 +113,11 @@
+@@ -107,6 +111,11 @@
  import net.minecraft.world.storage.ISaveFormat;
  import net.minecraft.world.storage.ISaveHandler;
  import net.minecraft.world.storage.WorldInfo;
@@ -24,7 +22,7 @@
  import org.lwjgl.LWJGLException;
  import org.lwjgl.Sys;
  import org.lwjgl.input.Keyboard;
-@@ -120,6 +131,8 @@
+@@ -120,6 +129,8 @@
  import org.lwjgl.opengl.PixelFormat;
  import org.lwjgl.util.glu.GLU;
  
@@ -33,7 +31,7 @@
  @SideOnly(Side.CLIENT)
  public abstract class Minecraft implements Runnable, IPlayerUsage
  {
-@@ -302,6 +315,8 @@
+@@ -302,6 +313,8 @@
          this.field_71466_p = new FontRenderer(this.field_71474_y, "/font/default.png", this.field_71446_o, false);
          this.field_71464_q = new FontRenderer(this.field_71474_y, "/font/alternate.png", this.field_71446_o, false);
  
@@ -42,7 +40,7 @@
          if (this.field_71474_y.field_74363_ab != null)
          {
              StringTranslate.func_74808_a().func_74810_a(this.field_71474_y.field_74363_ab);
-@@ -346,6 +361,8 @@
+@@ -346,6 +359,8 @@
          GL11.glViewport(0, 0, this.field_71443_c, this.field_71440_d);
          this.field_71452_i = new EffectRenderer(this.field_71441_e, this.field_71446_o);
  
@@ -51,7 +49,7 @@
          try
          {
              this.field_71430_V = new ThreadDownloadResources(this.field_71412_D, this);
-@@ -374,6 +391,8 @@
+@@ -374,6 +389,8 @@
          {
              this.func_71352_k();
          }
@@ -60,7 +58,7 @@
      }
  
      private void func_71357_I() throws LWJGLException
-@@ -738,9 +757,11 @@
+@@ -738,9 +755,11 @@
  
              if (!this.field_71454_w)
              {
@@ -72,7 +70,7 @@
              }
  
              GL11.glFlush();
-@@ -1097,7 +1118,7 @@
+@@ -1097,7 +1116,7 @@
  
                  if (this.field_71439_g.func_82246_f(var3, var4, var5))
                  {
@@ -81,7 +79,7 @@
                      this.field_71439_g.func_71038_i();
                  }
              }
-@@ -1159,7 +1180,8 @@
+@@ -1159,7 +1178,8 @@
                  {
                      int var8 = var3 != null ? var3.field_77994_a : 0;
  
@@ -91,7 +89,7 @@
                      {
                          var2 = false;
                          this.field_71439_g.func_71038_i();
-@@ -1185,7 +1207,8 @@
+@@ -1185,7 +1205,8 @@
              {
                  ItemStack var9 = this.field_71439_g.field_71071_by.func_70448_g();
  
@@ -101,7 +99,7 @@
                  {
                      this.field_71460_t.field_78516_c.func_78445_c();
                  }
-@@ -1270,11 +1293,15 @@
+@@ -1270,11 +1291,15 @@
  
      public void func_71407_l()
      {
@@ -117,7 +115,7 @@
          this.field_71424_I.func_76320_a("stats");
          this.field_71413_E.func_77449_e();
          this.field_71424_I.func_76318_c("gui");
-@@ -1730,6 +1757,8 @@
+@@ -1730,6 +1755,8 @@
              this.field_71453_ak.func_74428_b();
          }
  
@@ -126,7 +124,7 @@
          this.field_71424_I.func_76319_b();
          this.field_71423_H = func_71386_F();
      }
-@@ -1768,8 +1797,27 @@
+@@ -1768,8 +1795,27 @@
          }
  
          this.field_71413_E.func_77450_a(StatList.field_75936_f, 1);
@@ -154,7 +152,7 @@
          this.field_71455_al = true;
          this.field_71461_s.func_73720_a(StatCollector.func_74838_a("menu.loadingLevel"));
  
-@@ -1820,6 +1868,12 @@
+@@ -1820,6 +1866,12 @@
  
          if (p_71353_1_ == null)
          {
@@ -167,7 +165,7 @@
              NetClientHandler var3 = this.func_71391_r();
  
              if (var3 != null)
-@@ -1835,6 +1889,18 @@
+@@ -1835,6 +1887,18 @@
              if (this.field_71437_Z != null)
              {
                  this.field_71437_Z.func_71263_m();
@@ -186,49 +184,7 @@
              }
  
              this.field_71437_Z = null;
-@@ -1984,28 +2050,34 @@
- 
-     public static void main(String[] p_main_0_)
-     {
-+        FMLRelauncher.handleClientRelaunch(new ArgsWrapper(p_main_0_));
-+    }
-+
-+    public static void fmlReentry(ArgsWrapper wrapper)
-+    {
-+        String[] par0ArrayOfStr = wrapper.args;
-         HashMap var1 = new HashMap();
-         boolean var2 = false;
-         boolean var3 = true;
-         boolean var4 = false;
-         String var5 = "Player" + func_71386_F() % 1000L;
- 
--        if (p_main_0_.length > 0)
-+        if (par0ArrayOfStr.length > 0)
-         {
--            var5 = p_main_0_[0];
-+            var5 = par0ArrayOfStr[0];
-         }
- 
-         String var6 = "-";
- 
--        if (p_main_0_.length > 1)
-+        if (par0ArrayOfStr.length > 1)
-         {
--            var6 = p_main_0_[1];
-+            var6 = par0ArrayOfStr[1];
-         }
- 
--        for (int var7 = 2; var7 < p_main_0_.length; ++var7)
-+        for (int var7 = 2; var7 < par0ArrayOfStr.length; ++var7)
-         {
--            String var8 = p_main_0_[var7];
--            String var9 = var7 == p_main_0_.length - 1 ? null : p_main_0_[var7 + 1];
-+            String var8 = par0ArrayOfStr[var7];
-+            String var9 = var7 == par0ArrayOfStr.length - 1 ? null : par0ArrayOfStr[var7 + 1];
-             boolean var10 = false;
- 
-             if (!var8.equals("-demo") && !var8.equals("--demo"))
-@@ -2104,95 +2176,12 @@
+@@ -2104,95 +2168,12 @@
          if (this.field_71476_x != null)
          {
              boolean var1 = this.field_71439_g.field_71075_bZ.field_75098_d;

@@ -14,8 +14,6 @@
 
 package cpw.mods.fml.relauncher;
 
-import net.minecraft.launchwrapper.LaunchClassLoader;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +29,7 @@ public class FMLInjectionData {
     static String mcpversion;
     public static List<String> containers = new ArrayList<>();
 
-    static void build(File mcHome, LaunchClassLoader classLoader) {
+    static void build(File mcHome, RelaunchClassLoader classLoader) {
         minecraftHome = mcHome;
         InputStream stream = classLoader.getResourceAsStream("forgeversion.properties");
         Properties properties = new Properties();
