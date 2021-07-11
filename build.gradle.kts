@@ -702,7 +702,7 @@ project(":forge") {
                     put("inheritsFrom", minecraftVersion)
                     putJsonObject("logging") {}
                     put("minecraftArguments", listOf(
-                            "\${auth_player_name}}",
+                            "\${auth_player_name}",
                             "\${auth_session}",
                             "--gameDir", "\${game_directory}",
                             "--assetsDir", "\${game_assets}"
