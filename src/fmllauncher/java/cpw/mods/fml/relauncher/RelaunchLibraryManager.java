@@ -45,11 +45,14 @@ public class RelaunchLibraryManager {
             try {
                 IFMLLoadingPlugin plugin = (IFMLLoadingPlugin) Class.forName(s, true, actualClassLoader).newInstance();
                 loadPlugins.add(plugin);
-                for (String libName : plugin.getLibraryRequestClass()) {
-                    libraries.add((ILibrarySet) Class.forName(libName, true, actualClassLoader).newInstance());
+                String[] libraryRequestClasses = plugin.getLibraryRequestClass();
+                if (libraryRequestClasses != null) {
+                    for (String libName : libraryRequestClasses) {
+                        libraries.add((ILibrarySet) Class.forName(libName, true, actualClassLoader).newInstance());
+                    }
                 }
             } catch (Exception e) {
-                // HMMM
+                throw new RuntimeException("Could not load root plugin " + s, e);
             }
         }
 

@@ -25,7 +25,6 @@ public class FMLCorePlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-                "cpw.mods.fml.common.asm.transformers.PatchingTransformer",
                 "cpw.mods.fml.common.asm.transformers.AccessTransformer",
                 "cpw.mods.fml.common.asm.transformers.MarkerTransformer",
                 "cpw.mods.fml.common.asm.transformers.SideTransformer"

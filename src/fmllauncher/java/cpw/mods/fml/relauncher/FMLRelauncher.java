@@ -14,13 +14,21 @@
 
 package cpw.mods.fml.relauncher;
 
-import org.lwjgl.Sys;
-
 import javax.swing.*;
 import java.applet.Applet;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FMLRelauncher {
     private static FMLRelauncher INSTANCE;
@@ -144,13 +152,19 @@ public class FMLRelauncher {
     private void setupHome(File minecraftHome) {
         FMLInjectionData.build(minecraftHome, classLoader);
         FMLRelaunchLog.minecraftHome = minecraftHome;
-        FMLRelaunchLog.info("Forge Mod Loader version %s for Minecraft %s loading", FMLInjectionData.fmlversion, FMLInjectionData.mccversion, FMLInjectionData.mcpversion);
+        FMLRelaunchLog.info("Forge Mod Loader version %s for Minecraft %s loading", FMLInjectionData.fmlversion, FMLInjectionData.mcversion, FMLInjectionData.mcpversion);
 
         try {
+            URL[] mcDeps = locateMcDeps();
+            if (mcDeps.length > 0) {
+                classLoader.setChildClassLoader(new URLClassLoader(mcDeps));
+            }
+            
             RelaunchLibraryManager.handleLaunch(minecraftHome, classLoader);
         } catch (Throwable t) {
             if (popupWindow != null) {
                 try {
+                    FMLRelaunchLog.log(Level.SEVERE, t, "");
                     String logFile = new File(minecraftHome, "ForgeModLoader-client-0.log").getCanonicalPath();
                     JOptionPane.showMessageDialog(popupWindow, String.format(
                             "<html><div align=\"center\"><font size=\"+1\">There was a fatal error starting up minecraft and FML</font></div><br/>"
@@ -188,6 +202,28 @@ public class FMLRelauncher {
             // Hmmm
         }
         return ReflectionHelper.getPrivateValue(mcMaster, null, "minecraftDir", "an", "minecraftDir");
+    }
+
+    private static URL[] locateMcDeps() {
+        try {
+            Class.forName("net.minecraft.block.Block", false, ClassLoader.getSystemClassLoader());
+            return new URL[0];
+        } catch (ClassNotFoundException ignored) { // We are in an obfuscated environment
+            Path root = LibraryFinder.getLibrariesRoot();
+            Path forge = LibraryFinder.getForgePath(root);
+            Path[] mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
+            
+            return Stream.concat(Arrays.stream(mcDeps), Stream.of(forge))
+                    .map(Path::toUri)
+                    .map(uri -> {
+                        try {
+                            return uri.toURL();
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException("Cannot resolve path of library", e);
+                        }
+                    })
+                    .toArray(URL[]::new);
+        }
     }
 
     private void relaunchApplet(Applet minecraftApplet) {

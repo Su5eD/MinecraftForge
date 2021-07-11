@@ -25,7 +25,7 @@ import java.util.logging.Level;
 public class FMLInjectionData {
     static File minecraftHome;
     static String fmlversion;
-    static String mccversion;
+    static String mcversion;
     static String mcpversion;
     public static List<String> containers = new ArrayList<>();
 
@@ -43,11 +43,11 @@ public class FMLInjectionData {
         }
 
         fmlversion = properties.getProperty("fmlbuild.fmlversion", "missing");
-        mccversion = properties.getProperty("fmlbuild.mcversion", "missing");
+        mcversion = properties.getProperty("fmlbuild.mcversion", "missing");
         mcpversion = properties.getProperty("fmlbuild.mcpversion", "missing");
     }
 
     public static Object[] data() {
-        return new Object[]{fmlversion, mccversion, mcpversion, minecraftHome, containers};
+        return new Object[]{fmlversion, mcversion, mcpversion, minecraftHome, containers};
     }
 }

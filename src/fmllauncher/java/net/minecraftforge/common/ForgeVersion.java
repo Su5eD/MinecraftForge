@@ -20,6 +20,7 @@ public class ForgeVersion {
     public static final int minorVersion;
     public static final int revisionVersion;
     public static final int buildVersion;
+    public static final String classifier;
 
     public static int getMajorVersion() {
         return majorVersion;
@@ -38,7 +39,7 @@ public class ForgeVersion {
     }
     
     public static String getVersion() {
-        return String.format("%d.%d.%d.%d", majorVersion, minorVersion, revisionVersion, buildVersion);
+        return String.format("%d.%d.%d.%d%s", majorVersion, minorVersion, revisionVersion, buildVersion, !classifier.isEmpty() ? "-" + classifier : "");
     }
 
     static {
@@ -54,6 +55,12 @@ public class ForgeVersion {
         }
 
         String version = properties.getProperty("forge.version", "missing");
+        if (version.contains("-")) {
+            String[] parts = version.split("-");
+            version = parts[0];
+            classifier = parts[1];
+        } else classifier = "";
+        
         List<Integer> parts = Arrays.stream(version.split("\\."))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
