@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/RenderEngine.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/RenderEngine.java
+--- a/net/minecraft/client/renderer/RenderEngine.java
++++ b/net/minecraft/client/renderer/RenderEngine.java
 @@ -1,8 +1,11 @@
  package net.minecraft.client.renderer;
  

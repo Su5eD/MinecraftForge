@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenBigTree.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenBigTree.java
+--- a/net/minecraft/world/gen/feature/WorldGenBigTree.java
++++ b/net/minecraft/world/gen/feature/WorldGenBigTree.java
 @@ -2,8 +2,10 @@
  
  import java.util.Random;

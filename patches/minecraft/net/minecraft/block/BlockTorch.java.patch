@@ -1,16 +1,15 @@
---- ../src-base/minecraft/net/minecraft/block/BlockTorch.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockTorch.java
-@@ -10,6 +10,9 @@
+--- a/net/minecraft/block/BlockTorch.java
++++ b/net/minecraft/block/BlockTorch.java
+@@ -10,6 +10,8 @@
  import net.minecraft.util.Vec3;
  import net.minecraft.world.World;
  
-+import net.minecraftforge.common.ForgeDirection;
 +import static net.minecraftforge.common.ForgeDirection.*;
 +
  public class BlockTorch extends Block
  {
      protected BlockTorch(int p_i4013_1_, int p_i4013_2_)
-@@ -48,13 +51,17 @@
+@@ -48,13 +50,17 @@
          else
          {
              int var5 = p_72125_1_.func_72798_a(p_72125_2_, p_72125_3_, p_72125_4_);
@@ -30,7 +29,7 @@
      }
  
      public int func_85104_a(World p_85104_1_, int p_85104_2_, int p_85104_3_, int p_85104_4_, int p_85104_5_, float p_85104_6_, float p_85104_7_, float p_85104_8_, int p_85104_9_)
-@@ -66,22 +73,22 @@
+@@ -66,22 +72,22 @@
              var10 = 5;
          }
  
@@ -57,7 +56,7 @@
          {
              var10 = 1;
          }
-@@ -103,19 +110,19 @@
+@@ -103,19 +109,19 @@
      {
          if (p_71861_1_.func_72805_g(p_71861_2_, p_71861_3_, p_71861_4_) == 0)
          {
@@ -81,7 +80,7 @@
              {
                  p_71861_1_.func_72921_c(p_71861_2_, p_71861_3_, p_71861_4_, 4);
              }
-@@ -135,22 +142,22 @@
+@@ -135,22 +141,22 @@
              int var6 = p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_);
              boolean var7 = false;
  

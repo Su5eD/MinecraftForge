@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockSapling.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockSapling.java
+--- a/net/minecraft/block/BlockSapling.java
++++ b/net/minecraft/block/BlockSapling.java
 @@ -13,6 +13,7 @@
  import net.minecraft.world.gen.feature.WorldGenTaiga2;
  import net.minecraft.world.gen.feature.WorldGenTrees;

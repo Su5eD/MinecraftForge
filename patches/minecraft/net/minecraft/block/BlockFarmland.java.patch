@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockFarmland.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockFarmland.java
+--- a/net/minecraft/block/BlockFarmland.java
++++ b/net/minecraft/block/BlockFarmland.java
 @@ -8,6 +8,8 @@
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.util.AxisAlignedBB;

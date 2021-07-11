@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/entity/RenderBiped.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/entity/RenderBiped.java
+--- a/net/minecraft/client/renderer/entity/RenderBiped.java
++++ b/net/minecraft/client/renderer/entity/RenderBiped.java
 @@ -9,11 +9,13 @@
  import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
  import net.minecraft.entity.Entity;

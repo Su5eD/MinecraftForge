@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockTrapDoor.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockTrapDoor.java
+--- a/net/minecraft/block/BlockTrapDoor.java
++++ b/net/minecraft/block/BlockTrapDoor.java
 @@ -10,9 +10,13 @@
  import net.minecraft.util.Vec3;
  import net.minecraft.world.IBlockAccess;

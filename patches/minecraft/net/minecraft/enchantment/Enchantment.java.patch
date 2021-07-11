@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/enchantment/Enchantment.java
-+++ ../src-work/minecraft/net/minecraft/enchantment/Enchantment.java
+--- a/net/minecraft/enchantment/Enchantment.java
++++ b/net/minecraft/enchantment/Enchantment.java
 @@ -1,6 +1,8 @@
  package net.minecraft.enchantment;
  

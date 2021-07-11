@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockCrops.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockCrops.java
+--- a/net/minecraft/block/BlockCrops.java
++++ b/net/minecraft/block/BlockCrops.java
 @@ -2,11 +2,14 @@
  
  import cpw.mods.fml.relauncher.Side;

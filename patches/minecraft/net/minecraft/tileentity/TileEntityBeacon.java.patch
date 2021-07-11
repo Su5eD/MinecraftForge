@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
-+++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
+--- a/net/minecraft/tileentity/TileEntityBeacon.java
++++ b/net/minecraft/tileentity/TileEntityBeacon.java
 @@ -102,7 +102,9 @@
                      {
                          int var6 = this.field_70331_k.func_72798_a(var4, var2, var5);

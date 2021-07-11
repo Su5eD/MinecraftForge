@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/RailLogic.java
-+++ ../src-work/minecraft/net/minecraft/block/RailLogic.java
+--- a/net/minecraft/block/RailLogic.java
++++ b/net/minecraft/block/RailLogic.java
 @@ -15,6 +15,7 @@
      private List field_73654_g;
  

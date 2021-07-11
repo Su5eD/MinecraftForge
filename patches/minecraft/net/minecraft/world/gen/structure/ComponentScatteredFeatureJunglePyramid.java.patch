@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentScatteredFeatureJunglePyramid.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentScatteredFeatureJunglePyramid.java
+--- a/net/minecraft/world/gen/structure/ComponentScatteredFeatureJunglePyramid.java
++++ b/net/minecraft/world/gen/structure/ComponentScatteredFeatureJunglePyramid.java
 @@ -7,6 +7,9 @@
  import net.minecraft.util.WeightedRandomChestContent;
  import net.minecraft.world.World;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/management/PlayerInstance.java
-+++ ../src-work/minecraft/net/minecraft/server/management/PlayerInstance.java
+--- a/net/minecraft/server/management/PlayerInstance.java
++++ b/net/minecraft/server/management/PlayerInstance.java
 @@ -1,6 +1,7 @@
  package net.minecraft.server.management;
  

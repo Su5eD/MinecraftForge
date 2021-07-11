@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentVillageStartPiece.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentVillageStartPiece.java
+--- a/net/minecraft/world/gen/structure/ComponentVillageStartPiece.java
++++ b/net/minecraft/world/gen/structure/ComponentVillageStartPiece.java
 @@ -9,6 +9,7 @@
  {
      public final WorldChunkManager field_74929_a;

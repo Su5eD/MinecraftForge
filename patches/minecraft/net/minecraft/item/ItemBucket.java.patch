@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/ItemBucket.java
-+++ ../src-work/minecraft/net/minecraft/item/ItemBucket.java
+--- a/net/minecraft/item/ItemBucket.java
++++ b/net/minecraft/item/ItemBucket.java
 @@ -8,6 +8,9 @@
  import net.minecraft.util.EnumMovingObjectType;
  import net.minecraft.util.MovingObjectPosition;

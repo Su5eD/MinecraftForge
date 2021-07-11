@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texturefx/TextureCompassFX.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texturefx/TextureCompassFX.java
+--- a/net/minecraft/client/renderer/texturefx/TextureCompassFX.java
++++ b/net/minecraft/client/renderer/texturefx/TextureCompassFX.java
 @@ -1,5 +1,6 @@
  package net.minecraft.client.renderer.texturefx;
  

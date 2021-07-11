@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/crafting/RecipeFireworks.java
-+++ ../src-work/minecraft/net/minecraft/item/crafting/RecipeFireworks.java
+--- a/net/minecraft/item/crafting/RecipeFireworks.java
++++ b/net/minecraft/item/crafting/RecipeFireworks.java
 @@ -88,9 +88,9 @@
              {
                  this.field_92102_a = new ItemStack(Item.field_92104_bU);

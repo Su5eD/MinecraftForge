@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/particle/EffectRenderer.java
-+++ ../src-work/minecraft/net/minecraft/client/particle/EffectRenderer.java
+--- a/net/minecraft/client/particle/EffectRenderer.java
++++ b/net/minecraft/client/particle/EffectRenderer.java
 @@ -1,17 +1,23 @@
  package net.minecraft.client.particle;
  

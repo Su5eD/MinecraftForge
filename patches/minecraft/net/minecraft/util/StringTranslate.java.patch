@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/util/StringTranslate.java
-+++ ../src-work/minecraft/net/minecraft/util/StringTranslate.java
+--- a/net/minecraft/util/StringTranslate.java
++++ b/net/minecraft/util/StringTranslate.java
 @@ -1,5 +1,6 @@
  package net.minecraft.util;
  

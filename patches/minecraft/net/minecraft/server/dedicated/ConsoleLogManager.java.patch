@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/dedicated/ConsoleLogManager.java
-+++ ../src-work/minecraft/net/minecraft/server/dedicated/ConsoleLogManager.java
+--- a/net/minecraft/server/dedicated/ConsoleLogManager.java
++++ b/net/minecraft/server/dedicated/ConsoleLogManager.java
 @@ -5,6 +5,8 @@
  import java.util.logging.Level;
  import java.util.logging.Logger;

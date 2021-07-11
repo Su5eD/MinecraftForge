@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderServer.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderServer.java
+--- a/net/minecraft/world/gen/ChunkProviderServer.java
++++ b/net/minecraft/world/gen/ChunkProviderServer.java
 @@ -6,6 +6,8 @@
  import java.util.Iterator;
  import java.util.List;

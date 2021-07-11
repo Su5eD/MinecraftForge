@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/model/TexturedQuad.java
-+++ ../src-work/minecraft/net/minecraft/client/model/TexturedQuad.java
+--- a/net/minecraft/client/model/TexturedQuad.java
++++ b/net/minecraft/client/model/TexturedQuad.java
 @@ -5,7 +5,6 @@
  import net.minecraft.client.renderer.Tessellator;
  import net.minecraft.util.Vec3;

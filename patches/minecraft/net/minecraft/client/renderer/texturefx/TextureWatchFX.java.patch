@@ -1,6 +1,6 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texturefx/TextureWatchFX.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texturefx/TextureWatchFX.java
-@@ -1,15 +1,21 @@
+--- a/net/minecraft/client/renderer/texturefx/TextureWatchFX.java
++++ b/net/minecraft/client/renderer/texturefx/TextureWatchFX.java
+@@ -1,15 +1,20 @@
  package net.minecraft.client.renderer.texturefx;
  
 +import cpw.mods.fml.client.FMLTextureFX;
@@ -9,8 +9,8 @@
 +
 +import java.awt.Graphics2D;
  import java.awt.image.BufferedImage;
+-import java.io.IOException;
 +import java.awt.image.ImageObserver;
- import java.io.IOException;
 +import java.util.logging.Level;
 +
  import javax.imageio.ImageIO;
@@ -23,7 +23,7 @@
  {
      private Minecraft field_76860_g;
      private int[] field_76863_h = new int[256];
-@@ -22,19 +28,39 @@
+@@ -22,19 +27,39 @@
          super(Item.field_77752_aS.func_77617_a(0));
          this.field_76860_g = p_i3214_1_;
          this.field_76847_f = 1;
@@ -70,7 +70,7 @@
          }
      }
  
-@@ -81,7 +107,7 @@
+@@ -81,7 +106,7 @@
          double var5 = Math.sin(this.field_76861_j);
          double var7 = Math.cos(this.field_76861_j);
  
@@ -79,7 +79,7 @@
          {
              int var10 = this.field_76863_h[var9] >> 24 & 255;
              int var11 = this.field_76863_h[var9] >> 16 & 255;
-@@ -90,12 +116,12 @@
+@@ -90,12 +115,12 @@
  
              if (var11 == var13 && var12 == 0 && var13 > 0)
              {

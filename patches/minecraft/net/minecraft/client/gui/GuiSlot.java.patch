@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/GuiSlot.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/GuiSlot.java
+--- a/net/minecraft/client/gui/GuiSlot.java
++++ b/net/minecraft/client/gui/GuiSlot.java
 @@ -31,6 +31,8 @@
      private boolean field_77244_r = true;
      private boolean field_77243_s;

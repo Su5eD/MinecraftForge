@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/multiplayer/NetClientHandler.java
-+++ ../src-work/minecraft/net/minecraft/client/multiplayer/NetClientHandler.java
+--- a/net/minecraft/client/multiplayer/NetClientHandler.java
++++ b/net/minecraft/client/multiplayer/NetClientHandler.java
 @@ -1,5 +1,6 @@
  package net.minecraft.client.multiplayer;
  

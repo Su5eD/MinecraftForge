@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/EnumToolMaterial.java
-+++ ../src-work/minecraft/net/minecraft/item/EnumToolMaterial.java
+--- a/net/minecraft/item/EnumToolMaterial.java
++++ b/net/minecraft/item/EnumToolMaterial.java
 @@ -14,6 +14,9 @@
      private final float field_78010_h;
      private final int field_78011_i;

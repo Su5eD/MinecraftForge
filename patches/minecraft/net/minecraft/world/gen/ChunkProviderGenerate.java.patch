@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderGenerate.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderGenerate.java
+--- a/net/minecraft/world/gen/ChunkProviderGenerate.java
++++ b/net/minecraft/world/gen/ChunkProviderGenerate.java
 @@ -20,6 +20,12 @@
  import net.minecraft.world.gen.structure.MapGenStronghold;
  import net.minecraft.world.gen.structure.MapGenVillage;

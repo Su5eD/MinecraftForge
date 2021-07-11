@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/integrated/IntegratedServer.java
-+++ ../src-work/minecraft/net/minecraft/server/integrated/IntegratedServer.java
+--- a/net/minecraft/server/integrated/IntegratedServer.java
++++ b/net/minecraft/server/integrated/IntegratedServer.java
 @@ -1,5 +1,6 @@
  package net.minecraft.server.integrated;
  

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/nbt/CompressedStreamTools.java
-+++ ../src-work/minecraft/net/minecraft/nbt/CompressedStreamTools.java
+--- a/net/minecraft/nbt/CompressedStreamTools.java
++++ b/net/minecraft/nbt/CompressedStreamTools.java
 @@ -130,8 +130,7 @@
      {
          NBTBase.func_74731_a(p_74800_0_, p_74800_1_);

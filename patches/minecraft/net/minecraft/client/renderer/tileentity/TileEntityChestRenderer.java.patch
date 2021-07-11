@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/tileentity/TileEntityChestRenderer.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/tileentity/TileEntityChestRenderer.java
+--- a/net/minecraft/client/renderer/tileentity/TileEntityChestRenderer.java
++++ b/net/minecraft/client/renderer/tileentity/TileEntityChestRenderer.java
 @@ -1,5 +1,6 @@
  package net.minecraft.client.renderer.tileentity;
  

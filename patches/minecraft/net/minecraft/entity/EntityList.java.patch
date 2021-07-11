@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/EntityList.java
-+++ ../src-work/minecraft/net/minecraft/entity/EntityList.java
+--- a/net/minecraft/entity/EntityList.java
++++ b/net/minecraft/entity/EntityList.java
 @@ -3,6 +3,9 @@
  import java.util.HashMap;
  import java.util.LinkedHashMap;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/crafting/FurnaceRecipes.java
-+++ ../src-work/minecraft/net/minecraft/item/crafting/FurnaceRecipes.java
+--- a/net/minecraft/item/crafting/FurnaceRecipes.java
++++ b/net/minecraft/item/crafting/FurnaceRecipes.java
 @@ -1,6 +1,8 @@
  package net.minecraft.item.crafting;
  

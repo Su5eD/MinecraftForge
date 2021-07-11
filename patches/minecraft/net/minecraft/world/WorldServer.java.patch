@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/WorldServer.java
-+++ ../src-work/minecraft/net/minecraft/world/WorldServer.java
+--- a/net/minecraft/world/WorldServer.java
++++ b/net/minecraft/world/WorldServer.java
 @@ -2,6 +2,8 @@
  
  import cpw.mods.fml.relauncher.Side;

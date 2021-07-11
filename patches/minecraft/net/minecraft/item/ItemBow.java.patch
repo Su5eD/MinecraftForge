@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/ItemBow.java
-+++ ../src-work/minecraft/net/minecraft/item/ItemBow.java
+--- a/net/minecraft/item/ItemBow.java
++++ b/net/minecraft/item/ItemBow.java
 @@ -6,6 +6,9 @@
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.entity.projectile.EntityArrow;

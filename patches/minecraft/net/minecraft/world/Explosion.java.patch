@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/Explosion.java
-+++ ../src-work/minecraft/net/minecraft/world/Explosion.java
+--- a/net/minecraft/world/Explosion.java
++++ b/net/minecraft/world/Explosion.java
 @@ -82,7 +82,7 @@
                              if (var25 > 0)
                              {

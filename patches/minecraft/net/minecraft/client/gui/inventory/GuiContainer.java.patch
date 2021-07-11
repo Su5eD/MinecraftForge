@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/inventory/GuiContainer.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/inventory/GuiContainer.java
+--- a/net/minecraft/client/gui/inventory/GuiContainer.java
++++ b/net/minecraft/client/gui/inventory/GuiContainer.java
 @@ -293,7 +293,7 @@
              if (var6 >= 0)
              {

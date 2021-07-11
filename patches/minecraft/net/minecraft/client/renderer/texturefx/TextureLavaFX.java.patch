@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texturefx/TextureLavaFX.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texturefx/TextureLavaFX.java
+--- a/net/minecraft/client/renderer/texturefx/TextureLavaFX.java
++++ b/net/minecraft/client/renderer/texturefx/TextureLavaFX.java
 @@ -1,12 +1,13 @@
  package net.minecraft.client.renderer.texturefx;
  

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/biome/BiomeDecorator.java
-+++ ../src-work/minecraft/net/minecraft/world/biome/BiomeDecorator.java
+--- a/net/minecraft/world/biome/BiomeDecorator.java
++++ b/net/minecraft/world/biome/BiomeDecorator.java
 @@ -16,44 +16,49 @@
  import net.minecraft.world.gen.feature.WorldGenWaterlily;
  import net.minecraft.world.gen.feature.WorldGenerator;

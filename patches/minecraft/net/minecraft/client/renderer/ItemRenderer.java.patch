@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/ItemRenderer.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/ItemRenderer.java
+--- a/net/minecraft/client/renderer/ItemRenderer.java
++++ b/net/minecraft/client/renderer/ItemRenderer.java
 @@ -1,5 +1,6 @@
  package net.minecraft.client.renderer;
  
@@ -7,7 +7,7 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import net.minecraft.block.Block;
-@@ -12,14 +13,18 @@
+@@ -12,14 +13,17 @@
  import net.minecraft.client.renderer.entity.RenderManager;
  import net.minecraft.client.renderer.entity.RenderPlayer;
  import net.minecraft.entity.EntityLiving;
@@ -24,12 +24,11 @@
 +import net.minecraftforge.client.IItemRenderer;
 +import net.minecraftforge.client.MinecraftForgeClient;
 +import static net.minecraftforge.client.IItemRenderer.ItemRenderType.*;
-+import static net.minecraftforge.client.IItemRenderer.ItemRendererHelper.*;
 +
  @SideOnly(Side.CLIENT)
  public class ItemRenderer
  {
-@@ -40,23 +45,22 @@
+@@ -40,23 +44,22 @@
      public void func_78443_a(EntityLiving p_78443_1_, ItemStack p_78443_2_, int p_78443_3_)
      {
          GL11.glPushMatrix();
@@ -65,7 +64,7 @@
  
              Tessellator var5 = Tessellator.field_78398_a;
              int var6 = p_78443_1_.func_70620_b(p_78443_2_, p_78443_3_);
-@@ -136,10 +140,17 @@
+@@ -136,10 +139,17 @@
          float var9;
          float var10;
  
@@ -86,7 +85,7 @@
              var10 = var6 * var8;
              p_78439_0_.func_78374_a((double)var10, 0.0D, (double)(0.0F - p_78439_5_), (double)var9, (double)p_78439_4_);
              p_78439_0_.func_78374_a((double)var10, 0.0D, 0.0D, (double)var9, (double)p_78439_4_);
-@@ -151,11 +162,11 @@
+@@ -151,11 +161,11 @@
          p_78439_0_.func_78382_b();
          p_78439_0_.func_78375_b(1.0F, 0.0F, 0.0F);
  
@@ -102,7 +101,7 @@
              p_78439_0_.func_78374_a((double)var10, 1.0D, (double)(0.0F - p_78439_5_), (double)var9, (double)p_78439_2_);
              p_78439_0_.func_78374_a((double)var10, 1.0D, 0.0D, (double)var9, (double)p_78439_2_);
              p_78439_0_.func_78374_a((double)var10, 0.0D, 0.0D, (double)var9, (double)p_78439_4_);
-@@ -166,11 +177,11 @@
+@@ -166,11 +176,11 @@
          p_78439_0_.func_78382_b();
          p_78439_0_.func_78375_b(0.0F, 1.0F, 0.0F);
  
@@ -118,7 +117,7 @@
              p_78439_0_.func_78374_a(0.0D, (double)var10, 0.0D, (double)p_78439_1_, (double)var9);
              p_78439_0_.func_78374_a((double)var6, (double)var10, 0.0D, (double)p_78439_3_, (double)var9);
              p_78439_0_.func_78374_a((double)var6, (double)var10, (double)(0.0F - p_78439_5_), (double)p_78439_3_, (double)var9);
-@@ -181,10 +192,10 @@
+@@ -181,10 +191,10 @@
          p_78439_0_.func_78382_b();
          p_78439_0_.func_78375_b(0.0F, -1.0F, 0.0F);
  
@@ -132,7 +131,7 @@
              var10 = var6 * var8;
              p_78439_0_.func_78374_a((double)var6, (double)var10, 0.0D, (double)p_78439_3_, (double)var9);
              p_78439_0_.func_78374_a(0.0D, (double)var10, 0.0D, (double)p_78439_1_, (double)var9);
-@@ -248,8 +259,9 @@
+@@ -248,8 +258,9 @@
          Render var24;
          RenderPlayer var26;
  
@@ -143,7 +142,7 @@
              GL11.glPushMatrix();
              var7 = 0.8F;
              var19 = var3.func_70678_g(p_78440_1_);
-@@ -315,11 +327,17 @@
+@@ -315,11 +326,17 @@
              var27.func_78374_a((double)(128 + var28), (double)(0 - var28), 0.0D, 1.0D, 0.0D);
              var27.func_78374_a((double)(0 - var28), (double)(0 - var28), 0.0D, 0.0D, 0.0D);
              var27.func_78381_a();
@@ -166,7 +165,7 @@
              }
  
              GL11.glPopMatrix();
-@@ -422,12 +440,15 @@
+@@ -422,12 +439,15 @@
              if (var17.func_77973_b().func_77623_v())
              {
                  this.func_78443_a(var3, var17, 0);

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/ItemShears.java
-+++ ../src-work/minecraft/net/minecraft/item/ItemShears.java
+--- a/net/minecraft/item/ItemShears.java
++++ b/net/minecraft/item/ItemShears.java
 @@ -2,8 +2,17 @@
  
  import net.minecraft.block.Block;

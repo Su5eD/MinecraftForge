@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockContainer.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockContainer.java
+--- a/net/minecraft/block/BlockContainer.java
++++ b/net/minecraft/block/BlockContainer.java
 @@ -21,7 +21,7 @@
      public void func_71861_g(World p_71861_1_, int p_71861_2_, int p_71861_3_, int p_71861_4_)
      {

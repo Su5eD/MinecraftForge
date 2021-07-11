@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/network/NetworkListenThread.java
-+++ ../src-work/minecraft/net/minecraft/network/NetworkListenThread.java
+--- a/net/minecraft/network/NetworkListenThread.java
++++ b/net/minecraft/network/NetworkListenThread.java
 @@ -6,6 +6,8 @@
  import java.util.List;
  import java.util.logging.Level;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/enchantment/EnchantmentHelper.java
-+++ ../src-work/minecraft/net/minecraft/enchantment/EnchantmentHelper.java
+--- a/net/minecraft/enchantment/EnchantmentHelper.java
++++ b/net/minecraft/enchantment/EnchantmentHelper.java
 @@ -394,7 +394,7 @@
          {
              Enchantment var8 = var5[var7];

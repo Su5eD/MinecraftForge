@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockStem.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockStem.java
+--- a/net/minecraft/block/BlockStem.java
++++ b/net/minecraft/block/BlockStem.java
 @@ -2,12 +2,15 @@
  
  import cpw.mods.fml.relauncher.Side;

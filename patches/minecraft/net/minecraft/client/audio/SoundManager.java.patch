@@ -1,17 +1,16 @@
---- ../src-base/minecraft/net/minecraft/client/audio/SoundManager.java
-+++ ../src-work/minecraft/net/minecraft/client/audio/SoundManager.java
-@@ -1,5 +1,10 @@
+--- a/net/minecraft/client/audio/SoundManager.java
++++ b/net/minecraft/client/audio/SoundManager.java
+@@ -1,5 +1,9 @@
  package net.minecraft.client.audio;
  
 +
 +import net.minecraftforge.client.*;
 +import net.minecraftforge.client.event.sound.*;
 +import net.minecraftforge.common.MinecraftForge;
-+import static net.minecraftforge.client.event.sound.SoundEvent.*;
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.File;
-@@ -33,10 +38,12 @@
+@@ -33,10 +37,12 @@
      private static boolean field_77376_g = false;
      private Random field_77382_h = new Random();
      private int field_77383_i;
@@ -25,7 +24,7 @@
      }
  
      public void func_77373_a(GameSettings p_77373_1_)
-@@ -48,6 +55,8 @@
+@@ -48,6 +54,8 @@
          {
              this.func_77363_d();
          }
@@ -34,7 +33,7 @@
      }
  
      private void func_77363_d()
-@@ -63,6 +72,8 @@
+@@ -63,6 +71,8 @@
              SoundSystemConfig.setCodec("ogg", CodecJOrbis.class);
              SoundSystemConfig.setCodec("mus", CodecMus.class);
              SoundSystemConfig.setCodec("wav", CodecWav.class);
@@ -43,7 +42,7 @@
              field_77381_a = new SoundSystem();
              this.field_77375_f.field_74340_b = var1;
              this.field_77375_f.field_74342_a = var2;
-@@ -133,10 +144,12 @@
+@@ -133,10 +143,12 @@
                  }
  
                  SoundPoolEntry var1 = this.field_77377_d.func_77460_a();
@@ -57,7 +56,7 @@
                      field_77381_a.backgroundMusic("BgMusic", var1.field_77384_b, var1.field_77385_a, false);
                      field_77381_a.setVolume("BgMusic", this.field_77375_f.field_74342_a);
                      field_77381_a.play("BgMusic");
-@@ -197,6 +210,7 @@
+@@ -197,6 +209,7 @@
              if (p_77368_1_ != null)
              {
                  SoundPoolEntry var6 = this.field_77380_c.func_77458_a(p_77368_1_);
@@ -65,7 +64,7 @@
  
                  if (var6 != null)
                  {
-@@ -208,6 +222,7 @@
+@@ -208,6 +221,7 @@
                      float var7 = 16.0F;
                      field_77381_a.newStreamingSource(true, var5, var6.field_77384_b, var6.field_77385_a, false, p_77368_2_, p_77368_3_, p_77368_4_, 2, var7 * 4.0F);
                      field_77381_a.setVolume(var5, 0.5F * this.field_77375_f.field_74340_b);
@@ -73,7 +72,7 @@
                      field_77381_a.play(var5);
                  }
              }
-@@ -359,6 +374,7 @@
+@@ -359,6 +373,7 @@
          if (field_77376_g && this.field_77375_f.field_74340_b != 0.0F)
          {
              SoundPoolEntry var7 = this.field_77379_b.func_77458_a(p_77364_1_);
@@ -81,7 +80,7 @@
  
              if (var7 != null && p_77364_5_ > 0.0F)
              {
-@@ -380,6 +396,7 @@
+@@ -380,6 +395,7 @@
                  }
  
                  field_77381_a.setVolume(var8, p_77364_5_ * this.field_77375_f.field_74340_b);
@@ -89,7 +88,7 @@
                  field_77381_a.play(var8);
              }
          }
-@@ -390,6 +407,7 @@
+@@ -390,6 +406,7 @@
          if (field_77376_g && this.field_77375_f.field_74340_b != 0.0F)
          {
              SoundPoolEntry var4 = this.field_77379_b.func_77458_a(p_77366_1_);
@@ -97,7 +96,7 @@
  
              if (var4 != null)
              {
-@@ -405,6 +423,7 @@
+@@ -405,6 +422,7 @@
                  p_77366_2_ *= 0.25F;
                  field_77381_a.setPitch(var5, p_77366_3_);
                  field_77381_a.setVolume(var5, p_77366_2_ * this.field_77375_f.field_74340_b);

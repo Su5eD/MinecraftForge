@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/inventory/Slot.java
-+++ ../src-work/minecraft/net/minecraft/inventory/Slot.java
+--- a/net/minecraft/inventory/Slot.java
++++ b/net/minecraft/inventory/Slot.java
 @@ -12,6 +12,12 @@
      public int field_75222_d;
      public int field_75223_e;

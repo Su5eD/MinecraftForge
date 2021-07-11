@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/util/WeightedRandomChestContent.java
-+++ ../src-work/minecraft/net/minecraft/util/WeightedRandomChestContent.java
+--- a/net/minecraft/util/WeightedRandomChestContent.java
++++ b/net/minecraft/util/WeightedRandomChestContent.java
 @@ -1,9 +1,12 @@
  package net.minecraft.util;
  

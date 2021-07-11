@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/layer/GenLayer.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/layer/GenLayer.java
+--- a/net/minecraft/world/gen/layer/GenLayer.java
++++ b/net/minecraft/world/gen/layer/GenLayer.java
 @@ -2,6 +2,9 @@
  
  import net.minecraft.world.WorldType;

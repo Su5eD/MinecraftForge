@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockLever.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockLever.java
+--- a/net/minecraft/block/BlockLever.java
++++ b/net/minecraft/block/BlockLever.java
 @@ -7,6 +7,9 @@
  import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;

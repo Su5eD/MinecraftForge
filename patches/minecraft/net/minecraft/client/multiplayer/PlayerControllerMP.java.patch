@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/multiplayer/PlayerControllerMP.java
-+++ ../src-work/minecraft/net/minecraft/client/multiplayer/PlayerControllerMP.java
+--- a/net/minecraft/client/multiplayer/PlayerControllerMP.java
++++ b/net/minecraft/client/multiplayer/PlayerControllerMP.java
 @@ -19,6 +19,8 @@
  import net.minecraft.util.Vec3;
  import net.minecraft.world.EnumGameType;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texturefx/TexturePortalFX.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texturefx/TexturePortalFX.java
+--- a/net/minecraft/client/renderer/texturefx/TexturePortalFX.java
++++ b/net/minecraft/client/renderer/texturefx/TexturePortalFX.java
 @@ -1,5 +1,6 @@
  package net.minecraft.client.renderer.texturefx;
  

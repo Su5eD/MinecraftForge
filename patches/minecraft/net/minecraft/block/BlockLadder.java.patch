@@ -1,16 +1,15 @@
---- ../src-base/minecraft/net/minecraft/block/BlockLadder.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockLadder.java
-@@ -9,6 +9,9 @@
+--- a/net/minecraft/block/BlockLadder.java
++++ b/net/minecraft/block/BlockLadder.java
+@@ -9,6 +9,8 @@
  import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;
  
-+import net.minecraftforge.common.ForgeDirection;
 +import static net.minecraftforge.common.ForgeDirection.*;
 +
  public class BlockLadder extends Block
  {
      protected BlockLadder(int p_i3960_1_, int p_i3960_2_)
-@@ -77,29 +80,32 @@
+@@ -77,29 +79,32 @@
  
      public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
      {
@@ -48,7 +47,7 @@
          {
              var10 = 5;
          }
-@@ -112,22 +118,22 @@
+@@ -112,22 +117,22 @@
          int var6 = p_71863_1_.func_72805_g(p_71863_2_, p_71863_3_, p_71863_4_);
          boolean var7 = false;
  
@@ -87,7 +86,7 @@
          {
              var7 = true;
          }
-@@ -144,5 +150,11 @@
+@@ -144,5 +149,11 @@
      public int func_71925_a(Random p_71925_1_)
      {
          return 1;

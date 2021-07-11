@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockSkull.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockSkull.java
+--- a/net/minecraft/block/BlockSkull.java
++++ b/net/minecraft/block/BlockSkull.java
 @@ -2,6 +2,8 @@
  
  import cpw.mods.fml.relauncher.Side;

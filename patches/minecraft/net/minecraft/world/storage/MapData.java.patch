@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/storage/MapData.java
-+++ ../src-work/minecraft/net/minecraft/world/storage/MapData.java
+--- a/net/minecraft/world/storage/MapData.java
++++ b/net/minecraft/world/storage/MapData.java
 @@ -9,7 +9,7 @@
  import java.util.Map;
  import net.minecraft.entity.player.EntityPlayer;

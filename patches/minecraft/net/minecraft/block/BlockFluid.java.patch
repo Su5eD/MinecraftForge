@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockFluid.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockFluid.java
+--- a/net/minecraft/block/BlockFluid.java
++++ b/net/minecraft/block/BlockFluid.java
 @@ -49,7 +49,7 @@
              {
                  for (int var9 = -1; var9 <= 1; ++var9)

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/entity/RenderPlayer.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/entity/RenderPlayer.java
+--- a/net/minecraft/client/renderer/entity/RenderPlayer.java
++++ b/net/minecraft/client/renderer/entity/RenderPlayer.java
 @@ -13,14 +13,16 @@
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityLiving;

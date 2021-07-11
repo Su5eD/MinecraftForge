@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/inventory/SlotFurnace.java
-+++ ../src-work/minecraft/net/minecraft/inventory/SlotFurnace.java
+--- a/net/minecraft/inventory/SlotFurnace.java
++++ b/net/minecraft/inventory/SlotFurnace.java
 @@ -1,5 +1,6 @@
  package net.minecraft.inventory;
  

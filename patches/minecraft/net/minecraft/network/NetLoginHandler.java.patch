@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/network/NetLoginHandler.java
-+++ ../src-work/minecraft/net/minecraft/network/NetLoginHandler.java
+--- a/net/minecraft/network/NetLoginHandler.java
++++ b/net/minecraft/network/NetLoginHandler.java
 @@ -12,16 +12,11 @@
  import java.util.Random;
  import java.util.logging.Logger;

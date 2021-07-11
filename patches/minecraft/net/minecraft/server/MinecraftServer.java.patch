@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/MinecraftServer.java
-+++ ../src-work/minecraft/net/minecraft/server/MinecraftServer.java
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
 @@ -1,5 +1,6 @@
  package net.minecraft.server;
  

@@ -430,13 +430,6 @@ project(":forge") {
         
         named<TaskApplyPatches>("applyPatches") {
             maxFuzzOffset = 3
-            originalPrefix = "../src-base/minecraft/"
-            modifiedPrefix = "../src-work/minecraft/"
-        }
-
-        named<TaskGeneratePatches>("genPatches") {
-            originalPrefix = "../src-base/minecraft/" // TODO Update prefix
-            modifiedPrefix = "../src-work/minecraft/"
         }
         
         named<Jar>("jar") {

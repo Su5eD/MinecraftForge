@@ -1,6 +1,6 @@
---- ../src-base/minecraft/net/minecraft/world/WorldType.java
-+++ ../src-work/minecraft/net/minecraft/world/WorldType.java
-@@ -3,8 +3,26 @@
+--- a/net/minecraft/world/WorldType.java
++++ b/net/minecraft/world/WorldType.java
+@@ -3,8 +3,25 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  
@@ -14,7 +14,6 @@
 +import net.minecraft.client.Minecraft;
 +import net.minecraft.client.gui.GuiCreateFlatWorld;
 +import net.minecraft.client.gui.GuiCreateWorld;
-+import net.minecraft.world.*;
 +import net.minecraft.world.gen.*;
 +import net.minecraft.world.biome.*;
 +import net.minecraft.world.chunk.IChunkProvider;
@@ -27,7 +26,7 @@
      public static final WorldType[] field_77139_a = new WorldType[16];
      public static final WorldType field_77137_b = (new WorldType(0, "default", 1)).func_77129_f();
      public static final WorldType field_77138_c = new WorldType(1, "flat");
-@@ -16,6 +34,8 @@
+@@ -16,6 +33,8 @@
      private boolean field_77140_h;
      private boolean field_77141_i;
  
@@ -36,7 +35,7 @@
      public WorldType(int p_i3737_1_, String p_i3737_2_)
      {
          this(p_i3737_1_, p_i3737_2_, 0);
-@@ -28,6 +48,15 @@
+@@ -28,6 +47,15 @@
          this.field_77140_h = true;
          this.field_82748_f = p_i3738_1_;
          field_77139_a[p_i3738_1_] = this;
@@ -52,7 +51,7 @@
      }
  
      public String func_77127_a()
-@@ -90,5 +119,103 @@
+@@ -90,5 +118,103 @@
      public int func_82747_f()
      {
          return this.field_82748_f;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/ItemInWorldManager.java
-+++ ../src-work/minecraft/net/minecraft/item/ItemInWorldManager.java
+--- a/net/minecraft/item/ItemInWorldManager.java
++++ b/net/minecraft/item/ItemInWorldManager.java
 @@ -7,9 +7,18 @@
  import net.minecraft.world.EnumGameType;
  import net.minecraft.world.World;

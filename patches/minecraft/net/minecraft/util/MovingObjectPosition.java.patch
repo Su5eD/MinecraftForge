@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/util/MovingObjectPosition.java
-+++ ../src-work/minecraft/net/minecraft/util/MovingObjectPosition.java
+--- a/net/minecraft/util/MovingObjectPosition.java
++++ b/net/minecraft/util/MovingObjectPosition.java
 @@ -11,6 +11,9 @@
      public int field_72310_e;
      public Vec3 field_72307_f;

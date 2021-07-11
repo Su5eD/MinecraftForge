@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderHell.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderHell.java
+--- a/net/minecraft/world/gen/ChunkProviderHell.java
++++ b/net/minecraft/world/gen/ChunkProviderHell.java
 @@ -18,6 +18,13 @@
  import net.minecraft.world.gen.feature.WorldGenHellLava;
  import net.minecraft.world.gen.structure.MapGenNetherBridge;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texturefx/TextureWaterFlowFX.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texturefx/TextureWaterFlowFX.java
+--- a/net/minecraft/client/renderer/texturefx/TextureWaterFlowFX.java
++++ b/net/minecraft/client/renderer/texturefx/TextureWaterFlowFX.java
 @@ -1,11 +1,12 @@
  package net.minecraft.client.renderer.texturefx;
  

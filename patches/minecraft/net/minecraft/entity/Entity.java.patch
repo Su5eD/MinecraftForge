@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/Entity.java
-+++ ../src-work/minecraft/net/minecraft/entity/Entity.java
+--- a/net/minecraft/entity/Entity.java
++++ b/net/minecraft/entity/Entity.java
 @@ -2,8 +2,12 @@
  
  import cpw.mods.fml.relauncher.Side;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenSwamp.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenSwamp.java
+--- a/net/minecraft/world/gen/feature/WorldGenSwamp.java
++++ b/net/minecraft/world/gen/feature/WorldGenSwamp.java
 @@ -47,7 +47,7 @@
                          {
                              var12 = p_76484_1_.func_72798_a(var10, var8, var11);

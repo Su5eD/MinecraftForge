@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/creativetab/CreativeTabs.java
-+++ ../src-work/minecraft/net/minecraft/creativetab/CreativeTabs.java
+--- a/net/minecraft/creativetab/CreativeTabs.java
++++ b/net/minecraft/creativetab/CreativeTabs.java
 @@ -7,6 +7,7 @@
  import net.minecraft.enchantment.EnchantmentData;
  import net.minecraft.enchantment.EnumEnchantmentType;

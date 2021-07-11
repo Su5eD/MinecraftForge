@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockGrass.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockGrass.java
+--- a/net/minecraft/block/BlockGrass.java
++++ b/net/minecraft/block/BlockGrass.java
 @@ -81,7 +81,7 @@
      {
          if (!p_71847_1_.field_72995_K)

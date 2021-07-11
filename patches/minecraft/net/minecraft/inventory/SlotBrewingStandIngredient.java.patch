@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/inventory/SlotBrewingStandIngredient.java
-+++ ../src-work/minecraft/net/minecraft/inventory/SlotBrewingStandIngredient.java
+--- a/net/minecraft/inventory/SlotBrewingStandIngredient.java
++++ b/net/minecraft/inventory/SlotBrewingStandIngredient.java
 @@ -15,7 +15,7 @@
  
      public boolean func_75214_a(ItemStack p_75214_1_)

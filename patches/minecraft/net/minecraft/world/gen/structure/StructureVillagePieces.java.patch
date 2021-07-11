@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/structure/StructureVillagePieces.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/structure/StructureVillagePieces.java
+--- a/net/minecraft/world/gen/structure/StructureVillagePieces.java
++++ b/net/minecraft/world/gen/structure/StructureVillagePieces.java
 @@ -4,6 +4,8 @@
  import java.util.Iterator;
  import java.util.List;

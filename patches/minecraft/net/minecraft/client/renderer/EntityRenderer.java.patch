@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/EntityRenderer.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/EntityRenderer.java
+--- a/net/minecraft/client/renderer/EntityRenderer.java
++++ b/net/minecraft/client/renderer/EntityRenderer.java
 @@ -31,6 +31,7 @@
  import net.minecraft.util.ReportedException;
  import net.minecraft.util.Vec3;

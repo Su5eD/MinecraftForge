@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/storage/WorldInfo.java
-+++ ../src-work/minecraft/net/minecraft/world/storage/WorldInfo.java
+--- a/net/minecraft/world/storage/WorldInfo.java
++++ b/net/minecraft/world/storage/WorldInfo.java
 @@ -1,8 +1,11 @@
  package net.minecraft.world.storage;
  

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/biome/BiomeGenBase.java
-+++ ../src-work/minecraft/net/minecraft/world/biome/BiomeGenBase.java
+--- a/net/minecraft/world/biome/BiomeGenBase.java
++++ b/net/minecraft/world/biome/BiomeGenBase.java
 @@ -31,6 +31,9 @@
  import net.minecraft.world.gen.feature.WorldGenTrees;
  import net.minecraft.world.gen.feature.WorldGenerator;

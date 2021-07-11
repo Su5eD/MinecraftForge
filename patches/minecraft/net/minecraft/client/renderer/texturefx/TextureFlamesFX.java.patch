@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texturefx/TextureFlamesFX.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texturefx/TextureFlamesFX.java
+--- a/net/minecraft/client/renderer/texturefx/TextureFlamesFX.java
++++ b/net/minecraft/client/renderer/texturefx/TextureFlamesFX.java
 @@ -1,18 +1,32 @@
  package net.minecraft.client.renderer.texturefx;
  

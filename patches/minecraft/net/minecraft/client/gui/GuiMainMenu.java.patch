@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/GuiMainMenu.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/GuiMainMenu.java
+--- a/net/minecraft/client/gui/GuiMainMenu.java
++++ b/net/minecraft/client/gui/GuiMainMenu.java
 @@ -1,5 +1,9 @@
  package net.minecraft.client.gui;
  

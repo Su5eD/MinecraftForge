@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/dedicated/DedicatedServer.java
-+++ ../src-work/minecraft/net/minecraft/server/dedicated/DedicatedServer.java
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -1,5 +1,6 @@
  package net.minecraft.server.dedicated;
  

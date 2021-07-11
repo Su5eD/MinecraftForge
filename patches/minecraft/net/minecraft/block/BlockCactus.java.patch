@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockCactus.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockCactus.java
+--- a/net/minecraft/block/BlockCactus.java
++++ b/net/minecraft/block/BlockCactus.java
 @@ -10,7 +10,11 @@
  import net.minecraft.util.DamageSource;
  import net.minecraft.world.World;
