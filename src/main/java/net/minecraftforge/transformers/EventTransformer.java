@@ -1,6 +1,6 @@
 package net.minecraftforge.transformers;
 
-import net.minecraft.launchwrapper.IClassTransformer;
+import cpw.mods.fml.relauncher.IClassTransformer;
 import net.minecraftforge.event.Event;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -16,7 +16,7 @@ import static org.objectweb.asm.Type.getMethodDescriptor;
 @SuppressWarnings("unused")
 public class EventTransformer implements IClassTransformer {
     @Override
-    public byte[] transform(String name, String transformedName, byte[] bytes) {
+    public byte[] transform(String name, byte[] bytes) {
         if (bytes == null || name.equals("net.minecraftforge.event.Event") || name.startsWith("net.minecraft.") || name.indexOf('.') == -1) {
             return bytes;
         }

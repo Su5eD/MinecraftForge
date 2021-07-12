@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
-import net.minecraft.launchwrapper.IClassTransformer;
+import cpw.mods.fml.relauncher.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -124,7 +124,7 @@ public class AccessTransformer implements IClassTransformer {
     }
 
     @Override
-    public byte[] transform(String name, String transformedName, byte[] bytes) {
+    public byte[] transform(String name, byte[] bytes) {
         if (bytes == null) {
             return null;
         }
@@ -311,7 +311,7 @@ public class AccessTransformer implements IClassTransformer {
                     String name = cls.name.replace('/', '.').replace('\\', '.');
 
                     for (AccessTransformer trans : transformers) {
-                        entryData = trans.transform(name, name, entryData);
+                        entryData = trans.transform(name, entryData);
                     }
                 }
 

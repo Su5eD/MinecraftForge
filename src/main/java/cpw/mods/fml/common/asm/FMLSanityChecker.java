@@ -17,7 +17,7 @@ package cpw.mods.fml.common.asm;
 import cpw.mods.fml.common.CertificateHelper;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.IFMLCallHook;
-import net.minecraft.launchwrapper.LaunchClassLoader;
+import cpw.mods.fml.relauncher.RelaunchClassLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -48,7 +48,7 @@ public class FMLSanityChecker implements IFMLCallHook {
         }
     }
 
-    private LaunchClassLoader cl;
+    private RelaunchClassLoader cl;
 
     @Override
     public Void call() throws Exception {
@@ -102,7 +102,7 @@ public class FMLSanityChecker implements IFMLCallHook {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        cl = (LaunchClassLoader) data.get("classLoader");
+        cl = (RelaunchClassLoader) data.get("classLoader");
     }
 
 }

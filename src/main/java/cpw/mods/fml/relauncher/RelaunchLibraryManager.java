@@ -14,47 +14,33 @@
 
 package cpw.mods.fml.relauncher;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import cpw.mods.fml.common.CertificateHelper;
-import cpw.mods.fml.common.asm.transformers.TransformerCompatLayer;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 public class RelaunchLibraryManager {
-    private static String[] rootPlugins = {"cpw.mods.fml.relauncher.FMLCorePlugin", "net.minecraftforge.classloading.FMLForgePlugin"};
-    private static List<String> loadedLibraries = new ArrayList<>();
+    private static final String[] rootPlugins =  { "cpw.mods.fml.relauncher.FMLCorePlugin" , "net.minecraftforge.classloading.FMLForgePlugin" };
+    private static final List<String> loadedLibraries = new ArrayList<>();
     private static Map<IFMLLoadingPlugin, File> pluginLocations;
     private static List<IFMLLoadingPlugin> loadPlugins;
-    private static List<ILibrarySet> libraries;
 
-    public static void handleLaunch(File mcDir, File assetsDir, LaunchClassLoader actualClassLoader) {
-        if (FMLRelauncher.side().equals("CLIENT")) setupResources(mcDir, assetsDir);
-
+    public static void handleLaunch(File mcDir, RelaunchClassLoader actualClassLoader) {
         pluginLocations = new HashMap<>();
         loadPlugins = new ArrayList<>();
-        libraries = new ArrayList<>();
+        List<ILibrarySet> libraries = new ArrayList<>();
         for (String s : rootPlugins) {
             try {
                 IFMLLoadingPlugin plugin = (IFMLLoadingPlugin) Class.forName(s, true, actualClassLoader).newInstance();
@@ -72,7 +58,6 @@ public class RelaunchLibraryManager {
         }
 
         downloadMonitor.updateProgressString("All core mods are successfully located");
-        discoverCoreMods(mcDir, actualClassLoader, loadPlugins, libraries);
         // Now that we have the root plugins loaded - lets see what else might be around
         String commandLineCoremods = System.getProperty("fml.coreMods.load", "");
         for (String s : commandLineCoremods.split(",")) {
@@ -81,16 +66,7 @@ public class RelaunchLibraryManager {
             }
             FMLRelaunchLog.info("Found a command line coremod : %s", s);
             try {
-                Class<?> coreModClass = Class.forName(s, true, actualClassLoader);
-                actualClassLoader.addTransformerExclusion(s);
-                IFMLLoadingPlugin plugin = (IFMLLoadingPlugin) coreModClass.newInstance();
-                loadPlugins.add(plugin);
-
-                String location = URLDecoder.decode(coreModClass.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8");
-                String ext = location.contains(".jar") ? ".jar" : location.contains(".zip") ? ".zip" : null;
-                if (ext != null) 
-                    pluginLocations.put(plugin, new File(location.substring(6, location.lastIndexOf(ext))));
-
+                IFMLLoadingPlugin plugin = loadPlugin(actualClassLoader, s);
                 if (plugin.getLibraryRequestClass() != null) {
                     for (String libName : plugin.getLibraryRequestClass()) {
                         libraries.add((ILibrarySet) Class.forName(libName, true, actualClassLoader).newInstance());
@@ -101,6 +77,7 @@ public class RelaunchLibraryManager {
                 throw new RuntimeException(e);
             }
         }
+        discoverCoreMods(mcDir, actualClassLoader, loadPlugins, libraries);
 
         List<Throwable> caughtErrors = new ArrayList<>();
         try {
@@ -168,33 +145,43 @@ public class RelaunchLibraryManager {
                 }
             }
         } finally {
-            if (downloadMonitor.shouldStopIt()) {
-                return;
+            if (!downloadMonitor.shouldStopIt()) {
+                if (!caughtErrors.isEmpty()) {
+                    FMLRelaunchLog.severe("There were errors during initial FML setup. " +
+                            "Some files failed to download or were otherwise corrupted. " +
+                            "You will need to manually obtain the following files from " +
+                            "these download links and ensure your lib directory is clean. ");
+                    for (ILibrarySet set : libraries) {
+                        for (String file : set.getLibraries()) {
+                            FMLRelaunchLog.severe("*** Download " + set.getRootURL(), file);
+                        }
+                    }
+                    FMLRelaunchLog.severe("<===========>");
+                    FMLRelaunchLog.severe("The following is the errors that caused the setup to fail. " +
+                            "They may help you diagnose and resolve the issue");
+                    for (Throwable t : caughtErrors) {
+                        if (t.getMessage() != null) {
+                            FMLRelaunchLog.severe(t.getMessage());
+                        }
+                    }
+                    FMLRelaunchLog.severe("<<< ==== >>>");
+                    FMLRelaunchLog.severe("The following is diagnostic information for developers to review.");
+                    for (Throwable t : caughtErrors) {
+                        FMLRelaunchLog.log(Level.SEVERE, t, "Error details");
+                    }
+                    throw new RuntimeException("A fatal error occured and FML cannot continue");
+                }
             }
-            if (!caughtErrors.isEmpty()) {
-                FMLRelaunchLog.severe("There were errors during initial FML setup. " +
-                        "Some files failed to download or were otherwise corrupted. " +
-                        "You will need to manually obtain the following files from " +
-                        "these download links and ensure your lib directory is clean. ");
-                for (ILibrarySet set : libraries) {
-                    for (String file : set.getLibraries()) {
-                        FMLRelaunchLog.severe("*** Download " + set.getRootURL(), file);
-                    }
+        }
+
+        for (IFMLLoadingPlugin plug : loadPlugins)
+        {
+            if (plug.getASMTransformerClass()!=null)
+            {
+                for (String xformClass : plug.getASMTransformerClass())
+                {
+                    actualClassLoader.registerTransformer(xformClass);
                 }
-                FMLRelaunchLog.severe("<===========>");
-                FMLRelaunchLog.severe("The following is the errors that caused the setup to fail. " +
-                        "They may help you diagnose and resolve the issue");
-                for (Throwable t : caughtErrors) {
-                    if (t.getMessage() != null) {
-                        FMLRelaunchLog.severe(t.getMessage());
-                    }
-                }
-                FMLRelaunchLog.severe("<<< ==== >>>");
-                FMLRelaunchLog.severe("The following is diagnostic information for developers to review.");
-                for (Throwable t : caughtErrors) {
-                    FMLRelaunchLog.log(Level.SEVERE, t, "Error details");
-                }
-                throw new RuntimeException("A fatal error occured and FML cannot continue");
             }
         }
 
@@ -205,51 +192,12 @@ public class RelaunchLibraryManager {
         for (IFMLLoadingPlugin plugin : loadPlugins) {
             downloadMonitor.updateProgressString("Running coremod plugin %s", plugin.getClass().getSimpleName());
             data.put("coremodLocation", pluginLocations.get(plugin));
-
-            Map<String, Class<?>> classMap = new LinkedHashMap<>();
-            if (plugin.getASMTransformerClass() != null) {
-                for (String xFormClass : plugin.getASMTransformerClass()) {
-                    try {
-                        classMap.put(xFormClass, actualClassLoader.loadClass(xFormClass));
-                    } catch (ClassNotFoundException e) {
-                        FMLRelaunchLog.log(Level.SEVERE, e, "Error initializing transformer " + xFormClass);
-                    }
-                }
-            }
-
             plugin.injectData(data);
             String setupClass = plugin.getSetupClass();
-            IFMLCallHook call;
             if (setupClass != null) {
                 try {
-                    call = (IFMLCallHook) Class.forName(setupClass, true, actualClassLoader).newInstance();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            } else call = null;
-
-            TransformerExclusions trExclusions = plugin.getClass().getAnnotation(TransformerExclusions.class);
-            if (trExclusions != null) {
-                for (String exclusion : trExclusions.value()) {
-                    actualClassLoader.addTransformerExclusion(exclusion);
-                }
-            }
-
-            for (Map.Entry<String, Class<?>> entry : classMap.entrySet()) {
-                String xFormClass = entry.getKey();
-                Class<?> clazz = entry.getValue();
-                try {
-                    if (cpw.mods.fml.relauncher.IClassTransformer.class.isAssignableFrom(clazz))
-                        TransformerCompatLayer.registerTransformer((cpw.mods.fml.relauncher.IClassTransformer) clazz.newInstance());
-                    else actualClassLoader.registerTransformer(xFormClass);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    FMLRelaunchLog.log(Level.SEVERE, e, "Error initializing transformer " + xFormClass);
-                }
-            }
-
-            if (call != null) {
-                try {
-                    Map<String, Object> callData = new HashMap<>();
+                    IFMLCallHook call = (IFMLCallHook) Class.forName(setupClass, true, actualClassLoader).newInstance();
+                    Map<String,Object> callData = new HashMap<>();
                     callData.put("classLoader", actualClassLoader);
                     call.injectData(callData);
                     call.call();
@@ -257,7 +205,6 @@ public class RelaunchLibraryManager {
                     throw new RuntimeException(e);
                 }
             }
-
             downloadMonitor.updateProgressString("Coremod plugin %s run successfully", plugin.getClass().getSimpleName());
 
             String modContainer = plugin.getModContainerClass();
@@ -281,6 +228,22 @@ public class RelaunchLibraryManager {
         }
     }
 
+    private static IFMLLoadingPlugin loadPlugin(RelaunchClassLoader actualClassLoader, String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        actualClassLoader.addTransformerExclusion(name);
+        Class<?> coreModClass = Class.forName(name, true, actualClassLoader);
+        TransformerExclusions trExclusions = coreModClass.getAnnotation(TransformerExclusions.class);
+        if (trExclusions!=null)
+        {
+            for (String st : trExclusions.value())
+            {
+                actualClassLoader.addTransformerExclusion(st);
+            }
+        }
+        IFMLLoadingPlugin plugin = (IFMLLoadingPlugin) coreModClass.newInstance();
+        loadPlugins.add(plugin);
+        return plugin;
+    }
+
     private static String getLibName(String mavenPath) {
         String[] parts = mavenPath.split(":");
         String group = parts[0].replace(".", "/");
@@ -288,7 +251,7 @@ public class RelaunchLibraryManager {
         return group + "/" + parts[1] + "/" + parts[2] + "/" + parts[1] + "-" + parts[2] + classifier + ".jar";
     }
 
-    private static void discoverCoreMods(File mcDir, LaunchClassLoader classLoader, List<IFMLLoadingPlugin> loadPlugins, List<ILibrarySet> libraries) {
+    private static void discoverCoreMods(File mcDir, RelaunchClassLoader classLoader, List<IFMLLoadingPlugin> loadPlugins, List<ILibrarySet> libraries) {
         downloadMonitor.updateProgressString("Discovering coremods");
         File coreMods = setupCoreModDir(mcDir);
         FilenameFilter ff = (dir, name) -> name.endsWith(".jar");
@@ -338,10 +301,7 @@ public class RelaunchLibraryManager {
             }
             try {
                 downloadMonitor.updateProgressString("Loading coremod %s", coreMod.getName());
-                Class<?> coreModClass = Class.forName(fmlCorePlugin, true, classLoader);
-                classLoader.addTransformerExclusion(fmlCorePlugin);
-                IFMLLoadingPlugin plugin = (IFMLLoadingPlugin) coreModClass.newInstance();
-                loadPlugins.add(plugin);
+                IFMLLoadingPlugin plugin = loadPlugin(classLoader, fmlCorePlugin);
                 pluginLocations.put(plugin, coreMod);
                 if (plugin.getLibraryRequestClass() != null) {
                     for (String libName : plugin.getLibraryRequestClass()) {
@@ -484,49 +444,5 @@ public class RelaunchLibraryManager {
 
     private static String generateChecksum(ByteBuffer buffer) {
         return CertificateHelper.getFingerprint(buffer);
-    }
-
-    private static void setupResources(File mcDir, File assetsDir) {
-        downloadMonitor.updateProgressString("Extracting resources");
-
-        if (assetsDir == null) {
-            FMLRelaunchLog.warning("Could not locate assets index directory, skipping resources extraction");
-            return;
-        }
-
-        Path resourcesPath = mcDir.toPath().resolve("resources");
-        File resourcesDir = resourcesPath.toFile();
-        Path assetsDirPath = assetsDir.toPath();
-        if (!resourcesDir.exists()) resourcesDir.mkdirs();
-
-        try {
-            Gson gson = new Gson();
-            JsonObject node = gson.fromJson(Files.newBufferedReader(assetsDirPath.resolve("indexes/pre-1.6.json")), JsonObject.class);
-            Multimap<String, String> hashToName = HashMultimap.create();
-            node.getAsJsonObject("objects").entrySet()
-                    .forEach(entry -> hashToName.put(entry.getValue().getAsJsonObject().get("hash").getAsString(), entry.getKey()));
-
-            downloadMonitor.resetProgress(hashToName.size());
-            AtomicInteger i = new AtomicInteger(0);
-            Files.walk(assetsDirPath.resolve("objects"))
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> hashToName.get(path.getFileName().toString())
-                            .forEach(name -> {
-                                downloadMonitor.updateProgress(i.incrementAndGet());
-                                Path dest = resourcesPath.resolve(name);
-                                File destFile = dest.toFile();
-                                if (!destFile.exists()) {
-                                    try {
-                                        destFile.getParentFile().mkdirs();
-                                        Files.copy(path, dest);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }));
-        } catch (IOException e) {
-            FMLRelaunchLog.severe("Failed to extract resources");
-            e.printStackTrace();
-        }
     }
 }

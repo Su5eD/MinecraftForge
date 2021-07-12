@@ -12,8 +12,16 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-package cpw.mods.fml.relauncher;
+package cpw.mods.fml.relauncher.wrapper;
 
-public interface IClassTransformer {
-    byte[] transform(String name, byte[] bytes);
+import cpw.mods.fml.common.patcher.ClassPatchManager;
+import cpw.mods.fml.relauncher.FMLRelauncher;
+import cpw.mods.fml.relauncher.Side;
+
+public class ClientLaunchWrapper {
+    
+    public static void main(String[] args) {
+        ClassPatchManager.INSTANCE.setup(Side.CLIENT);
+        FMLRelauncher.handleClientRelaunch(args);
+    }
 }

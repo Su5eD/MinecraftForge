@@ -66,6 +66,7 @@ plugins {
     id("net.minecrell.licenser") version "0.4"
     id("de.undercouch.download") version "3.3.0"
     id("com.github.ben-manes.versions") version "0.22.0"
+    id("com.github.johnrengelman.shadow") version "6.1.0" apply false
     eclipse
 }
 
@@ -143,6 +144,12 @@ project(":clean") {
         "implementation"("org.bouncycastle:bcprov-jdk15on:1.47")
         "implementation"("net.sourceforge.argo:argo:2.25")
     }
+    
+    configurations {
+        named("minecraftImplementation") {
+            exclude(group = "net.minecraft", module = "launchwrapper")
+        }
+    }
 
     configure<PatcherExtension> {
         parent = project(":mcp")
@@ -202,6 +209,7 @@ project(":forge") {
     apply(plugin = "net.minecraftforge.gradle.patcher")
     apply(plugin = "net.minecrell.licenser")
     apply(plugin = "de.undercouch.download")
+    apply(plugin = "com.github.johnrengelman.shadow")
 
     group = "net.minecraftforge"
 
@@ -245,26 +253,6 @@ project(":forge") {
             it is SourceFolder && it.path.startsWith("src/") && !it.path.startsWith("src/main/")
         }
     }
-
-    repositories {
-        maven {
-            name = "artifactory"
-            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-        }
-        mavenCentral()
-        
-        exclusiveContent { 
-            forRepository {
-                maven {
-                    name = "argo"
-                    url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-                }
-            }
-            filter {
-                includeGroup("net.sourceforge.argo")
-            }
-        }
-    }
     
     val specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
     val mcpArtifact = project(":mcp").extensions.getByName<MCPExtension>("mcp").config
@@ -293,8 +281,7 @@ project(":forge") {
 
                 environment(
                     mapOf(
-                        "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker",
+                        "mainClass" to "cpw.mods.fml.relauncher.wrapper.ClientLaunchWrapper",
                         "assetIndex" to "{asset_index}",
                         "assetDirectory" to tasks.getByName<DownloadAssets>("downloadAssets").output.absolutePath,
                         "nativesDirectory" to tasks.getByName<ExtractNatives>("extractNatives").output.absolutePath,
@@ -313,8 +300,7 @@ project(":forge") {
 
                 environment(
                     mapOf(
-                        "mainClass" to "net.minecraft.launchwrapper.Launch",
-                        "tweakClass" to "cpw.mods.fml.common.launcher.FMLServerTweaker",
+                        "mainClass" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
                         "MC_VERSION" to minecraftVersion,
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -370,51 +356,55 @@ project(":forge") {
             
         val shade = register("shade")
         getByName("implementation").extendsFrom(shade.get())
+        
+        named("minecraftImplementation") {
+            exclude(group = "net.minecraft", module = "launchwrapper")
+        }
+    }
+
+    repositories {
+        maven {
+            name = "artifactory"
+            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+        }
+        mavenCentral()
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "argo"
+                    url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+                }
+            }
+            filter {
+                includeGroup("net.sourceforge.argo")
+            }
+        }
     }
 
     dependencies {
         val installer = configurations.getByName("installer")
         val testImplementation = configurations.getByName("testImplementation")
         val implementation = configurations.getByName("implementation")
-        val shade = configurations.getByName("shade")
 
         installer("org.ow2.asm:asm-debug-all:5.2")
-        installer("net.minecraft:launchwrapper:1.12")
-        installer("org.jline:jline:3.5.1")
-        installer("com.typesafe.akka:akka-actor_2.11:2.3.3")
-        installer("com.typesafe:config:1.2.1")
-        installer("org.scala-lang:scala-actors-migration_2.11:1.1.0")
-        installer("org.scala-lang:scala-compiler:2.11.1")
-        installer("org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2_mc")  //We change the version so old installs don"t break, as our clone of the jar is different the maven central
-        installer("org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2_mc") // --^
-        installer("org.scala-lang:scala-library:2.11.1")
-        installer("org.scala-lang:scala-parser-combinators_2.11:1.0.1")
-        installer("org.scala-lang:scala-reflect:2.11.1")
-        installer("org.scala-lang:scala-swing_2.11:1.0.1")
-        installer("org.scala-lang:scala-xml_2.11:1.0.2")
         installer("lzma:lzma:0.0.1")
-        installer("java3d:vecmath:1.5.2")
-        installer("net.sf.trove4j:trove4j:3.0.3")
-        installer("org.apache.maven:maven-artifact:3.5.3")
         installer("net.sf.jopt-simple:jopt-simple:5.0.3")
-        installer("org.apache.logging.log4j:log4j-api:2.8.1")
-        installer("org.apache.logging.log4j:log4j-core:2.8.1")
         installer("com.google.guava:guava:14.0")
         installer("com.google.code.gson:gson:2.3")
         installer("net.sourceforge.argo:argo:2.25")
-        installer("com.nothome:javaxdelta:2.0.1") {
-            exclude(group = "trove")
-        }
+        installer("com.nothome:javaxdelta:2.0.1")
 
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
-        testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
-        testImplementation("org.opentest4j:opentest4j:1.0.0") // needed for junit 5
-        testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
+        //testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
+        //testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
+        //testImplementation("org.opentest4j:opentest4j:1.0.0") // needed for junit 5
+        //testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
 
         implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
-        implementation("org.apache.logging.log4j:log4j-core:2.5")
         implementation("org.bouncycastle:bcprov-jdk15on:1.47")
     }
+    
+    val jsonFormat = Json { prettyPrint = true }
 
     tasks {
         named<JavaCompile>("compileJava") { // Need this here so eclipse task generates correctly.
@@ -429,8 +419,19 @@ project(":forge") {
         }
 
         named<TaskGeneratePatches>("genPatches") {
-            originalPrefix = "../src-base/minecraft/"
+            originalPrefix = "../src-base/minecraft/" // TODO Update prefix
             modifiedPrefix = "../src-work/minecraft/"
+        }
+        
+        named<Jar>("jar") {
+            finalizedBy("shadowJar")
+        }
+        
+        named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+            configurations = emptyList()
+            relocate("net/minecraft/src/", "")
+            
+            archiveClassifier.set("")
         }
 
         // We apply the bin patches we just created to make a jar that is JUST our changes
@@ -660,7 +661,7 @@ project(":forge") {
                 manifests.forEach { (pkg, values) ->
                     if (pkg == "/") {
                         values += mutableMapOf(
-                                "Main-Class" to "cpw.mods.fml.relauncher.ServerLaunchWrapper",
+                                "Main-Class" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
                                 "Class-Path" to classpath.toString()
                         )
                         manifest.attributes(values)
@@ -704,20 +705,14 @@ project(":forge") {
                     put("time", timestamp)
                     put("releaseTime", timestamp)
                     put("type", "release")
-                    put("mainClass", "net.minecraft.launchwrapper.Launch")
+                    put("mainClass", "cpw.mods.fml.relauncher.wrapper.ClientLaunchWrapper")
                     put("inheritsFrom", minecraftVersion)
                     putJsonObject("logging") {}
                     put("minecraftArguments", listOf(
-                        "--username", "\${auth_player_name}", 
-                        "--version", "\${version_name}",
-                        "--gameDir", "\${game_directory}",
-                        "--assetsDir", "\${assets_root}",
-                        "--assetIndex", "\${assets_index_name}",
-                        "--uuid", "\${auth_uuid}",
-                        "--accessToken", "\${auth_access_token}",
-                        "--userType", "\${user_type}",
-                        "--tweakClass", "cpw.mods.fml.common.launcher.FMLTweaker",
-                        "--versionType", "Forge"
+                            "\${auth_player_name}}",
+                            "\${auth_session}",
+                            "--gameDir", "\${game_directory}",
+                            "--assetsDir", "\${game_assets}"
                     ).joinToString(separator = " "))
                     putJsonArray("libraries") {
                         addJsonObject { 
@@ -738,7 +733,7 @@ project(":forge") {
                     }
                 }
                 
-                output.writeText(Json { prettyPrint = true }.encodeToString(json))
+                output.writeText(jsonFormat.encodeToString(json))
             }
         }
         
@@ -791,7 +786,7 @@ project(":forge") {
                 getClasspath(project, libs, mcpArtifact.descriptor) //Tell it to download mcp_config
                 json["libraries"] = JsonArray(libs.values.sortedBy { it.jsonObject["name"]?.jsonPrimitive?.content })
                         
-                output.writeText(Json { prettyPrint = true }.encodeToString(json))
+                output.writeText(jsonFormat.encodeToString(json))
             }
         }
         
@@ -891,8 +886,7 @@ project(":forge") {
 
                     environment(
                         mapOf(
-                            "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            "tweakClass" to "cpw.mods.fml.common.launcher.FMLTweaker",
+                            "mainClass" to "cpw.mods.fml.relauncher.wrapper.ClientLaunchWrapper",
                             "assetIndex" to "{asset_index}",
                             "assetDirectory" to "{assets_root}",
                             "nativesDirectory" to "{natives}",
@@ -910,8 +904,7 @@ project(":forge") {
                 
                     environment(
                         mapOf(
-                            "mainClass" to "net.minecraft.launchwrapper.Launch",
-                            "tweakClass" to "cpw.mods.fml.common.launcher.FMLServerTweaker",
+                            "mainClass" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
                             "MC_VERSION" to minecraftVersion,
                             "MCP_MAPPINGS" to "{mcp_mappings}",
                             "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -995,7 +988,6 @@ project(":forge") {
         header = file("$rootDir/LICENSE-header.txt")
     
         include("cpw/mods/fml/")
-        ignoreFailures = true // TODO
             
         tasks {
             register("main") {
