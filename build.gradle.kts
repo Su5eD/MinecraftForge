@@ -401,9 +401,7 @@ project(":forge") {
 
     dependencies {
         val installer = configurations.getByName("installer")
-        val testImplementation = configurations.getByName("testImplementation")
         val implementation = configurations.getByName("implementation")
-        val fmllauncherImplementation = configurations.getByName("fmllauncherImplementation")
 
         installer("org.ow2.asm:asm-debug-all:5.2")
         installer("lzma:lzma:0.0.1")
@@ -1118,6 +1116,9 @@ project(":forge") {
         include("cpw/mods/fml/")
             
         tasks {
+            register("fmlllauncher") {
+                files = files("$rootDir/src/fmlllauncher/java")
+            }
             register("main") {
                 files = files("$rootDir/src/main/java")
             }
