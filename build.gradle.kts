@@ -401,7 +401,6 @@ project(":forge") {
 
     dependencies {
         val installer = configurations.getByName("installer")
-        val testImplementation = configurations.getByName("testImplementation")
         val implementation = configurations.getByName("implementation")
 
         installer("org.ow2.asm:asm-debug-all:5.2")
@@ -410,6 +409,12 @@ project(":forge") {
         installer("com.google.guava:guava:14.0")
         installer("com.google.code.gson:gson:2.3")
         installer("net.sourceforge.argo:argo:2.25")
+        installer("com.mojang:authlib:2.1.28")
+        installer("org.apache.logging.log4j:log4j-core:2.5")
+        installer("org.apache.logging.log4j:log4j-api:2.5")
+        installer("org.apache.commons:commons-lang3:3.12.0")
+        installer("commons-io:commons-io:2.10.0")
+        installer("commons-codec:commons-codec:1.15")
 
         //testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
         //testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
@@ -665,10 +670,8 @@ project(":forge") {
         }
         
         register("launcherJson") {
-            val launcherJar = getByName<Jar>("launcherJar")
             dependsOn(launcherJar)
             
-            val launcherJarFile = launcherJar.archiveFile.get().asFile
             val vanilla = project(":mcp").file("build/mcp/downloadJson/version.json")
             val version = project.version as String
             val idx = version.indexOf('-')
@@ -704,6 +707,7 @@ project(":forge") {
                     put("minecraftArguments", listOf(
                             "\${auth_player_name}",
                             "\${auth_session}",
+                            "--uuid", "\${auth_uuid}",
                             "--gameDir", "\${game_directory}",
                             "--assetsDir", "\${game_assets}"
                     ).joinToString(separator = " "))
@@ -913,7 +917,6 @@ project(":forge") {
             val genClientBinPatches = getByName("genClientBinPatches")
             val genServerBinPatches = getByName("genServerBinPatches")
             val universalJar = getByName("universalJar")
-            val launcherJar = getByName("launcherJar")
             
             dependsOn("downloadInstaller", installerJson, launcherJson, genClientBinPatches, genServerBinPatches, universalJar)
             archiveClassifier.set("installer")
@@ -984,6 +987,8 @@ project(":forge") {
         }
         
         named<ProcessResources>("processFmllauncherResources") {
+            inputs.property("version", project.version)
+            
             from(project.extensions.getByType(SourceSetContainer::class).getByName("fmllauncher").resources) {
                 filesMatching("*.properties") {
                     filter(ReplaceTokens::class, tokenMap)
@@ -1111,6 +1116,9 @@ project(":forge") {
         include("cpw/mods/fml/")
             
         tasks {
+            register("fmlllauncher") {
+                files = files("$rootDir/src/fmlllauncher/java")
+            }
             register("main") {
                 files = files("$rootDir/src/main/java")
             }
