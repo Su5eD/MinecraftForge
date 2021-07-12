@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/ServerListenThread.java
-+++ ../src-work/minecraft/net/minecraft/server/ServerListenThread.java
+--- a/net/minecraft/server/ServerListenThread.java
++++ b/net/minecraft/server/ServerListenThread.java
 @@ -1,5 +1,6 @@
  package net.minecraft.server;
  

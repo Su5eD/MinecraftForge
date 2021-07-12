@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/layer/GenLayerBiome.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/layer/GenLayerBiome.java
+--- a/net/minecraft/world/gen/layer/GenLayerBiome.java
++++ b/net/minecraft/world/gen/layer/GenLayerBiome.java
 @@ -10,13 +10,8 @@
      public GenLayerBiome(long p_i3888_1_, GenLayer p_i3888_3_, WorldType p_i3888_4_)
      {

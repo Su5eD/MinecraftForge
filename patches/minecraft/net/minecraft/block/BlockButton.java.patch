@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockButton.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockButton.java
+--- a/net/minecraft/block/BlockButton.java
++++ b/net/minecraft/block/BlockButton.java
 @@ -11,9 +11,12 @@
  import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;

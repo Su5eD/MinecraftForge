@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/EntityTrackerEntry.java
-+++ ../src-work/minecraft/net/minecraft/entity/EntityTrackerEntry.java
+--- a/net/minecraft/entity/EntityTrackerEntry.java
++++ b/net/minecraft/entity/EntityTrackerEntry.java
 @@ -4,6 +4,8 @@
  import java.util.Iterator;
  import java.util.List;

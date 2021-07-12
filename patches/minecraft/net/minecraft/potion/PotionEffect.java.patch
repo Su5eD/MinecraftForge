@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/potion/PotionEffect.java
-+++ ../src-work/minecraft/net/minecraft/potion/PotionEffect.java
+--- a/net/minecraft/potion/PotionEffect.java
++++ b/net/minecraft/potion/PotionEffect.java
 @@ -1,8 +1,13 @@
  package net.minecraft.potion;
  

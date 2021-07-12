@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenDeadBush.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenDeadBush.java
+--- a/net/minecraft/world/gen/feature/WorldGenDeadBush.java
++++ b/net/minecraft/world/gen/feature/WorldGenDeadBush.java
 @@ -17,10 +17,16 @@
      {
          int var11;

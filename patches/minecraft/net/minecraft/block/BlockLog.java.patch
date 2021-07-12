@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockLog.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockLog.java
+--- a/net/minecraft/block/BlockLog.java
++++ b/net/minecraft/block/BlockLog.java
 @@ -50,14 +50,9 @@
                      {
                          int var12 = p_71852_1_.func_72798_a(p_71852_2_ + var9, p_71852_3_ + var10, p_71852_4_ + var11);

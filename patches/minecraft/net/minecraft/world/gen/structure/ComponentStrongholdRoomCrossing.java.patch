@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentStrongholdRoomCrossing.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentStrongholdRoomCrossing.java
+--- a/net/minecraft/world/gen/structure/ComponentStrongholdRoomCrossing.java
++++ b/net/minecraft/world/gen/structure/ComponentStrongholdRoomCrossing.java
 @@ -7,6 +7,9 @@
  import net.minecraft.util.WeightedRandomChestContent;
  import net.minecraft.world.World;

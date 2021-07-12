@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenBigMushroom.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenBigMushroom.java
+--- a/net/minecraft/world/gen/feature/WorldGenBigMushroom.java
++++ b/net/minecraft/world/gen/feature/WorldGenBigMushroom.java
 @@ -55,7 +55,9 @@
                          {
                              var13 = p_76484_1_.func_72798_a(var11, var9, var12);

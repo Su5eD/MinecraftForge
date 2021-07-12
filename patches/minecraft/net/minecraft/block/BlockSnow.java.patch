@@ -1,6 +1,15 @@
---- ../src-base/minecraft/net/minecraft/block/BlockSnow.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockSnow.java
-@@ -50,7 +50,8 @@
+--- a/net/minecraft/block/BlockSnow.java
++++ b/net/minecraft/block/BlockSnow.java
+@@ -7,8 +7,6 @@
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.item.Item;
+-import net.minecraft.item.ItemStack;
+-import net.minecraft.stats.StatList;
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.EnumSkyBlock;
+ import net.minecraft.world.IBlockAccess;
+@@ -50,7 +48,8 @@
      public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
      {
          int var5 = p_71930_1_.func_72798_a(p_71930_2_, p_71930_3_ - 1, p_71930_4_);
@@ -10,7 +19,7 @@
      }
  
      public void func_71863_a(World p_71863_1_, int p_71863_2_, int p_71863_3_, int p_71863_4_, int p_71863_5_)
-@@ -62,7 +63,6 @@
+@@ -62,7 +61,6 @@
      {
          if (!this.func_71930_b(p_72124_1_, p_72124_2_, p_72124_3_, p_72124_4_))
          {
@@ -18,7 +27,7 @@
              p_72124_1_.func_72859_e(p_72124_2_, p_72124_3_, p_72124_4_, 0);
              return false;
          }
-@@ -74,10 +74,8 @@
+@@ -74,10 +72,8 @@
  
      public void func_71893_a(World p_71893_1_, EntityPlayer p_71893_2_, int p_71893_3_, int p_71893_4_, int p_71893_5_, int p_71893_6_)
      {
@@ -30,7 +39,7 @@
      }
  
      public int func_71885_a(int p_71885_1_, Random p_71885_2_, int p_71885_3_)
-@@ -87,14 +85,13 @@
+@@ -87,14 +83,13 @@
  
      public int func_71925_a(Random p_71925_1_)
      {

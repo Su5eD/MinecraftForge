@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenTaiga1.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenTaiga1.java
+--- a/net/minecraft/world/gen/feature/WorldGenTaiga1.java
++++ b/net/minecraft/world/gen/feature/WorldGenTaiga1.java
 @@ -43,7 +43,9 @@
                          {
                              var15 = p_76484_1_.func_72798_a(var13, var11, var14);

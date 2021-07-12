@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/boss/IBossDisplayData.java
-+++ ../src-work/minecraft/net/minecraft/entity/boss/IBossDisplayData.java
+--- a/net/minecraft/entity/boss/IBossDisplayData.java
++++ b/net/minecraft/entity/boss/IBossDisplayData.java
 @@ -1,9 +1,5 @@
  package net.minecraft.entity.boss;
  

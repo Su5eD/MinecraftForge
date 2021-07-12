@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/multiplayer/ChunkProviderClient.java
-+++ ../src-work/minecraft/net/minecraft/client/multiplayer/ChunkProviderClient.java
+--- a/net/minecraft/client/multiplayer/ChunkProviderClient.java
++++ b/net/minecraft/client/multiplayer/ChunkProviderClient.java
 @@ -13,6 +13,8 @@
  import net.minecraft.world.chunk.Chunk;
  import net.minecraft.world.chunk.EmptyChunk;

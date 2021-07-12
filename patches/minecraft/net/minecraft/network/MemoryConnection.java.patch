@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/network/MemoryConnection.java
-+++ ../src-work/minecraft/net/minecraft/network/MemoryConnection.java
+--- a/net/minecraft/network/MemoryConnection.java
++++ b/net/minecraft/network/MemoryConnection.java
 @@ -1,5 +1,6 @@
  package net.minecraft.network;
  

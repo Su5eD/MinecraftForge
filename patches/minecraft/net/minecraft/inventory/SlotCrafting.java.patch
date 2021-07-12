@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/inventory/SlotCrafting.java
-+++ ../src-work/minecraft/net/minecraft/inventory/SlotCrafting.java
+--- a/net/minecraft/inventory/SlotCrafting.java
++++ b/net/minecraft/inventory/SlotCrafting.java
 @@ -1,10 +1,13 @@
  package net.minecraft.inventory;
  

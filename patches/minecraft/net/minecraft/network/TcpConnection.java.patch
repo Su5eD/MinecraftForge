@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/network/TcpConnection.java
-+++ ../src-work/minecraft/net/minecraft/network/TcpConnection.java
+--- a/net/minecraft/network/TcpConnection.java
++++ b/net/minecraft/network/TcpConnection.java
 @@ -1,5 +1,6 @@
  package net.minecraft.network;
  

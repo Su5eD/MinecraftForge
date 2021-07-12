@@ -1,14 +1,16 @@
---- ../src-base/minecraft/net/minecraft/client/gui/GuiControls.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/GuiControls.java
-@@ -5,6 +5,7 @@
+--- a/net/minecraft/client/gui/GuiControls.java
++++ b/net/minecraft/client/gui/GuiControls.java
+@@ -3,8 +3,8 @@
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
  import net.minecraft.client.settings.GameSettings;
- import net.minecraft.client.settings.KeyBinding;
+-import net.minecraft.client.settings.KeyBinding;
  import net.minecraft.util.StringTranslate;
 +import net.minecraftforge.client.GuiControlsScrollPanel;
  
  @SideOnly(Side.CLIENT)
  public class GuiControls extends GuiScreen
-@@ -13,6 +14,8 @@
+@@ -13,6 +13,8 @@
      protected String field_73911_a = "Controls";
      private GameSettings field_73910_c;
      private int field_73908_d = -1;
@@ -17,7 +19,7 @@
  
      public GuiControls(GuiScreen p_i3032_1_, GameSettings p_i3032_2_)
      {
-@@ -27,61 +30,31 @@
+@@ -27,61 +29,31 @@
  
      public void func_73866_w_()
      {
@@ -85,7 +87,7 @@
          {
              super.func_73869_a(p_73869_1_, p_73869_2_);
          }
-@@ -90,46 +63,8 @@
+@@ -90,46 +62,8 @@
      public void func_73863_a(int p_73863_1_, int p_73863_2_, float p_73863_3_)
      {
          this.func_73873_v_();

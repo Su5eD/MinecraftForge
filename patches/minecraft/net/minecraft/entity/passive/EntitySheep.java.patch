@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/passive/EntitySheep.java
-+++ ../src-work/minecraft/net/minecraft/entity/passive/EntitySheep.java
+--- a/net/minecraft/entity/passive/EntitySheep.java
++++ b/net/minecraft/entity/passive/EntitySheep.java
 @@ -2,6 +2,8 @@
  
  import cpw.mods.fml.relauncher.Side;
@@ -9,7 +9,15 @@
  import java.util.Random;
  import net.minecraft.block.Block;
  import net.minecraft.entity.EntityAgeable;
-@@ -24,7 +26,9 @@
+@@ -14,7 +16,6 @@
+ import net.minecraft.entity.ai.EntityAITempt;
+ import net.minecraft.entity.ai.EntityAIWander;
+ import net.minecraft.entity.ai.EntityAIWatchClosest;
+-import net.minecraft.entity.item.EntityItem;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.inventory.InventoryCrafting;
+ import net.minecraft.item.Item;
+@@ -24,7 +25,9 @@
  import net.minecraft.util.MathHelper;
  import net.minecraft.world.World;
  
@@ -20,7 +28,7 @@
  {
      private final InventoryCrafting field_90016_e = new InventoryCrafting(new ContainerSheep(this), 2, 1);
      public static final float[][] field_70898_d = new float[][] {{1.0F, 1.0F, 1.0F}, {0.85F, 0.5F, 0.2F}, {0.7F, 0.3F, 0.85F}, {0.4F, 0.6F, 0.85F}, {0.9F, 0.9F, 0.2F}, {0.5F, 0.8F, 0.1F}, {0.95F, 0.5F, 0.65F}, {0.3F, 0.3F, 0.3F}, {0.6F, 0.6F, 0.6F}, {0.3F, 0.5F, 0.6F}, {0.5F, 0.25F, 0.7F}, {0.2F, 0.3F, 0.7F}, {0.4F, 0.3F, 0.2F}, {0.4F, 0.5F, 0.2F}, {0.6F, 0.2F, 0.2F}, {0.1F, 0.1F, 0.1F}};
-@@ -111,28 +115,6 @@
+@@ -111,28 +114,6 @@
  
      public boolean func_70085_c(EntityPlayer p_70085_1_)
      {
@@ -49,7 +57,7 @@
          return super.func_70085_c(p_70085_1_);
      }
  
-@@ -286,5 +268,25 @@
+@@ -286,5 +267,25 @@
      public EntityAgeable func_90011_a(EntityAgeable p_90011_1_)
      {
          return this.func_90015_b(p_90011_1_);

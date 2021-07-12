@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/tileentity/TileEntityBrewingStand.java
-+++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityBrewingStand.java
+--- a/net/minecraft/tileentity/TileEntityBrewingStand.java
++++ b/net/minecraft/tileentity/TileEntityBrewingStand.java
 @@ -12,7 +12,10 @@
  import net.minecraft.nbt.NBTTagList;
  import net.minecraft.potion.PotionHelper;

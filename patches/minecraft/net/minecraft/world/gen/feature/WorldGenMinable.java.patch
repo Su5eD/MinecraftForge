@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenMinable.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenMinable.java
+--- a/net/minecraft/world/gen/feature/WorldGenMinable.java
++++ b/net/minecraft/world/gen/feature/WorldGenMinable.java
 @@ -8,6 +8,7 @@
  public class WorldGenMinable extends WorldGenerator
  {

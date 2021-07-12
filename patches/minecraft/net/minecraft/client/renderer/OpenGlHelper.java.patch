@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/OpenGlHelper.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/OpenGlHelper.java
+--- a/net/minecraft/client/renderer/OpenGlHelper.java
++++ b/net/minecraft/client/renderer/OpenGlHelper.java
 @@ -12,6 +12,10 @@
      public static int field_77478_a;
      public static int field_77476_b;

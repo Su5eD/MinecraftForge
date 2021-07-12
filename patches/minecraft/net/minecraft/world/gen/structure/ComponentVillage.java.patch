@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentVillage.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentVillage.java
+--- a/net/minecraft/world/gen/structure/ComponentVillage.java
++++ b/net/minecraft/world/gen/structure/ComponentVillage.java
 @@ -6,6 +6,10 @@
  import net.minecraft.entity.passive.EntityVillager;
  import net.minecraft.world.World;

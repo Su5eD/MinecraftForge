@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/command/CommandHandler.java
-+++ ../src-work/minecraft/net/minecraft/command/CommandHandler.java
+--- a/net/minecraft/command/CommandHandler.java
++++ b/net/minecraft/command/CommandHandler.java
 @@ -9,6 +9,8 @@
  import java.util.Set;
  import java.util.Map.Entry;

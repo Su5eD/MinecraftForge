@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/chunk/storage/AnvilChunkLoader.java
-+++ ../src-work/minecraft/net/minecraft/world/chunk/storage/AnvilChunkLoader.java
+--- a/net/minecraft/world/chunk/storage/AnvilChunkLoader.java
++++ b/net/minecraft/world/chunk/storage/AnvilChunkLoader.java
 @@ -9,6 +9,9 @@
  import java.util.Iterator;
  import java.util.List;

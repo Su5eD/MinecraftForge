@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/tileentity/TileEntityRendererPiston.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/tileentity/TileEntityRendererPiston.java
+--- a/net/minecraft/client/renderer/tileentity/TileEntityRendererPiston.java
++++ b/net/minecraft/client/renderer/tileentity/TileEntityRendererPiston.java
 @@ -11,6 +11,7 @@
  import net.minecraft.tileentity.TileEntity;
  import net.minecraft.tileentity.TileEntityPiston;

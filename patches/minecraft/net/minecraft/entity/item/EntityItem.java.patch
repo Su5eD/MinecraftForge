@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/item/EntityItem.java
-+++ ../src-work/minecraft/net/minecraft/entity/item/EntityItem.java
+--- a/net/minecraft/entity/item/EntityItem.java
++++ b/net/minecraft/entity/item/EntityItem.java
 @@ -1,6 +1,8 @@
  package net.minecraft.entity.item;
  

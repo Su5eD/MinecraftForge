@@ -1,16 +1,17 @@
---- ../src-base/minecraft/net/minecraft/block/BlockFire.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockFire.java
-@@ -9,6 +9,9 @@
+--- a/net/minecraft/block/BlockFire.java
++++ b/net/minecraft/block/BlockFire.java
+@@ -7,7 +7,9 @@
+ import net.minecraft.util.AxisAlignedBB;
+ import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;
- import net.minecraft.world.WorldProviderEnd;
- 
+-import net.minecraft.world.WorldProviderEnd;
++
 +import net.minecraftforge.common.ForgeDirection;
 +import static net.minecraftforge.common.ForgeDirection.*;
-+
+ 
  public class BlockFire extends Block
  {
-     private int[] field_72258_a = new int[256];
-@@ -22,6 +25,8 @@
+@@ -22,6 +24,8 @@
  
      public void func_71928_r_()
      {
@@ -19,7 +20,7 @@
          this.func_72253_a(Block.field_71988_x.field_71990_ca, 5, 20);
          this.func_72253_a(Block.field_72090_bN.field_71990_ca, 5, 20);
          this.func_72253_a(Block.field_72092_bO.field_71990_ca, 5, 20);
-@@ -41,8 +46,7 @@
+@@ -41,8 +45,7 @@
  
      private void func_72253_a(int p_72253_1_, int p_72253_2_, int p_72253_3_)
      {
@@ -29,7 +30,7 @@
      }
  
      public AxisAlignedBB func_71872_e(World p_71872_1_, int p_71872_2_, int p_71872_3_, int p_71872_4_)
-@@ -79,12 +83,8 @@
+@@ -79,12 +82,8 @@
      {
          if (p_71847_1_.func_82736_K().func_82766_b("doFireTick"))
          {
@@ -44,7 +45,7 @@
  
              if (!this.func_71930_b(p_71847_1_, p_71847_2_, p_71847_3_, p_71847_4_))
              {
-@@ -113,7 +113,7 @@
+@@ -113,7 +112,7 @@
                          p_71847_1_.func_72859_e(p_71847_2_, p_71847_3_, p_71847_4_, 0);
                      }
                  }
@@ -53,7 +54,7 @@
                  {
                      p_71847_1_.func_72859_e(p_71847_2_, p_71847_3_, p_71847_4_, 0);
                  }
-@@ -127,12 +127,12 @@
+@@ -127,12 +126,12 @@
                          var9 = -50;
                      }
  
@@ -72,7 +73,7 @@
  
                      for (int var10 = p_71847_2_ - 1; var10 <= p_71847_2_ + 1; ++var10)
                      {
-@@ -186,40 +186,56 @@
+@@ -186,40 +185,56 @@
          return false;
      }
  
@@ -141,7 +142,7 @@
      }
  
      private int func_72254_n(World p_72254_1_, int p_72254_2_, int p_72254_3_, int p_72254_4_)
-@@ -232,12 +248,12 @@
+@@ -232,12 +247,12 @@
          }
          else
          {
@@ -160,7 +161,7 @@
              return var6;
          }
      }
-@@ -247,15 +263,22 @@
+@@ -247,15 +262,22 @@
          return false;
      }
  
@@ -186,7 +187,7 @@
      }
  
      public boolean func_71930_b(World p_71930_1_, int p_71930_2_, int p_71930_3_, int p_71930_4_)
-@@ -299,9 +322,9 @@
+@@ -299,9 +321,9 @@
          float var8;
          float var9;
  
@@ -198,7 +199,7 @@
              {
                  for (var6 = 0; var6 < 2; ++var6)
                  {
-@@ -312,7 +335,7 @@
+@@ -312,7 +334,7 @@
                  }
              }
  
@@ -207,7 +208,7 @@
              {
                  for (var6 = 0; var6 < 2; ++var6)
                  {
-@@ -323,7 +346,7 @@
+@@ -323,7 +345,7 @@
                  }
              }
  
@@ -216,7 +217,7 @@
              {
                  for (var6 = 0; var6 < 2; ++var6)
                  {
-@@ -334,7 +357,7 @@
+@@ -334,7 +356,7 @@
                  }
              }
  
@@ -225,7 +226,7 @@
              {
                  for (var6 = 0; var6 < 2; ++var6)
                  {
-@@ -345,7 +368,7 @@
+@@ -345,7 +367,7 @@
                  }
              }
  
@@ -234,7 +235,7 @@
              {
                  for (var6 = 0; var6 < 2; ++var6)
                  {
-@@ -366,5 +389,47 @@
+@@ -366,5 +388,47 @@
                  p_71862_1_.func_72869_a("largesmoke", (double)var7, (double)var8, (double)var9, 0.0D, 0.0D, 0.0D);
              }
          }

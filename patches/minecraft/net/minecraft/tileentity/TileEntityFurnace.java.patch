@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/tileentity/TileEntityFurnace.java
-+++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityFurnace.java
+--- a/net/minecraft/tileentity/TileEntityFurnace.java
++++ b/net/minecraft/tileentity/TileEntityFurnace.java
 @@ -1,5 +1,6 @@
  package net.minecraft.tileentity;
  

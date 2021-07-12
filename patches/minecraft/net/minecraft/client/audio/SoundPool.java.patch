@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/audio/SoundPool.java
-+++ ../src-work/minecraft/net/minecraft/client/audio/SoundPool.java
+--- a/net/minecraft/client/audio/SoundPool.java
++++ b/net/minecraft/client/audio/SoundPool.java
 @@ -4,6 +4,7 @@
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.File;

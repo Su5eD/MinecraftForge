@@ -3,13 +3,14 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import net.minecraftforge.gradle.common.task.*
-import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import net.minecraftforge.gradle.common.util.MinecraftRepo
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.task.DownloadMCPConfigTask
 import net.minecraftforge.gradle.mcp.task.GenerateSRG
 import net.minecraftforge.gradle.patcher.PatcherExtension
 import net.minecraftforge.gradle.patcher.task.*
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.eclipse.jgit.api.Git
@@ -28,9 +29,13 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Predicate
 import java.util.zip.ZipFile
+import kotlin.text.StringBuilder
+import net.minecraftforge.gradle.common.util.RunConfig
+import org.gradle.api.tasks.JavaExec
 
 buildscript {
     repositories {
+        mavenLocal()
         maven {
             url = uri("https://su5ed.jfrog.io/artifactory/maven/")
         }
@@ -87,8 +92,7 @@ var jarSigner: Map<String, Any?> = if (project.hasProperty("keystore")) {
         "keypass" to project.properties["keystoreKeyPass"],
         "keystore" to project.properties["keystore"]
     ) 
-} else emptyMap()    
-
+} else emptyMap()
 val extraTxts = files(
         "CREDITS-fml.txt",
         "CREDITS-MinecraftForge.txt",
@@ -97,6 +101,7 @@ val extraTxts = files(
         "LICENSE-Paulscode IBXM Library.txt",
         "LICENSE-Paulscode SoundSystem CodecIBXM.txt"
 )
+val artifactRepositories = listOf("https://libraries.minecraft.net", "https://maven.minecraftforge.net", "https://su5ed.jfrog.io/artifactory/maven")
 
 project(":mcp") {
     apply(plugin = "net.minecraftforge.gradle.mcp")
@@ -214,7 +219,17 @@ project(":forge") {
     group = "net.minecraftforge"
 
     configure<SourceSetContainer> {
+        val fmllauncher = create("fmllauncher") {
+            java {
+                srcDirs("$rootDir/src/fmllauncher/java")
+            }
+            resources {
+                srcDirs("$rootDir/src/fmllauncher/resources")
+            }
+        }
         named("main") {
+            compileClasspath += fmllauncher.runtimeClasspath
+            runtimeClasspath += fmllauncher.runtimeClasspath
             java {
                 srcDirs("$rootDir/src/main/java")
             }
@@ -258,6 +273,7 @@ project(":forge") {
     val mcpArtifact = project(":mcp").extensions.getByName<MCPExtension>("mcp").config
     val versionJson = project(":mcp").file("build/mcp/downloadJson/version.json")
     val binpatchTool = "net.minecraftforge:binarypatcher:1.1.1:fatjar"
+    val installerTools = "net.minecraftforge:installertools:1.1.11"
     val gitInfo = gitInfo()
 
     version = getVersion(gitInfo)
@@ -331,7 +347,7 @@ project(":forge") {
     val tokenMap = mapOf(
             "tokens" to mapOf(
                     "FORGE_VERSION" to project.version,
-                    "FORGE_VERSION_RAW" to project.version.toString().split("-")[1],
+                    "FORGE_VERSION_RAW" to project.version.toString().split("-", limit = 2)[1],
                     "FORGE_GROUP" to project.group,
                     "FORGE_NAME" to project.name,
                     "MC_VERSION" to minecraftVersion,
@@ -345,17 +361,18 @@ project(":forge") {
         val installer = register("installer") {
             isTransitive = false //Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
         }.get()
+        val implementation = getByName("implementation")
     
         named("api") {
             extendsFrom(installer)
         }
     
-        register("fmllauncherImplementation") {
-            extendsFrom(installer)
+        named("fmllauncherImplementation") {
+            extendsFrom(installer, implementation)
         }
             
         val shade = register("shade")
-        getByName("implementation").extendsFrom(shade.get())
+        implementation.extendsFrom(shade.get())
         
         named("minecraftImplementation") {
             exclude(group = "net.minecraft", module = "launchwrapper")
@@ -393,7 +410,6 @@ project(":forge") {
         installer("com.google.guava:guava:14.0")
         installer("com.google.code.gson:gson:2.3")
         installer("net.sourceforge.argo:argo:2.25")
-        installer("com.nothome:javaxdelta:2.0.1")
 
         //testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
         //testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
@@ -414,84 +430,32 @@ project(":forge") {
         
         named<TaskApplyPatches>("applyPatches") {
             maxFuzzOffset = 3
-            originalPrefix = "../src-base/minecraft/"
-            modifiedPrefix = "../src-work/minecraft/"
-        }
-
-        named<TaskGeneratePatches>("genPatches") {
-            originalPrefix = "../src-base/minecraft/" // TODO Update prefix
-            modifiedPrefix = "../src-work/minecraft/"
         }
         
         named<Jar>("jar") {
             finalizedBy("shadowJar")
         }
         
-        named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+        named<ShadowJar>("shadowJar") {
             configurations = emptyList()
             relocate("net/minecraft/src/", "")
             
             archiveClassifier.set("")
         }
 
-        // We apply the bin patches we just created to make a jar that is JUST our changes
-        named<GenerateBinPatches>("genClientBinPatches") {
-            tool = binpatchTool
-        }
-
-        register<ApplyBinPatches>("applyClientBinPatches") {
-            val genClientBinPatches = getByName<GenerateBinPatches>("genClientBinPatches")
-
-            dependsOn(genClientBinPatches)
-            clean = genClientBinPatches.cleanJar
-            patch = genClientBinPatches.output
-            tool = binpatchTool
-        }
-
-        named<GenerateBinPatches>("genServerBinPatches") {
-            tool = binpatchTool
-        }
-
-        named<GenerateBinPatches>("genJoinedBinPatches") {
-            tool = binpatchTool
-        }
-
-        register<GenerateBinPatches>("genRuntimeBinPatches") {
-            dependsOn("genClientBinPatches", "genServerBinPatches")
-            tool = binpatchTool
-        }
-
-        afterEvaluate {
-            named<GenerateBinPatches>("genClientBinPatches") {
-                cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:client:$minecraftVersion", true)
+        sequenceOf("client", "server", "joined").forEach { side ->
+            val name = side.capitalize()
+            val gen = getByName<GenerateBinPatches>("gen${name}BinPatches")
+            gen.tool = binpatchTool
+            register<ApplyBinPatches>("apply${name}BinPatches") {
+                dependsOn(gen)
+                setClean { gen.cleanJar }
+                patch = gen.output
+                tool = binpatchTool
             }
             
-            named<GenerateBinPatches>("genServerBinPatches") {
-                cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:server:$minecraftVersion", true)
-            }
-            
-            named<GenerateBinPatches>("genRuntimeBinPatches") {
-                val genClientBinPatches = getByName<GenerateBinPatches>("genClientBinPatches")
-
-                cleanJar = genClientBinPatches.cleanJar
-                dirtyJar = genClientBinPatches.dirtyJar
-                srg = genClientBinPatches.srg
-                patchSets = genClientBinPatches.patchSets
-                args = arrayOf(
-                    "--output", "{output}",
-                    "--patches", "{patches}",
-                    "--srg", "{srg}",
-                    "--legacy",
-
-                    "--clean", "{clean}",
-                    "--dirty", "{dirty}",
-                    "--prefix", "binpatch/client",
-
-                    "--clean", "{server}",
-                    "--dirty", "{dirty}",
-                    "--prefix", "binpatch/server"
-                )
-                addExtra("server", getByName<GenerateBinPatches>("genServerBinPatches").cleanJar)
+            afterEvaluate { 
+                gen.cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:$side:$minecraftVersion", true)
             }
         }
 
@@ -640,11 +604,6 @@ project(":forge") {
         }
         
         named<Jar>("universalJar") {
-            val genRuntimeBinPatches = getByName<GenerateBinPatches>("genRuntimeBinPatches")
-            dependsOn(genRuntimeBinPatches)
-            from(genRuntimeBinPatches.output) {
-                rename { "binpatches.pack.lzma" }
-            }
             from(extraTxts)
             
             filesMatching("*.properties") {
@@ -672,11 +631,44 @@ project(":forge") {
             }
         }
         
-        register("launcherJson") {
-            val universalJar = getByName<Jar>("universalJar")
-            dependsOn("signUniversalJar")
-            inputs.file(universalJar.archiveFile.get().asFile)
+        register<Jar>("launcherJar") {
+            archiveClassifier.set("launcher")
+            from(project.extensions.getByType(SourceSetContainer::class).getByName("fmllauncher").output)
             
+            doFirst { 
+                val classpath = StringBuilder()
+                val artifacts = getArtifacts(project.configurations.getByName("installer"), false)
+                artifacts.forEach { (_, lib) -> classpath.append("libraries/${lib["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")?.jsonPrimitive?.content} ") }
+                classpath.append("libraries/net/minecraft/server/${minecraftVersion}-${mcpVersion}/server-${minecraftVersion}-${mcpVersion}-extra.jar")
+                
+                manifests.forEach { (pkg, values) -> 
+                    if (pkg == "/") {
+                        manifest.attributes(
+                                "Main-Class" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
+                                "Class-Path" to classpath.toString()
+                        )
+                    } else {
+                        manifest.attributes(values, pkg)
+                    }
+                }
+            }
+        }
+        
+        val launcherJar = getByName<Jar>("launcherJar")
+        val launcherJarFile = launcherJar.archiveFile.get().asFile
+        val names = project.extensions.getByType(PatcherExtension::class).runs.map(RunConfig::getTaskName)
+        whenTaskAdded { 
+            if (this is JavaExec && names.contains(this.name)) {
+                dependsOn(launcherJar)
+                classpath(launcherJarFile)
+            }
+        }
+        
+        register("launcherJson") {
+            val launcherJar = getByName<Jar>("launcherJar")
+            dependsOn(launcherJar)
+            
+            val launcherJarFile = launcherJar.archiveFile.get().asFile
             val vanilla = project(":mcp").file("build/mcp/downloadJson/version.json")
             val version = project.version as String
             val idx = version.indexOf('-')
@@ -695,6 +687,7 @@ project(":forge") {
                 set("id", id)
             }
             
+            inputs.file(launcherJarFile)
             inputs.file(vanilla) 
             outputs.file(output)
             
@@ -709,7 +702,7 @@ project(":forge") {
                     put("inheritsFrom", minecraftVersion)
                     putJsonObject("logging") {}
                     put("minecraftArguments", listOf(
-                            "\${auth_player_name}}",
+                            "\${auth_player_name}",
                             "\${auth_session}",
                             "--gameDir", "\${game_directory}",
                             "--assetsDir", "\${game_assets}"
@@ -721,9 +714,8 @@ project(":forge") {
                                 putJsonObject("artifact") {
                                     put("path", "${project.group.toString().replace(".", "/")}/${project.name}/${project.version}/${project.name}-${project.version}.jar")
                                     put("url", "") //Do not include the URL so that the installer/launcher won't grab it. This is also why we don't have the universal classifier
-                                    val file = universalJar.archiveFile.get().asFile
-                                    put("sha1", sha1(file))
-                                    put("size", file.length())
+                                    put("sha1", launcherJarFile.sha1())
+                                    put("size", launcherJarFile.length())
                                 }
                             }
                         }
@@ -737,32 +729,38 @@ project(":forge") {
             }
         }
         
-        register("installerJson") {
-            dependsOn("launcherJson", "genClientBinPatches")
+        val installerJson = create("installerJson") {
+            val applyClientBinPatches = getByName<ApplyBinPatches>("applyClientBinPatches")
+            val applyServerBinPatches = getByName<ApplyBinPatches>("applyServerBinPatches")
             
-            val universalJar = getByName<Jar>("universalJar").archiveFile.get().asFile
+            val universalJar = getByName<Jar>("universalJar")
+            val universalJarFile = universalJar.archiveFile.get().asFile
             val launcherJson = getByName("launcherJson")
             val output = file("build/install_profile.json")
+            val jarSplitter = "net.minecraftforge:jarsplitter:1.1.2"
+            val binPatcher = binpatchTool.substring(0, binpatchTool.length - 1 - binpatchTool.split(':')[3].length)
+            
+            dependsOn("launcherJson", universalJar, applyClientBinPatches, applyServerBinPatches)
             
             configure<ExtraPropertiesExtension> {
                 set("output", output)
             }
             
-            inputs.file(universalJar)
+            inputs.file(universalJarFile)
             inputs.file(getByName<GenerateBinPatches>("genClientBinPatches").toolJar)
             inputs.file(launcherJson.property("output") as File)
             outputs.file(output)
             
-            doLast { 
+            doLast {
                 val libs = buildJsonObject { 
-                    putJsonObject("${project.group}:${project.name}:${project.version}") {
-                        put("name", "${project.group}:${project.name}:${project.version}")
+                    putJsonObject("${project.group}:${project.name}:${project.version}:universal") {
+                        put("name", "${project.group}:${project.name}:${project.version}:universal")
                         putJsonObject("downloads") {
                             putJsonObject("artifact") {
-                                put("path", "${project.group.toString().replace(".", "/")}/${project.name}/${project.version}/${project.name}-${project.version}.jar")
-                                put("url", "") //Do not include the URL so that the installer/launcher won't grab it. This is also why we don't have the universal classifier
-                                put("sha1", sha1(universalJar))
-                                put("size", universalJar.length())
+                                put("path", "${project.group.toString().replace('.', '/')}/${project.name}/${project.version}/${project.name}-${project.version}-universal.jar")
+                                put("url", "") //Do not include the URL so that the installer/launcher won't grab it.
+                                put("sha1", universalJarFile.sha1())
+                                put("size", universalJarFile.length())
                             }
                         }
                     }
@@ -779,14 +777,124 @@ project(":forge") {
                     put("logo", "/big_logo.png")
                     put("minecraft", minecraftVersion)
                     put("welcome", "Welcome to the simple ${project.name.capitalize()} installer.")
-                    putJsonObject("data") {}
-                    putJsonArray("processors") {}
+                    putJsonObject("data") {
+                        putJsonObject("MAPPINGS") {
+                            put("client", "[${mcpArtifact.group}:${mcpArtifact.name}:${mcpArtifact.version}:mappings@txt]")
+                            put("server", "[${mcpArtifact.group}:${mcpArtifact.name}:${mcpArtifact.version}:mappings@txt]")
+                        }
+                        putJsonObject("BINPATCH") {
+                            put("client", "/data/client.lzma")
+                            put("server", "/data/server.lzma")
+                        }
+                        putJsonObject("MC_SLIM") {
+                            put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:slim]")
+                            put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:slim]")
+                        }
+                        putJsonObject("MC_SLIM_SHA") {
+                            put("client", "'${getByName<DownloadMavenArtifact>("downloadClientSlim").output.sha1()}'")
+                            put("server", "'${getByName<DownloadMavenArtifact>("downloadServerSlim").output.sha1()}'")
+                        }
+                        putJsonObject("MC_EXTRA") {
+                            put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:extra]")
+                            put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:extra]")
+                        }
+                        putJsonObject("MC_EXTRA_SHA") {
+                            put("client", "'${getByName<DownloadMavenArtifact>("downloadClientExtra").output.sha1()}'")
+                            put("server", "'${getByName<DownloadMavenArtifact>("downloadServerExtra").output.sha1()}'")
+                        }
+                        putJsonObject("MC_SRG") {
+                            put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:srg]")
+                            put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:srg]")
+                        }
+                        putJsonObject("PATCHED") {
+                            put("client", "[${project.group}:${project.name}:${project.version}:client]")
+                            put("server", "[${project.group}:${project.name}:${project.version}:server]")
+                        }
+                        putJsonObject("PATCHED_SHA") {
+                            put("client", "'${applyClientBinPatches.output.sha1()}'")
+                            put("server", "'${applyServerBinPatches.output.sha1()}'")
+                        }
+                        putJsonObject("MCP_VERSION") {
+                            put("client", "'${mcpVersion}'")
+                            put("server", "'${mcpVersion}'")
+                        }
+                    }
+                    putJsonArray("processors") {
+                        addJsonObject { 
+                            put("jar", installerTools)
+                            putJsonArray("classpath") {
+                                getClasspath(project, libs, installerTools)
+                                        .forEach { add(it) }
+                            }
+                            putJsonArray("args") {
+                                add("--task"); add("MCP_DATA")
+                                add("--input"); add("[${mcpArtifact.descriptor}]")
+                                add("--output"); add("{MAPPINGS}")
+                                add("--key"); add("mappings")
+                            }
+                        }
+                        addJsonObject { 
+                            put("jar", jarSplitter)
+                            putJsonArray("classpath") {
+                                getClasspath(project, libs, jarSplitter)
+                                        .forEach { add(it) }
+                            }
+                            putJsonArray("args") {
+                                add("--input"); add("{MINECRAFT_JAR}")
+                                add("--slim"); add("{MC_SLIM}")
+                                add("--extra"); add("{MC_EXTRA}")
+                                add("--srg"); add("{MAPPINGS}")
+                            }
+                            putJsonObject("outputs") {
+                                put("{MC_SLIM}", "{MC_SLIM_SHA}")
+                                put("{MC_EXTRA}", "{MC_EXTRA_SHA}")
+                            }
+                        }
+                        /*addJsonObject { 
+                            put("jar", specialSourceMcp)
+                            putJsonArray("classpath") {
+                                getClasspath(project, libs, specialSourceMcp)
+                                        .forEach { add(it) }
+                            }
+                            putJsonArray("args") {
+                                add("--in-jar"); add("{MC_SLIM}")
+                                add("--out-jar"); add("{MC_SRG}")
+                                add("--srg-in"); add("{MAPPINGS}")
+                            }
+                        }*/
+                        addJsonObject { 
+                            put("jar", binPatcher)
+                            putJsonArray("classpath") {
+                                getClasspath(project, libs, binPatcher)
+                                        .forEach { add(it) }
+                            }
+                            putJsonArray("args") {
+                                add("--clean"); add("{MC_SLIM}")
+                                add("--output"); add("{PATCHED}")
+                                add("--apply"); add("{BINPATCH}")
+                            }
+                            putJsonObject("outputs") {
+                                put("{PATCHED}", "{PATCHED_SHA}")
+                            }
+                        }
+                    }
                 }.toMutableMap()
                 
                 getClasspath(project, libs, mcpArtifact.descriptor) //Tell it to download mcp_config
                 json["libraries"] = JsonArray(libs.values.sortedBy { it.jsonObject["name"]?.jsonPrimitive?.content })
                         
                 output.writeText(jsonFormat.encodeToString(json))
+            }
+        }
+        
+        sequenceOf("client", "server").forEach { side ->
+            sequenceOf("slim", "extra").forEach { type -> 
+                val name = "download${side.capitalize()}${type.capitalize()}"
+                val task = create<DownloadMavenArtifact>(name) {
+                    artifact = "net.minecraft:${side}:${minecraftVersion}:${type}"   
+                }
+                installerJson.dependsOn(name)
+                installerJson.inputs.file(task.output)
             }
         }
         
@@ -801,9 +909,13 @@ project(":forge") {
         }
         
         register<Zip>("installerJar") {
-            val installerJson = getByName("installerJson")
             val launcherJson = getByName("launcherJson")
-            dependsOn("downloadInstaller", installerJson, launcherJson, "genClientBinPatches", "genServerBinPatches", "signUniversalJar")
+            val genClientBinPatches = getByName("genClientBinPatches")
+            val genServerBinPatches = getByName("genServerBinPatches")
+            val universalJar = getByName("universalJar")
+            val launcherJar = getByName("launcherJar")
+            
+            dependsOn("downloadInstaller", installerJson, launcherJson, genClientBinPatches, genServerBinPatches, universalJar)
             archiveClassifier.set("installer")
             archiveExtension.set("jar") //Needs to be Zip task to not override Manifest, so set extension
             destinationDirectory.set(file("build/libs"))
@@ -811,9 +923,18 @@ project(":forge") {
             from(rootProject.file("/src/main/resources/forge_logo.png")) {
                 rename { "big_logo.png" }
             }
-            from(getByName("universalJar")) {
-                into("/maven/${project.group.toString().replace(".", "/")}/${project.name}/${project.version}/")
-                rename {"${project.name}-${project.version}.jar" }
+            from(genClientBinPatches) {
+                rename { "data/client.lzma" }
+            }
+            from(genServerBinPatches) {
+                rename { "data/server.lzma" }
+            }
+            from(universalJar) {
+                into("/maven/${project.group.toString().replace('.', '/')}/${project.name}/${project.version}/")
+            }
+            from(launcherJar) {
+                into("/maven/${project.group.toString().replace('.', '/')}/${project.name}/${project.version}/")
+                rename { "${project.name}-${project.version}.jar" }
             }
             from(zipTree(getByName<DownloadMavenArtifact>("downloadInstaller").output)) {
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -862,9 +983,11 @@ project(":forge") {
             }
         }
         
-        named<ProcessResources>("processResources") {
-            filesMatching("*.properties") {
-                filter(ReplaceTokens::class, tokenMap)
+        named<ProcessResources>("processFmllauncherResources") {
+            from(project.extensions.getByType(SourceSetContainer::class).getByName("fmllauncher").resources) {
+                filesMatching("*.properties") {
+                    filter(ReplaceTokens::class, tokenMap)
+                }
             }
         }
         
@@ -876,8 +999,6 @@ project(":forge") {
             addLibrary("net.minecraftforge:legacydev:0.2.3.+:fatjar")
             addLibrary("net.sourceforge.argo:argo:2.25")
             addLibrary("org.bouncycastle:bcprov-jdk15on:1.47")
-            addLibrary("com.nothome:javaxdelta:2.0.1")
-            addUniversalFilter("^(?!binpatches\\.pack\\.lzma\$).*\$")
             addSourceFilter("^(?!argo|org/bouncycastle).*")
 
             runs {
@@ -1092,8 +1213,8 @@ fun dateToIso8601(date: Date): String {
     return result.substring(0..21) + ":" + result.substring(22)
 }
 
-fun sha1(file: File): String {
-    val bytes = MessageDigest.getInstance("SHA-1").digest(file.readBytes())
+fun File.sha1(): String {
+    val bytes = MessageDigest.getInstance("SHA-1").digest(readBytes())
     return bytes.joinToString("") { "%02x".format(it) }
 }
 
@@ -1113,10 +1234,10 @@ fun getArtifacts(config: Configuration, classifiers: Boolean): Map<String, JsonO
         filename += ".${extension}"
         
         var path = "${folder}${filename}"
-        var url = "https://libraries.minecraft.net/${path}"
-        if (!checkExists(url)) {
-            url = "https://maven.minecraftforge.net/${path}"
-        }
+        val url = artifactRepositories
+                .map { repo -> "$repo/$path" }
+                .firstOrNull(::checkExists)
+                ?: throw kotlin.RuntimeException("Could not find repository containing library $path")
         //TODO remove when Mojang launcher is updated
         if (!classifiers && classifier != null) { //Mojang launcher doesn't currently support classifiers, so... move it to part of the version, and force the extension to 'jar'
             version = "${version}-${classifier}"
@@ -1130,7 +1251,7 @@ fun getArtifacts(config: Configuration, classifiers: Boolean): Map<String, JsonO
                 putJsonObject("artifact") {
                     put("path", path)
                     put("url", url)
-                    put("sha1", sha1(it.file))
+                    put("sha1", it.file.sha1())
                     put("size", it.file.length())
                 }
             }

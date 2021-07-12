@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/MinecraftApplet.java
-+++ ../src-work/minecraft/net/minecraft/client/MinecraftApplet.java
+--- a/net/minecraft/client/MinecraftApplet.java
++++ b/net/minecraft/client/MinecraftApplet.java
 @@ -1,5 +1,6 @@
  package net.minecraft.client;
  

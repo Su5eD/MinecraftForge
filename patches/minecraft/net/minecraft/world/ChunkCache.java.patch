@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/ChunkCache.java
-+++ ../src-work/minecraft/net/minecraft/world/ChunkCache.java
+--- a/net/minecraft/world/ChunkCache.java
++++ b/net/minecraft/world/ChunkCache.java
 @@ -85,7 +85,15 @@
      {
          int var4 = (p_72796_1_ >> 4) - this.field_72818_a;

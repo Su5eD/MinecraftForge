@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/achievement/GuiAchievements.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/achievement/GuiAchievements.java
+--- a/net/minecraft/client/gui/achievement/GuiAchievements.java
++++ b/net/minecraft/client/gui/achievement/GuiAchievements.java
 @@ -2,6 +2,9 @@
  
  import cpw.mods.fml.relauncher.Side;

@@ -14,14 +14,11 @@
 
 package cpw.mods.fml.relauncher.wrapper;
 
-import cpw.mods.fml.common.patcher.ClassPatchManager;
 import cpw.mods.fml.relauncher.FMLRelauncher;
-import cpw.mods.fml.relauncher.Side;
 
 public class ClientLaunchWrapper {
     
     public static void main(String[] args) {
-        ClassPatchManager.INSTANCE.setup(Side.CLIENT);
         FMLRelauncher.handleClientRelaunch(args);
     }
 }

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/GuiIngame.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/GuiIngame.java
+--- a/net/minecraft/client/gui/GuiIngame.java
++++ b/net/minecraft/client/gui/GuiIngame.java
 @@ -23,6 +23,7 @@
  import net.minecraft.util.StringUtils;
  import net.minecraft.world.EnumSkyBlock;

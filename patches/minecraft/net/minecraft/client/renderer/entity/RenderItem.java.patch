@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/entity/RenderItem.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/entity/RenderItem.java
+--- a/net/minecraft/client/renderer/entity/RenderItem.java
++++ b/net/minecraft/client/renderer/entity/RenderItem.java
 @@ -13,8 +13,10 @@
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.item.EntityItem;

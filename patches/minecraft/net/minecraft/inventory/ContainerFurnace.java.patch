@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/inventory/ContainerFurnace.java
-+++ ../src-work/minecraft/net/minecraft/inventory/ContainerFurnace.java
+--- a/net/minecraft/inventory/ContainerFurnace.java
++++ b/net/minecraft/inventory/ContainerFurnace.java
 @@ -119,7 +119,7 @@
              }
              else if (p_82846_2_ != 1 && p_82846_2_ != 0)

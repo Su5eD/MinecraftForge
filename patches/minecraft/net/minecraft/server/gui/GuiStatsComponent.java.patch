@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/gui/GuiStatsComponent.java
-+++ ../src-work/minecraft/net/minecraft/server/gui/GuiStatsComponent.java
+--- a/net/minecraft/server/gui/GuiStatsComponent.java
++++ b/net/minecraft/server/gui/GuiStatsComponent.java
 @@ -10,6 +10,8 @@
  import javax.swing.Timer;
  import net.minecraft.network.TcpConnection;

@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/passive/EntityOcelot.java
-+++ ../src-work/minecraft/net/minecraft/entity/passive/EntityOcelot.java
+--- a/net/minecraft/entity/passive/EntityOcelot.java
++++ b/net/minecraft/entity/passive/EntityOcelot.java
 @@ -297,7 +297,9 @@
  
                  int var4 = this.field_70170_p.func_72798_a(var1, var2 - 1, var3);

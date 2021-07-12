@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/EntityLiving.java
-+++ ../src-work/minecraft/net/minecraft/entity/EntityLiving.java
+--- a/net/minecraft/entity/EntityLiving.java
++++ b/net/minecraft/entity/EntityLiving.java
 @@ -20,6 +20,7 @@
  import net.minecraft.entity.item.EntityXPOrb;
  import net.minecraft.entity.monster.EntityCreeper;
@@ -8,19 +8,16 @@
  import net.minecraft.entity.passive.EntityWolf;
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.entity.projectile.EntityArrow;
-@@ -45,6 +46,11 @@
+@@ -45,6 +46,8 @@
  import net.minecraft.world.World;
  import net.minecraft.world.WorldServer;
  
 +import net.minecraftforge.common.ForgeHooks;
-+import net.minecraftforge.common.MinecraftForge;
-+import net.minecraftforge.event.entity.living.*;
-+import static net.minecraftforge.event.entity.living.LivingEvent.*;
 +
  public abstract class EntityLiving extends Entity
  {
      private static final float[] field_82177_b = new float[] {0.0F, 0.0F, 0.05F, 0.1F};
-@@ -254,6 +260,7 @@
+@@ -254,6 +257,7 @@
      public void func_70624_b(EntityLiving p_70624_1_)
      {
          this.field_70696_bz = p_70624_1_;
@@ -28,7 +25,7 @@
      }
  
      public boolean func_70686_a(Class p_70686_1_)
-@@ -338,6 +345,7 @@
+@@ -338,6 +342,7 @@
      {
          this.field_70755_b = p_70604_1_;
          this.field_70756_c = this.field_70755_b != null ? 60 : 0;
@@ -36,7 +33,7 @@
      }
  
      protected void func_70088_a()
-@@ -599,6 +607,11 @@
+@@ -599,6 +604,11 @@
  
      public void func_70071_h_()
      {
@@ -48,7 +45,7 @@
          super.func_70071_h_();
  
          if (!this.field_70170_p.field_72995_K)
-@@ -778,6 +791,11 @@
+@@ -778,6 +788,11 @@
  
      public boolean func_70097_a(DamageSource p_70097_1_, int p_70097_2_)
      {
@@ -60,7 +57,7 @@
          if (this.func_85032_ar())
          {
              return false;
-@@ -971,6 +989,11 @@
+@@ -971,6 +986,11 @@
      {
          if (!this.func_85032_ar())
          {
@@ -72,7 +69,7 @@
              p_70665_2_ = this.func_70655_b(p_70665_1_, p_70665_2_);
              p_70665_2_ = this.func_70672_c(p_70665_1_, p_70665_2_);
              this.field_70734_aK -= p_70665_2_;
-@@ -1017,6 +1040,11 @@
+@@ -1017,6 +1037,11 @@
  
      public void func_70645_a(DamageSource p_70645_1_)
      {
@@ -84,7 +81,7 @@
          Entity var2 = p_70645_1_.func_76346_g();
  
          if (this.field_70744_aE >= 0 && var2 != null)
-@@ -1039,6 +1067,10 @@
+@@ -1039,6 +1064,10 @@
              {
                  var3 = EnchantmentHelper.func_77519_f((EntityLiving)var2);
              }
@@ -95,7 +92,7 @@
  
              if (!this.func_70631_g_() && this.field_70170_p.func_82736_K().func_82766_b("doMobLoot"))
              {
-@@ -1047,7 +1079,7 @@
+@@ -1047,7 +1076,7 @@
  
                  if (this.field_70718_bc > 0)
                  {
@@ -104,7 +101,7 @@
  
                      if (var4 < 5)
                      {
-@@ -1055,6 +1087,16 @@
+@@ -1055,6 +1084,16 @@
                      }
                  }
              }
@@ -121,7 +118,7 @@
          }
  
          this.field_70170_p.func_72960_a(this, (byte)3);
-@@ -1091,6 +1133,12 @@
+@@ -1091,6 +1130,12 @@
  
      protected void func_70069_a(float p_70069_1_)
      {
@@ -134,7 +131,7 @@
          super.func_70069_a(p_70069_1_);
          int var2 = MathHelper.func_76123_f(p_70069_1_ - 3.0F);
  
-@@ -1287,7 +1335,7 @@
+@@ -1287,7 +1332,7 @@
          int var2 = MathHelper.func_76128_c(this.field_70121_D.field_72338_b);
          int var3 = MathHelper.func_76128_c(this.field_70161_v);
          int var4 = this.field_70170_p.func_72798_a(var1, var2, var3);
@@ -143,7 +140,7 @@
      }
  
      public void func_70014_b(NBTTagCompound p_70014_1_)
-@@ -1675,6 +1723,7 @@
+@@ -1675,6 +1720,7 @@
          }
  
          this.field_70160_al = true;
@@ -151,7 +148,7 @@
      }
  
      protected boolean func_70692_ba()
-@@ -2144,8 +2193,7 @@
+@@ -2144,8 +2190,7 @@
      {
          return this.func_70668_bt() == EnumCreatureAttribute.UNDEAD;
      }
@@ -161,7 +158,7 @@
      public void func_70618_n(int p_70618_1_)
      {
          this.field_70713_bf.remove(Integer.valueOf(p_70618_1_));
-@@ -2551,5 +2599,43 @@
+@@ -2551,5 +2596,43 @@
      public final void func_85034_r(int p_85034_1_)
      {
          this.field_70180_af.func_75692_b(10, Byte.valueOf((byte)p_85034_1_));

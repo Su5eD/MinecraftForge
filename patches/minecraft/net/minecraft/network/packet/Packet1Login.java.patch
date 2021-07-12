@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/network/packet/Packet1Login.java
-+++ ../src-work/minecraft/net/minecraft/network/packet/Packet1Login.java
+--- a/net/minecraft/network/packet/Packet1Login.java
++++ b/net/minecraft/network/packet/Packet1Login.java
 @@ -3,6 +3,8 @@
  import java.io.DataInputStream;
  import java.io.DataOutputStream;

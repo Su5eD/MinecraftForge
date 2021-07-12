@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/feature/WorldGenDungeons.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/feature/WorldGenDungeons.java
+--- a/net/minecraft/world/gen/feature/WorldGenDungeons.java
++++ b/net/minecraft/world/gen/feature/WorldGenDungeons.java
 @@ -7,7 +7,10 @@
  import net.minecraft.item.ItemStack;
  import net.minecraft.tileentity.TileEntityChest;

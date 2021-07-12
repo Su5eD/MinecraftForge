@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/Item.java
-+++ ../src-work/minecraft/net/minecraft/item/Item.java
+--- a/net/minecraft/item/Item.java
++++ b/net/minecraft/item/Item.java
 @@ -1,5 +1,6 @@
  package net.minecraft.item;
  

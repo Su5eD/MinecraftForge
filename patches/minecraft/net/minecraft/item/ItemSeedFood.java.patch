@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/ItemSeedFood.java
-+++ ../src-work/minecraft/net/minecraft/item/ItemSeedFood.java
+--- a/net/minecraft/item/ItemSeedFood.java
++++ b/net/minecraft/item/ItemSeedFood.java
 @@ -2,8 +2,10 @@
  
  import net.minecraft.entity.player.EntityPlayer;

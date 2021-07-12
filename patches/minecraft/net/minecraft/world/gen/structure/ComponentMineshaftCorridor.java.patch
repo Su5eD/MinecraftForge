@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/structure/ComponentMineshaftCorridor.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/structure/ComponentMineshaftCorridor.java
+--- a/net/minecraft/world/gen/structure/ComponentMineshaftCorridor.java
++++ b/net/minecraft/world/gen/structure/ComponentMineshaftCorridor.java
 @@ -8,6 +8,9 @@
  import net.minecraft.util.WeightedRandomChestContent;
  import net.minecraft.world.World;

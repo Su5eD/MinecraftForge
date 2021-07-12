@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/GuiCreateWorld.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/GuiCreateWorld.java
+--- a/net/minecraft/client/gui/GuiCreateWorld.java
++++ b/net/minecraft/client/gui/GuiCreateWorld.java
 @@ -214,6 +214,8 @@
                      }
                  }

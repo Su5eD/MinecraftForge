@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockMushroom.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockMushroom.java
+--- a/net/minecraft/block/BlockMushroom.java
++++ b/net/minecraft/block/BlockMushroom.java
 @@ -4,6 +4,8 @@
  import net.minecraft.world.World;
  import net.minecraft.world.gen.feature.WorldGenBigMushroom;

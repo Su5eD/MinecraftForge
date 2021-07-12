@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockRedstoneWire.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockRedstoneWire.java
+--- a/net/minecraft/block/BlockRedstoneWire.java
++++ b/net/minecraft/block/BlockRedstoneWire.java
 @@ -491,7 +491,7 @@
          }
          else if (var5 != Block.field_72010_bh.field_71990_ca && var5 != Block.field_72011_bi.field_71990_ca)

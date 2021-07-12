@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/stats/StatList.java
-+++ ../src-work/minecraft/net/minecraft/stats/StatList.java
+--- a/net/minecraft/stats/StatList.java
++++ b/net/minecraft/stats/StatList.java
 @@ -118,9 +118,9 @@
  
      private static StatBase[] func_75921_a(String p_75921_0_, int p_75921_1_)

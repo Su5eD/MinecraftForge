@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/crafting/ShapedRecipes.java
-+++ ../src-work/minecraft/net/minecraft/item/crafting/ShapedRecipes.java
+--- a/net/minecraft/item/crafting/ShapedRecipes.java
++++ b/net/minecraft/item/crafting/ShapedRecipes.java
 @@ -9,7 +9,7 @@
  {
      public final int field_77576_b;

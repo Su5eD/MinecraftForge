@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/particle/EntityFireworkStarterFX.java
-+++ ../src-work/minecraft/net/minecraft/client/particle/EntityFireworkStarterFX.java
+--- a/net/minecraft/client/particle/EntityFireworkStarterFX.java
++++ b/net/minecraft/client/particle/EntityFireworkStarterFX.java
 @@ -30,11 +30,11 @@
          {
              this.field_92039_az = p_i8002_15_.func_74761_m("Explosions");

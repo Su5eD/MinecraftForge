@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/gui/GuiErrorScreen.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/GuiErrorScreen.java
+--- a/net/minecraft/client/gui/GuiErrorScreen.java
++++ b/net/minecraft/client/gui/GuiErrorScreen.java
 @@ -9,6 +9,8 @@
      private String field_74001_a;
      private String field_74000_b;

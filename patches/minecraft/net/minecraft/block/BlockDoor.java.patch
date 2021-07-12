@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockDoor.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockDoor.java
+--- a/net/minecraft/block/BlockDoor.java
++++ b/net/minecraft/block/BlockDoor.java
 @@ -236,7 +236,7 @@
      {
          if (this.field_72018_cp == Material.field_76243_f)

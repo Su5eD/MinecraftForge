@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/network/packet/Packet56MapChunks.java
-+++ ../src-work/minecraft/net/minecraft/network/packet/Packet56MapChunks.java
+--- a/net/minecraft/network/packet/Packet56MapChunks.java
++++ b/net/minecraft/network/packet/Packet56MapChunks.java
 @@ -6,6 +6,7 @@
  import java.io.DataOutputStream;
  import java.io.IOException;

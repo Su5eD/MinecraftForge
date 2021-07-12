@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/RenderGlobal.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/RenderGlobal.java
+--- a/net/minecraft/client/renderer/RenderGlobal.java
++++ b/net/minecraft/client/renderer/RenderGlobal.java
 @@ -59,6 +59,8 @@
  import net.minecraft.util.ReportedException;
  import net.minecraft.util.Vec3;

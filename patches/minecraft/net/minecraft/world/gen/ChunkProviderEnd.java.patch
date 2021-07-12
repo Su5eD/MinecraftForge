@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderEnd.java
-+++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderEnd.java
+--- a/net/minecraft/world/gen/ChunkProviderEnd.java
++++ b/net/minecraft/world/gen/ChunkProviderEnd.java
 @@ -12,6 +12,11 @@
  import net.minecraft.world.biome.BiomeGenBase;
  import net.minecraft.world.chunk.Chunk;

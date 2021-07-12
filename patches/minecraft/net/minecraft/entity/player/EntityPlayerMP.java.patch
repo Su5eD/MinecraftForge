@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/entity/player/EntityPlayerMP.java
-+++ ../src-work/minecraft/net/minecraft/entity/player/EntityPlayerMP.java
+--- a/net/minecraft/entity/player/EntityPlayerMP.java
++++ b/net/minecraft/entity/player/EntityPlayerMP.java
 @@ -9,6 +9,7 @@
  import java.util.List;
  import net.minecraft.entity.Entity;

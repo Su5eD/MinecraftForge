@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/entity/RenderManager.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/entity/RenderManager.java
+--- a/net/minecraft/client/renderer/entity/RenderManager.java
++++ b/net/minecraft/client/renderer/entity/RenderManager.java
 @@ -198,12 +198,14 @@
  
          if (p_78718_4_.func_70608_bn())

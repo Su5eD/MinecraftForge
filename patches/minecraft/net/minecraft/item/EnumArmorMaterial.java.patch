@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/item/EnumArmorMaterial.java
-+++ ../src-work/minecraft/net/minecraft/item/EnumArmorMaterial.java
+--- a/net/minecraft/item/EnumArmorMaterial.java
++++ b/net/minecraft/item/EnumArmorMaterial.java
 @@ -10,6 +10,9 @@
      private int field_78048_f;
      private int[] field_78049_g;

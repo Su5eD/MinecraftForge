@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/server/management/ServerConfigurationManager.java
-+++ ../src-work/minecraft/net/minecraft/server/management/ServerConfigurationManager.java
+--- a/net/minecraft/server/management/ServerConfigurationManager.java
++++ b/net/minecraft/server/management/ServerConfigurationManager.java
 @@ -1,5 +1,7 @@
  package net.minecraft.server.management;
  

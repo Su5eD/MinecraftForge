@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockChest.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockChest.java
+--- a/net/minecraft/block/BlockChest.java
++++ b/net/minecraft/block/BlockChest.java
 @@ -21,6 +21,8 @@
  import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;

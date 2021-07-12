@@ -1,6 +1,14 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/RenderBlocks.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/RenderBlocks.java
-@@ -29,6 +29,7 @@
+--- a/net/minecraft/client/renderer/RenderBlocks.java
++++ b/net/minecraft/client/renderer/RenderBlocks.java
+@@ -5,7 +5,6 @@
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockAnvil;
+ import net.minecraft.block.BlockBeacon;
+-import net.minecraft.block.BlockBed;
+ import net.minecraft.block.BlockBrewingStand;
+ import net.minecraft.block.BlockCauldron;
+ import net.minecraft.block.BlockCocoa;
+@@ -29,6 +28,7 @@
  import net.minecraft.block.BlockWall;
  import net.minecraft.block.material.Material;
  import net.minecraft.client.Minecraft;
@@ -8,7 +16,7 @@
  import net.minecraft.util.Direction;
  import net.minecraft.util.MathHelper;
  import net.minecraft.util.Vec3;
-@@ -37,6 +38,8 @@
+@@ -37,6 +37,8 @@
  import org.lwjgl.opengl.GL11;
  import org.lwjgl.opengl.GL12;
  
@@ -17,7 +25,7 @@
  @SideOnly(Side.CLIENT)
  public class RenderBlocks
  {
-@@ -217,7 +220,82 @@
+@@ -217,7 +219,82 @@
          int var5 = p_78612_1_.func_71857_b();
          p_78612_1_.func_71902_a(this.field_78669_a, p_78612_2_, p_78612_3_, p_78612_4_);
          this.func_83018_a(p_78612_1_);
@@ -101,7 +109,7 @@
      }
  
      public boolean func_78567_v(Block p_78567_1_, int p_78567_2_, int p_78567_3_, int p_78567_4_)
-@@ -263,9 +341,8 @@
+@@ -263,9 +340,8 @@
      public boolean func_78574_w(Block p_78574_1_, int p_78574_2_, int p_78574_3_, int p_78574_4_)
      {
          Tessellator var5 = Tessellator.field_78398_a;
@@ -113,7 +121,7 @@
          float var9 = 0.5F;
          float var10 = 1.0F;
          float var11 = 0.8F;
-@@ -274,6 +351,7 @@
+@@ -274,6 +350,7 @@
          var5.func_78380_c(var25);
          var5.func_78386_a(var9, var9, var9);
          int var27 = p_78574_1_.func_71895_b(this.field_78669_a, p_78574_2_, p_78574_3_, p_78574_4_, 0);
@@ -121,7 +129,7 @@
          int var28 = (var27 & 15) << 4;
          int var29 = var27 & 240;
          double var30 = (double)((float)var28 / 256.0F);
-@@ -292,6 +370,7 @@
+@@ -292,6 +369,7 @@
          var5.func_78380_c(p_78574_1_.func_71874_e(this.field_78669_a, p_78574_2_, p_78574_3_ + 1, p_78574_4_));
          var5.func_78386_a(var10, var10, var10);
          var27 = p_78574_1_.func_71895_b(this.field_78669_a, p_78574_2_, p_78574_3_, p_78574_4_, 1);
@@ -129,7 +137,7 @@
          var28 = (var27 & 15) << 4;
          var29 = var27 & 240;
          var30 = (double)((float)var28 / 256.0F);
-@@ -1970,7 +2049,7 @@
+@@ -1970,7 +2048,7 @@
          double var30;
          double var32;
  
@@ -138,7 +146,7 @@
          {
              float var36 = 0.2F;
              float var19 = 0.0625F;
-@@ -1990,55 +2069,55 @@
+@@ -1990,55 +2068,55 @@
                  var9 = var20;
              }
  
@@ -243,7 +251,7 @@
              {
                  var20 = (double)p_78590_2_ + 0.5D + 0.5D;
                  var22 = (double)p_78590_2_ + 0.5D - 0.5D;
-@@ -4183,7 +4262,7 @@
+@@ -4183,7 +4261,7 @@
              var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 2);
              this.func_78611_c(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, var27);
  
@@ -252,7 +260,7 @@
              {
                  this.field_78674_ar *= p_78578_5_;
                  this.field_78672_as *= p_78578_5_;
-@@ -4306,7 +4385,7 @@
+@@ -4306,7 +4384,7 @@
              var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 3);
              this.func_78622_d(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 3));
  
@@ -261,7 +269,7 @@
              {
                  this.field_78674_ar *= p_78578_5_;
                  this.field_78672_as *= p_78578_5_;
-@@ -4429,7 +4508,7 @@
+@@ -4429,7 +4507,7 @@
              var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 4);
              this.func_78573_e(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, var27);
  
@@ -270,7 +278,7 @@
              {
                  this.field_78674_ar *= p_78578_5_;
                  this.field_78672_as *= p_78578_5_;
-@@ -4552,7 +4631,7 @@
+@@ -4552,7 +4630,7 @@
              var27 = p_78578_1_.func_71895_b(this.field_78669_a, p_78578_2_, p_78578_3_, p_78578_4_, 5);
              this.func_78605_f(p_78578_1_, (double)p_78578_2_, (double)p_78578_3_, (double)p_78578_4_, var27);
  
@@ -279,7 +287,7 @@
              {
                  this.field_78674_ar *= p_78578_5_;
                  this.field_78672_as *= p_78578_5_;
-@@ -4658,7 +4737,7 @@
+@@ -4658,7 +4736,7 @@
              var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 2);
              this.func_78611_c(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
  
@@ -288,7 +296,7 @@
              {
                  var8.func_78386_a(var18 * p_78609_5_, var21 * p_78609_6_, var24 * p_78609_7_);
                  this.func_78611_c(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
-@@ -4674,7 +4753,7 @@
+@@ -4674,7 +4752,7 @@
              var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 3);
              this.func_78622_d(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
  
@@ -297,7 +305,7 @@
              {
                  var8.func_78386_a(var18 * p_78609_5_, var21 * p_78609_6_, var24 * p_78609_7_);
                  this.func_78622_d(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
-@@ -4690,7 +4769,7 @@
+@@ -4690,7 +4768,7 @@
              var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 4);
              this.func_78573_e(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
  
@@ -306,7 +314,7 @@
              {
                  var8.func_78386_a(var19 * p_78609_5_, var22 * p_78609_6_, var25 * p_78609_7_);
                  this.func_78573_e(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
-@@ -4706,7 +4785,7 @@
+@@ -4706,7 +4784,7 @@
              var28 = p_78609_1_.func_71895_b(this.field_78669_a, p_78609_2_, p_78609_3_, p_78609_4_, 5);
              this.func_78605_f(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, var28);
  
@@ -315,7 +323,7 @@
              {
                  var8.func_78386_a(var19 * p_78609_5_, var22 * p_78609_6_, var25 * p_78609_7_);
                  this.func_78605_f(p_78609_1_, (double)p_78609_2_, (double)p_78609_3_, (double)p_78609_4_, 38);
-@@ -6543,6 +6622,10 @@
+@@ -6543,6 +6621,10 @@
                  this.func_83020_a(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
                  this.func_78595_a();
              }
@@ -326,7 +334,7 @@
          }
          else
          {
-@@ -6601,6 +6684,36 @@
+@@ -6601,6 +6683,36 @@
  
      public static boolean func_78597_b(int p_78597_0_)
      {

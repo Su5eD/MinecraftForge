@@ -1,6 +1,6 @@
---- ../src-base/minecraft/net/minecraft/world/WorldProvider.java
-+++ ../src-work/minecraft/net/minecraft/world/WorldProvider.java
-@@ -3,16 +3,23 @@
+--- a/net/minecraft/world/WorldProvider.java
++++ b/net/minecraft/world/WorldProvider.java
+@@ -3,16 +3,19 @@
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import net.minecraft.block.Block;
@@ -12,19 +12,19 @@
  import net.minecraft.util.Vec3;
  import net.minecraft.world.biome.BiomeGenBase;
  import net.minecraft.world.biome.WorldChunkManager;
- import net.minecraft.world.biome.WorldChunkManagerHell;
+-import net.minecraft.world.biome.WorldChunkManagerHell;
 +import net.minecraft.world.chunk.Chunk;
  import net.minecraft.world.chunk.IChunkProvider;
- import net.minecraft.world.gen.ChunkProviderFlat;
- import net.minecraft.world.gen.ChunkProviderGenerate;
- import net.minecraft.world.gen.FlatGeneratorInfo;
+-import net.minecraft.world.gen.ChunkProviderFlat;
+-import net.minecraft.world.gen.ChunkProviderGenerate;
+-import net.minecraft.world.gen.FlatGeneratorInfo;
 +import net.minecraft.world.storage.WorldInfo;
 +import net.minecraftforge.client.IRenderHandler;
 +import net.minecraftforge.common.DimensionManager;
  
  public abstract class WorldProvider
  {
-@@ -48,20 +55,12 @@
+@@ -48,20 +51,12 @@
  
      protected void func_76572_b()
      {
@@ -47,7 +47,7 @@
      }
  
      public boolean func_76566_a(int p_76566_1_, int p_76566_2_)
-@@ -157,7 +156,7 @@
+@@ -157,7 +152,7 @@
  
      public static WorldProvider func_76570_a(int p_76570_0_)
      {
@@ -56,7 +56,7 @@
      }
  
      @SideOnly(Side.CLIENT)
-@@ -179,19 +178,19 @@
+@@ -179,19 +174,19 @@
  
      public int func_76557_i()
      {
@@ -79,7 +79,7 @@
      }
  
      @SideOnly(Side.CLIENT)
-@@ -201,4 +200,277 @@
+@@ -201,4 +196,277 @@
      }
  
      public abstract String func_80007_l();

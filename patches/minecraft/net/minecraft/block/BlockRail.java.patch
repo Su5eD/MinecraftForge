@@ -1,5 +1,5 @@
---- ../src-base/minecraft/net/minecraft/block/BlockRail.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockRail.java
+--- a/net/minecraft/block/BlockRail.java
++++ b/net/minecraft/block/BlockRail.java
 @@ -3,12 +3,16 @@
  import java.util.Random;
  import net.minecraft.block.material.Material;

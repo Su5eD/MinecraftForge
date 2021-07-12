@@ -14,8 +14,6 @@
 
 package cpw.mods.fml.relauncher;
 
-import cpw.mods.fml.common.FMLLog;
-
 import javax.swing.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.*;
@@ -89,7 +87,7 @@ public class Downloader extends JOptionPane implements IDownloadDisplay {
     }
 
     public void updateProgressString(String progressUpdate, Object... data) {
-        FMLLog.finest(progressUpdate, data);
+        FMLRelaunchLog.finest(progressUpdate, data);
         if (currentActivity != null) {
             currentActivity.setText(String.format(progressUpdate, data));
         }
