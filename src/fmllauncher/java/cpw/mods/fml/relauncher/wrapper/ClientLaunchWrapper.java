@@ -55,6 +55,7 @@ public class ClientLaunchWrapper {
     public static FMLArgs prepareArgs(String[] args) {
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
+        parser.accepts("extractResources");
         Stream.of("version", "assetIndex", "gameDir", "accessToken", "userProperties")
                 .map(parser::accepts)
                 .forEach(OptionSpecBuilder::withRequiredArg);
@@ -65,6 +66,7 @@ public class ClientLaunchWrapper {
         OptionSpec<String> nonOptions = parser.nonOptions();
         OptionSet optionSet = parser.parse(args);
         File assetsDir = new File(assetsDirOpt.value(optionSet));
+        boolean extractResources = optionSet.has("extractResources");
         List<String> values = new ArrayList<>(nonOptions.values(optionSet));
 
         YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Proxy.NO_PROXY, "1");
@@ -88,7 +90,8 @@ public class ClientLaunchWrapper {
             return new FMLArgs(
                     Stream.concat(Stream.of(usernameValue, "token:" + auth.getAuthenticatedToken() + ":" + uuidString), values.stream())
                             .toArray(String[]::new),
-                    assetsDir
+                    assetsDir,
+                    extractResources
             );
         }
 
@@ -98,7 +101,7 @@ public class ClientLaunchWrapper {
         GameProfile profile = new GameProfile(profileId, values.get(0));
         FMLAuth.instance = new FMLAuth(profile, sessionService);
 
-        return new FMLArgs(values.toArray(new String[0]), assetsDir);
+        return new FMLArgs(values.toArray(new String[0]), assetsDir, extractResources);
     }
     
     private static long getSystemTime() {

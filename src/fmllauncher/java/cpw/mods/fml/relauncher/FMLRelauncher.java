@@ -106,7 +106,7 @@ public class FMLRelauncher {
         Class<? super Object> client;
         try {
             File minecraftHome = computeExistingClientHome();
-            setupHome(minecraftHome, args.getAssetsDir());
+            setupHome(minecraftHome, args);
 
             client = setupNewClientHome(minecraftHome);
         } finally {
@@ -138,7 +138,7 @@ public class FMLRelauncher {
         // Now we re-inject the home into the "new" minecraft under our control
         Class<? super Object> server;
         File minecraftHome = new File(".");
-        setupHome(minecraftHome, args.getAssetsDir());
+        setupHome(minecraftHome, args);
 
         server = ReflectionHelper.getClass(classLoader, "net.minecraft.server.MinecraftServer");
         try {
@@ -148,7 +148,7 @@ public class FMLRelauncher {
         }
     }
 
-    private void setupHome(File minecraftHome, File assetsDir) {
+    private void setupHome(File minecraftHome, FMLArgs args) {
         FMLInjectionData.build(minecraftHome, classLoader);
         FMLRelaunchLog.minecraftHome = minecraftHome;
         FMLRelaunchLog.info("Forge Mod Loader version %s for Minecraft %s loading", FMLInjectionData.fmlversion, FMLInjectionData.mcversion, FMLInjectionData.mcpversion);
@@ -159,7 +159,7 @@ public class FMLRelauncher {
                 classLoader.setChildClassLoader(new URLClassLoader(mcDeps));
             }
             
-            RelaunchLibraryManager.handleLaunch(minecraftHome, assetsDir, classLoader);
+            RelaunchLibraryManager.handleLaunch(minecraftHome, args, classLoader);
         } catch (Throwable t) {
             if (popupWindow != null) {
                 try {

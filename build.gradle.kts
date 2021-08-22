@@ -290,6 +290,7 @@ project(":forge") {
                 taskName = "forge_client"
                 workingDirectory = project.file("run").absolutePath
                 main = "net.minecraftforge.legacydev.MainClient"
+                arg("--extractResources")
 
                 environment(
                     mapOf(

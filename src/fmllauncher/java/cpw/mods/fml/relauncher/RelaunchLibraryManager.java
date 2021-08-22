@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.common.CertificateHelper;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import cpw.mods.fml.relauncher.wrapper.FMLArgs;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -44,8 +45,8 @@ public class RelaunchLibraryManager {
     private static Map<IFMLLoadingPlugin, File> pluginLocations;
     private static List<IFMLLoadingPlugin> loadPlugins;
 
-    public static void handleLaunch(File mcDir, File assetsDir, RelaunchClassLoader actualClassLoader) {
-        if (FMLRelauncher.side().equals("CLIENT") && assetsDir != null) setupResources(mcDir, assetsDir);
+    public static void handleLaunch(File mcDir, FMLArgs args, RelaunchClassLoader actualClassLoader) {
+        if (FMLRelauncher.side().equals("CLIENT") && args != null && args.shouldExtractResources()) setupResources(mcDir, args.getAssetsDir());
         
         pluginLocations = new HashMap<>();
         loadPlugins = new ArrayList<>();
