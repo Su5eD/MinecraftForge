@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = uri("https://maven.minecraftforge.net/") }
+    }
+}
+
 rootProject.name = "fml"
 
 include(":mcp")

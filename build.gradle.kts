@@ -2,23 +2,23 @@ import de.undercouch.gradle.tasks.download.DownloadAction
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import net.minecraftforge.gradle.common.task.*
-import net.minecraftforge.gradle.common.util.MinecraftRepo
-import net.minecraftforge.gradle.mcp.MCPExtension
-import net.minecraftforge.gradle.mcp.task.DownloadMCPConfigTask
-import net.minecraftforge.gradle.mcp.task.GenerateSRG
-import net.minecraftforge.gradle.patcher.PatcherExtension
-import net.minecraftforge.gradle.patcher.task.*
+import net.minecraftforge.forge.tasks.CheckATs
+import net.minecraftforge.forge.tasks.CheckSAS
+import net.minecraftforge.gradle.common.tasks.*
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
+import net.minecraftforge.gradle.common.util.MinecraftRepo
+import net.minecraftforge.gradle.common.util.RunConfig
+import net.minecraftforge.gradle.mcp.MCPExtension
+import net.minecraftforge.gradle.mcp.tasks.DownloadMCPConfig
+import net.minecraftforge.gradle.mcp.tasks.GenerateSRG
+import net.minecraftforge.gradle.patcher.PatcherExtension
+import net.minecraftforge.gradle.patcher.tasks.*
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.ObjectId
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.FieldVisitor
-import org.objectweb.asm.MethodVisitor
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.file.Files
@@ -27,10 +27,6 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 import java.util.function.Predicate
-import java.util.zip.ZipFile
-import kotlin.text.StringBuilder
-import net.minecraftforge.gradle.common.util.RunConfig
-import org.gradle.api.tasks.JavaExec
 
 buildscript {
     repositories {
@@ -44,7 +40,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:4.1.legacy-SNAPSHOT")
+        classpath("net.minecraftforge.gradle:ForgeGradle:5.1.legacy.+")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
@@ -67,7 +63,7 @@ buildscript {
 }
 
 plugins {
-    id("net.minecrell.licenser") version "0.4"
+    id("org.cadixdev.licenser") version "0.6.1"
     id("de.undercouch.download") version "3.3.0"
     id("com.github.ben-manes.versions") version "0.22.0"
     eclipse
@@ -102,10 +98,12 @@ val artifactRepositories = listOf("https://libraries.minecraft.net", "https://ma
 
 project(":mcp") {
     apply(plugin = "net.minecraftforge.gradle.mcp")
-    
+    repositories {
+        mavenLocal()
+    }
     configure<MCPExtension> {
         setConfig(minecraftVersion)
-        pipeline = "joined"
+        pipeline.set("joined")
     }
 }
 
@@ -121,9 +119,9 @@ project(":clean") {
         }
         
         named<ExtractZip>("extractMapped") {
-            filter = Predicate { zipEntry ->
+            filter.set(Predicate { zipEntry ->
                 zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
-            }
+            })
         }
     }
 
@@ -154,9 +152,9 @@ project(":clean") {
     }
 
     configure<PatcherExtension> {
-        parent = project(":mcp")
-        mcVersion = minecraftVersion
-        patchedSrc = file("src/main/java")
+        parent.set(project(":mcp"))
+        mcVersion.set(minecraftVersion)
+        patchedSrc.set(file("src/main/java"))
         
         mappings(mappingsChannel, mappingsVersion)
         processor(postProcessor)
@@ -168,7 +166,7 @@ project(":clean") {
                 main = "mcp.client.Start"
                 workingDirectory = project.file("run").absolutePath
                 
-                property("java.library.path", tasks.getByName<ExtractNatives>("extractNatives").output.absolutePath)
+                property("java.library.path", tasks.getByName<ExtractNatives>("extractNatives").output.get().asFile.absolutePath)
             }
             
             named("clean_server") {
@@ -201,7 +199,7 @@ project(":forge") {
     apply(plugin = "maven-publish")
     apply(plugin = "eclipse")
     apply(plugin = "net.minecraftforge.gradle.patcher")
-    apply(plugin = "net.minecrell.licenser")
+    apply(plugin = "org.cadixdev.licenser")
     apply(plugin = "de.undercouch.download")
 
     group = "net.minecraftforge"
@@ -258,7 +256,7 @@ project(":forge") {
     }
     
     val specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
-    val mcpArtifact = project(":mcp").extensions.getByName<MCPExtension>("mcp").config
+    val mcpArtifact = project(":mcp").extensions.getByName<MCPExtension>("mcp").config.get()
     val versionJson = project(":mcp").file("build/mcp/downloadJson/version.json")
     val binpatchTool = "net.minecraftforge:binarypatcher:1.1.1:fatjar"
     val installerTools = "net.minecraftforge:installertools:1.1.11"
@@ -267,11 +265,11 @@ project(":forge") {
     version = getVersion(gitInfo)
 
     configure<PatcherExtension> {
-        exc(file("$rootDir/src/main/resources/forge.exc"))
-        parent = project(":clean")
-        patches = file("$rootDir/patches/minecraft")
-        patchedSrc = file("src/main/java")
-        srgPatches = true
+        excs.from(file("$rootDir/src/main/resources/forge.exc"))
+        parent.set(project(":clean"))
+        patches.set(file("$rootDir/patches/minecraft"))
+        patchedSrc.set(file("src/main/java"))
+        isSrgPatches = true
         notchObf = true
         accessTransformer(file("$rootDir/src/main/resources/forge_dev_at.cfg"))
         //sideAnnotationStripper = file("$rootDir/src/main/resources/forge.sas")
@@ -289,7 +287,7 @@ project(":forge") {
                         "mainClass" to "cpw.mods.fml.relauncher.wrapper.ClientLaunchWrapper",
                         "assetIndex" to "{asset_index}",
                         "assetDirectory" to tasks.getByName<DownloadAssets>("downloadAssets").output.absolutePath,
-                        "nativesDirectory" to tasks.getByName<ExtractNatives>("extractNatives").output.absolutePath,
+                        "nativesDirectory" to tasks.getByName<ExtractNatives>("extractNatives").output.get().asFile.absolutePath,
                         "MC_VERSION" to minecraftVersion,
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
@@ -417,23 +415,21 @@ project(":forge") {
             targetCompatibility = "1.8"
         }
         
-        named<TaskApplyPatches>("applyPatches") {
+        named<ApplyPatches>("applyPatches") {
             maxFuzzOffset = 3
         }
 
         sequenceOf("client", "server", "joined").forEach { side ->
             val name = side.capitalize()
             val gen = getByName<GenerateBinPatches>("gen${name}BinPatches")
-            gen.tool = binpatchTool
             register<ApplyBinPatches>("apply${name}BinPatches") {
                 dependsOn(gen)
-                setClean { gen.cleanJar }
-                patch = gen.output
-                tool = binpatchTool
+                clean.set(gen.cleanJar)
+                patch.set(gen.output)
             }
             
             afterEvaluate { 
-                gen.cleanJar = MavenArtifactDownloader.generate(project, "net.minecraft:$side:$minecraftVersion", true)
+                gen.cleanJar.set(MavenArtifactDownloader.generate(project, "net.minecraft:$side:$minecraftVersion", true))
             }
         }
 
@@ -460,125 +456,31 @@ project(":forge") {
 
         register<ExtractInheritance>("extractInheritance") {
             dependsOn("genJoinedBinPatches", "downloadLibraries")
-            input = getByName<GenerateBinPatches>("genJoinedBinPatches").cleanJar
+            input.set(getByName<GenerateBinPatches>("genJoinedBinPatches").cleanJar)
             doFirst {
                 val artifacts = getLibArtifacts(versionJson)
                 artifacts.forEach { art ->
                     val target = file("build/libraries/" + art["path"]?.jsonPrimitive?.content)
                     if (target.exists())
-                        addLibrary(target)
+                        libraries.add(target)
                 }
             }
         }
         
-        register("checkATs") {
-            dependsOn("genJoinedBinPatches")
-            val cleanJar = getByName<GenerateBinPatches>("genJoinedBinPatches").cleanJar
-            val patcher = project.extensions.getByType(PatcherExtension::class)
-            inputs.file(cleanJar)
-            inputs.files(patcher.accessTransformers)
-            
-            doLast {
-                val vanilla: MutableMap<String, Int> = kotlin.collections.HashMap()
-                val zip = ZipFile(cleanJar)
-                zip.entries().toList()
-                    .filter { !it.isDirectory && it.name.endsWith(".class") }
-                    .forEach { entry ->
-                        ClassReader(zip.getInputStream(entry)).accept(object : org.objectweb.asm.ClassVisitor(org.objectweb.asm.Opcodes.ASM7) {
-                            var name: String? = null
-                            override fun visit(version: Int, access: Int, name: String?, signature: String?, superName: String?, interfaces: Array<out String>?) {
-                                this.name = name
-                                vanilla[name!!] = access
-                            }
-                            override fun visitField(access: Int, name: String?, descriptor: String?, signature: String?, value: Any?): FieldVisitor? {
-                                vanilla[this.name + " " + name!!] = access
-                                return null
-                            }
-
-                            override fun visitMethod(access: Int, name: String?, desc: String?, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
-                                vanilla[this.name + " " + name!! + desc!!] = access
-                                return null
-                            }
-                        }, ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES)
-                    }
-                patcher.accessTransformers.forEach { f ->
-                    val lines: TreeMap<String, Map<String, String?>> = TreeMap()
-                    f.forEachLine { l ->
-                        var line = l
-                        val idx = line.indexOf('#')
-                        if (idx == 0 || line.isEmpty()) return@forEachLine
-                        val comment = if (idx == -1) null else line.substring(idx)
-                        if (idx != -1) line = line.substring(0, idx - 1)
-                        val (modifier, cls, desc) = (line.trim() + "     ").split(" ", limit = -1)
-                        val key = cls + if (desc.isEmpty()) "" else " $desc"
-                        val access = vanilla[key.replace('.', '/')]
-                        if (access == null) {
-                            if ((desc == "*" || desc == "*()") && vanilla[cls.replace('.', '/')] != null)
-                                println("Warning: $line")
-                            else {
-                                println("Invalid: $line")
-                                return@forEachLine
-                            }
-                        }
-                        //TODO: Check access actually changes, and expand inheretence?
-                        lines[key] = mapOf(
-                            "modifier" to modifier, 
-                            "comment" to comment
-                        )
-                    }
-                    f.writeText(lines.entries.joinToString("\n") { it.value["modifier"] + " " + it.key + (if (it.value["comment"] == null) "" else " ${it.value["comment"]}") })
-                }
-            }
-        }
-        
-        register("checkSAS") {
+        register<CheckATs>("checkATs") {
             val extractInheritance = getByName<ExtractInheritance>("extractInheritance")
-            val patcher = project.extensions.getByType(PatcherExtension::class)
+            val createSrg2Mcp = getByName<GenerateSRG>("createSrg2Mcp")
+            dependsOn(extractInheritance, createSrg2Mcp)
             
+            ats.from(project.extensions.getByType(PatcherExtension::class).accessTransformers)
+            mappings.set(createSrg2Mcp.output)
+        }
+        
+        register<CheckSAS>("checkSAS") {
+            val extractInheritance = getByName<ExtractInheritance>("extractInheritance")
             dependsOn(extractInheritance)
-            inputs.file(extractInheritance.output)
-            inputs.files(patcher.sideAnnotationStrippers)
-            
-            doLast { 
-                val json = Json.decodeFromString<JsonObject>(extractInheritance.output.readText())
-                
-                patcher.sideAnnotationStrippers.forEach { f ->
-                    val lines: MutableSet<String> = kotlin.collections.HashSet()
-                    f.forEachLine { l ->
-                        var line = l    
-                        if (line[0] == '\t') return@forEachLine //Skip any tabed lines, those are ones we add
-                        val idx = line.indexOf('#')
-                        if (idx == 0 || line.isEmpty()) {
-                            lines.add(line)
-                            return@forEachLine
-                        }
-                        
-                        val comment = if (idx == -1) null else line.substring(idx)
-                        if (idx != -1) line = line.substring(0, idx - 1)
-                        
-                        var (cls, desc) = (line.trim() + "    ").split(" ", limit = -1)
-                        cls = cls.replace(".", "/")
-                        desc = desc.replace("(", " (")
-                        val mtd = json[cls]?.jsonObject?.get("methods")?.jsonObject?.get(desc)
-                        if (desc.isEmpty() || json[cls] == null || json[cls]?.jsonObject?.get("methods") == null || mtd == null) {
-                            println("Invalid: $line")
-                            return@forEachLine
-                        }
-                        
-                        lines.add(cls + " " + desc.replace(" ","") + (if (comment == null) "" else " $comment"))
-                        json.values.filter {
-                            val methods = it.jsonObject["methods"]
-                            val descriptor = methods?.jsonObject?.get("desc")
-                            return@filter methods != null && descriptor != null && descriptor.jsonObject["override"]?.jsonPrimitive?.content == cls 
-                        }
-                            .map { it.jsonObject["name"]?.jsonPrimitive?.content + " " + desc.replace(" ", "") }
-                            .forEach {
-                                lines.add("\t" + it)
-                            }
-                    }
-                    f.writeText(lines.joinToString(separator = "\n"))
-                }
-            }
+            inheritance.set(extractInheritance.output)
+            sass.from(project.extensions.getByType(PatcherExtension::class).sideAnnotationStrippers)
         }
         
         named<Jar>("universalJar") {
@@ -598,8 +500,8 @@ project(":forge") {
                 manifests.forEach { (pkg, values) ->
                     if (pkg == "/") {
                         values += mutableMapOf(
-                                "Main-Class" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
-                                "Class-Path" to classpath.toString()
+                            "Main-Class" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
+                            "Class-Path" to classpath.toString()
                         )
                         manifest.attributes(values)
                     } else {
@@ -768,16 +670,16 @@ project(":forge") {
                             put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:slim]")
                         }
                         putJsonObject("MC_SLIM_SHA") {
-                            put("client", "'${getByName<DownloadMavenArtifact>("downloadClientSlim").output.sha1()}'")
-                            put("server", "'${getByName<DownloadMavenArtifact>("downloadServerSlim").output.sha1()}'")
+                            put("client", "'${getByName<DownloadMavenArtifact>("downloadClientSlim").output.get().asFile.sha1()}'")
+                            put("server", "'${getByName<DownloadMavenArtifact>("downloadServerSlim").output.get().asFile.sha1()}'")
                         }
                         putJsonObject("MC_EXTRA") {
                             put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:extra]")
                             put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:extra]")
                         }
                         putJsonObject("MC_EXTRA_SHA") {
-                            put("client", "'${getByName<DownloadMavenArtifact>("downloadClientExtra").output.sha1()}'")
-                            put("server", "'${getByName<DownloadMavenArtifact>("downloadServerExtra").output.sha1()}'")
+                            put("client", "'${getByName<DownloadMavenArtifact>("downloadClientExtra").output.get().asFile.sha1()}'")
+                            put("server", "'${getByName<DownloadMavenArtifact>("downloadServerExtra").output.get().asFile.sha1()}'")
                         }
                         putJsonObject("MC_SRG") {
                             put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:srg]")
@@ -788,8 +690,8 @@ project(":forge") {
                             put("server", "[${project.group}:${project.name}:${project.version}:server]")
                         }
                         putJsonObject("PATCHED_SHA") {
-                            put("client", "'${applyClientBinPatches.output.sha1()}'")
-                            put("server", "'${applyServerBinPatches.output.sha1()}'")
+                            put("client", "'${applyClientBinPatches.output.get().asFile.sha1()}'")
+                            put("server", "'${applyServerBinPatches.output.get().asFile.sha1()}'")
                         }
                         putJsonObject("MCP_VERSION") {
                             put("client", "'${mcpVersion}'")
@@ -843,7 +745,7 @@ project(":forge") {
                             put("jar", binPatcher)
                             putJsonArray("classpath") {
                                 getClasspath(project, libs, binPatcher)
-                                        .forEach { add(it) }
+                                    .forEach { add(it) }
                             }
                             putJsonArray("args") {
                                 add("--clean"); add("{MC_SLIM}")
@@ -868,7 +770,7 @@ project(":forge") {
             sequenceOf("slim", "extra").forEach { type -> 
                 val name = "download${side.capitalize()}${type.capitalize()}"
                 val task = create<DownloadMavenArtifact>(name) {
-                    artifact = "net.minecraft:${side}:${minecraftVersion}:${type}"   
+                    setArtifact("net.minecraft:${side}:${minecraftVersion}:${type}")
                 }
                 installerJson.dependsOn(name)
                 installerJson.inputs.file(task.output)
@@ -877,11 +779,11 @@ project(":forge") {
         
         register<ExtractMCPData>("extractObf2Srg") {
             dependsOn(":mcp:downloadConfig")
-            config = project(":mcp").tasks.getByName<DownloadMCPConfigTask>("downloadConfig").output
+            config.set(project(":mcp").tasks.getByName<DownloadMCPConfig>("downloadConfig").output)
         }
         
         register<DownloadMavenArtifact>("downloadInstaller") {
-            artifact = "net.minecraftforge:installer:2.0.+:shrunk"
+            setArtifact("net.minecraftforge:installer:2.0.+:shrunk")
             changing = true
         }
         
@@ -923,13 +825,13 @@ project(":forge") {
                 onlyIf {
                     jarSigner.isNotEmpty() && t.state.failure == null
                 }
-                setAlias("forge")
-                setStorePass(jarSigner["storepass"])
-                setKeyPass(jarSigner["keypass"])
-                setKeyStore(jarSigner["keystore"])
+                alias.set("forge")
+                storePass.set(jarSigner["storepass"] as String?)
+                keyPass.set(jarSigner["keypass"] as String?)
+                keyStore.set(jarSigner["keystore"] as String?)
                 val archiveFile = t.archiveFile.get().asFile
-                setInputFile(archiveFile)
-                setOutputFile(archiveFile)
+                inputFile.set(archiveFile)
+                outputFile.set(archiveFile)
                 doFirst {
                     project.logger.lifecycle("Signing: $inputFile")
                 }
@@ -962,23 +864,21 @@ project(":forge") {
         named<ProcessResources>("processFmllauncherResources") {
             inputs.property("version", project.version)
             
-            from(project.extensions.getByType(SourceSetContainer::class).getByName("fmllauncher").resources) {
-                filesMatching("*.properties") {
-                    filter(ReplaceTokens::class, tokenMap)
-                }
+            filesMatching("*.properties") {
+                filter(ReplaceTokens::class, tokenMap)
             }
         }
         
-        named<TaskGenerateUserdevConfig>("userdevConfig") {
+        named<GenerateUserdevConfig>("userdevConfig") {
             val artifacts = getArtifacts(project.configurations["installer"], true)
             artifacts.forEach { (_, lib) ->
-                addLibrary(lib["name"]?.jsonPrimitive?.content)
+                libraries.add(lib["name"]?.jsonPrimitive?.content!!)
             }
-            addLibrary("net.minecraftforge:legacydev:0.2.3.+:fatjar")
-            addLibrary("net.sourceforge.argo:argo:2.25")
-            addLibrary("org.bouncycastle:bcprov-jdk15on:1.47")
-            addLibrary("${project.group}:${project.name}:${project.version}:launcher")
-            addSourceFilter("^(?!argo|org/bouncycastle).*")
+            libraries.add("net.minecraftforge:legacydev:0.2.3.+:fatjar")
+            libraries.add("net.sourceforge.argo:argo:2.25")
+            libraries.add("org.bouncycastle:bcprov-jdk15on:1.47")
+            libraries.add("${project.group}:${project.name}:${project.version}:launcher")
+            sourceFilters.set(listOf("^(?!argo|org/bouncycastle).*"))
 
             runs {
                 register("client") {
@@ -1022,17 +922,17 @@ project(":forge") {
             archiveClassifier.set("userdev-temp")
         }
         
-        register<TaskReobfuscateJar>("userdevExtrasReobf") {
+        register<ReobfuscateJar>("userdevExtrasReobf") {
             val userdevExtras = getByName<Jar>("userdevExtras")
             val createMcp2Srg = getByName<GenerateSRG>("createMcp2Srg")
             dependsOn(userdevExtras, createMcp2Srg)
-            input = userdevExtras.archiveFile.get().asFile
-            classpath = project.configurations.getByName("compileClasspath")
-            srg = createMcp2Srg.output
+            input.set(userdevExtras.archiveFile.get().asFile)
+            classpath.setFrom(project.configurations.getByName("compileClasspath"))
+            srg.set(createMcp2Srg.output)
         }
         
         named<Jar>("userdevJar") {
-            val userdevExtrasReobf = getByName<TaskReobfuscateJar>("userdevExtrasReobf")
+            val userdevExtrasReobf = getByName<ReobfuscateJar>("userdevExtrasReobf")
             dependsOn(userdevExtrasReobf)
             from(zipTree(userdevExtrasReobf.output)) {
                 into("/inject/")
@@ -1049,9 +949,9 @@ project(":forge") {
             dependsOn("genEclipseRuns")
         }
         
-        named<TaskGeneratePatches>("genPatches") {
+        named<GeneratePatches>("genPatches") {
             doLast {
-                val outputPath = output.toPath()
+                val outputPath = output.get().asFile.toPath()
                 Files.walk(outputPath)
                         .filter { path -> 
                             val relative = outputPath.relativize(path).toString()
@@ -1064,40 +964,40 @@ project(":forge") {
         }
         
         named<ExtractZip>("extractMapped") {
-            filter = Predicate { zipEntry ->
+            filter.set(Predicate { zipEntry ->
                 zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
-            }
+            })
         }
     }
     
     if (project.hasProperty("UPDATE_MAPPINGS")) {
         val srcDirs = extensions.getByType(SourceSetContainer::class).getByName("test").java.srcDirs
-        tasks.named<TaskExtractRangeMap>("extractRangeMap") {
-            sources = srcDirs
+        tasks.named<ExtractRangeMap>("extractRangeMap") {
+            sources.from(srcDirs)
         }
-        tasks.named<TaskApplyRangeMap>("applyRangeMap") {
-            setSources(srcDirs)
+        tasks.named<ApplyRangeMap>("applyRangeMap") {
+            sources.from(srcDirs)
         }
         
-        tasks.named<TaskExtractExistingFiles>("extractMappedNew") {
-            srcDirs.forEach { addTarget(it) }
+        tasks.named<ExtractExistingFiles>("extractMappedNew") {
+            srcDirs.forEach { targets.from(it) } // TODO targets access
         }
     }
     
     license {
-        header = file("$rootDir/LICENSE-header.txt")
+        header.set(resources.text.fromFile(file("$rootDir/LICENSE-header.txt")))
     
         include("cpw/mods/fml/")
             
         tasks {
             register("fmlllauncher") {
-                files = files("$rootDir/src/fmlllauncher/java")
+                files.from("$rootDir/src/fmlllauncher/java")
             }
             register("main") {
-                files = files("$rootDir/src/main/java")
+                files.from("$rootDir/src/main/java")
             }
             register("test") {
-                files = files("$rootDir/src/test/java")
+                files.from("$rootDir/src/test/java")
             }
         }
     }

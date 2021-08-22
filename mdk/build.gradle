@@ -5,7 +5,7 @@ import net.minecraftforge.gradle.common.util.Utils
 plugins {
     id 'eclipse'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '4.1.legacy-SNAPSHOT'
+    id 'net.minecraftforge.gradle' version '5.1.legacy.+'
 }
 MinecraftRepo.MCP_URL = 'https://su5ed.jfrog.io/artifactory/maven/'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.

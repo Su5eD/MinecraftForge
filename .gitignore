@@ -9,7 +9,6 @@
 
 #gradle
 /build
-/buildSrc
 /.gradle
 
 #occupational hazards
