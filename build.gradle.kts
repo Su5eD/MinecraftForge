@@ -168,14 +168,6 @@ project(":clean") {
                 main = "mcp.client.Start"
                 workingDirectory = project.file("run").absolutePath
                 
-                args(listOf(
-                    "--gameDir", ".",
-                    "--version", mcVersion,
-                    "--assetsDir", tasks.getByName<DownloadAssets>("downloadAssets").output.absolutePath,
-                    "--assetIndex", "{asset_index}",
-                    "--accessToken", "O"
-                ))
-                
                 property("java.library.path", tasks.getByName<ExtractNatives>("extractNatives").output.absolutePath)
             }
             
