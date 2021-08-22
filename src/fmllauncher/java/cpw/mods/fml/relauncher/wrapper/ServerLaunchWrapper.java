@@ -19,7 +19,6 @@ import cpw.mods.fml.relauncher.FMLRelauncher;
 public class ServerLaunchWrapper {
     
     public static void main(String[] args) {
-        // TODO filter args as well
         FMLRelauncher.handleServerRelaunch(new FMLArgs(args, null));
     }
 }
