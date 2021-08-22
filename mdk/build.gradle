@@ -2,22 +2,13 @@ import net.minecraftforge.gradle.userdev.UserDevPlugin
 import net.minecraftforge.gradle.common.util.MinecraftRepo
 import net.minecraftforge.gradle.common.util.Utils
 
-buildscript {
-    repositories {
-        maven { url = 'https://su5ed.jfrog.io/artifactory/maven/' }
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.legacy-SNAPSHOT', changing: true
-    }
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '4.1.legacy-SNAPSHOT'
 }
-apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-
 MinecraftRepo.MCP_URL = 'https://su5ed.jfrog.io/artifactory/maven/'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 version = '1.0'
 group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -138,7 +129,7 @@ jar {
             "Specification-Vendor": "examplemodsareus",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
+            "Implementation-Version": "${archiveVersion.get()}",
             "Implementation-Vendor" :"examplemodsareus",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
