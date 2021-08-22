@@ -1,13 +1,34 @@
 --- a/net/minecraft/util/StringTranslate.java
 +++ b/net/minecraft/util/StringTranslate.java
-@@ -1,5 +1,6 @@
+@@ -1,14 +1,12 @@
  package net.minecraft.util;
  
 +import cpw.mods.fml.common.registry.LanguageRegistry;
  import cpw.mods.fml.relauncher.Side;
  import cpw.mods.fml.relauncher.SideOnly;
  import java.io.BufferedReader;
-@@ -80,6 +81,7 @@
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+-import java.util.Enumeration;
+-import java.util.IllegalFormatException;
+-import java.util.Properties;
+-import java.util.TreeMap;
++import java.util.*;
+ 
+ public class StringTranslate
+ {
+@@ -64,7 +62,9 @@
+ 
+     private void func_74812_a(Properties p_74812_1_, String p_74812_2_) throws IOException
+     {
+-        BufferedReader var3 = new BufferedReader(new InputStreamReader(StringTranslate.class.getResourceAsStream("/lang/" + p_74812_2_ + ".lang"), "UTF-8"));
++        String[] parts = p_74812_2_.split("_");
++        String name = parts[0] + "_" + parts[1].toUpperCase(Locale.ROOT);
++        BufferedReader var3 = new BufferedReader(new InputStreamReader(StringTranslate.class.getResourceAsStream("/lang/" + name + ".lang"), "UTF-8"));
+ 
+         for (String var4 = var3.readLine(); var4 != null; var4 = var3.readLine())
+         {
+@@ -80,6 +80,7 @@
                  }
              }
          }
@@ -15,7 +36,7 @@
      }
  
      public void func_74810_a(String p_74810_1_)
-@@ -138,7 +140,6 @@
+@@ -138,7 +139,6 @@
          }
      }
  
