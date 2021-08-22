@@ -9,7 +9,6 @@ import net.minecraftforge.gradle.mcp.task.DownloadMCPConfigTask
 import net.minecraftforge.gradle.mcp.task.GenerateSRG
 import net.minecraftforge.gradle.patcher.PatcherExtension
 import net.minecraftforge.gradle.patcher.task.*
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -71,7 +70,6 @@ plugins {
     id("net.minecrell.licenser") version "0.4"
     id("de.undercouch.download") version "3.3.0"
     id("com.github.ben-manes.versions") version "0.22.0"
-    id("com.github.johnrengelman.shadow") version "6.1.0" apply false
     eclipse
 }
 
@@ -94,8 +92,7 @@ var jarSigner: Map<String, Any?> = if (project.hasProperty("keystore")) {
     ) 
 } else emptyMap()
 val extraTxts = files(
-        "CREDITS-fml.txt",
-        "CREDITS-MinecraftForge.txt",
+        "CREDITS.md",
         "LICENSE-fml.txt",
         "LICENSE-MinecraftForge.txt",
         "LICENSE-Paulscode IBXM Library.txt",
@@ -214,7 +211,6 @@ project(":forge") {
     apply(plugin = "net.minecraftforge.gradle.patcher")
     apply(plugin = "net.minecrell.licenser")
     apply(plugin = "de.undercouch.download")
-    apply(plugin = "com.github.johnrengelman.shadow")
 
     group = "net.minecraftforge"
 
@@ -416,11 +412,6 @@ project(":forge") {
         installer("commons-io:commons-io:2.10.0")
         installer("commons-codec:commons-codec:1.15")
 
-        //testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.0")
-        //testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
-        //testImplementation("org.opentest4j:opentest4j:1.0.0") // needed for junit 5
-        //testImplementation("org.hamcrest:hamcrest-all:1.3") // needs advanced matching for list order
-
         implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
         implementation("org.bouncycastle:bcprov-jdk15on:1.47")
     }
@@ -435,17 +426,6 @@ project(":forge") {
         
         named<TaskApplyPatches>("applyPatches") {
             maxFuzzOffset = 3
-        }
-        
-        named<Jar>("jar") {
-            finalizedBy("shadowJar")
-        }
-        
-        named<ShadowJar>("shadowJar") {
-            configurations = emptyList()
-            relocate("net/minecraft/src/", "")
-            
-            archiveClassifier.set("")
         }
 
         sequenceOf("client", "server", "joined").forEach { side ->
@@ -1004,6 +984,7 @@ project(":forge") {
             addLibrary("net.minecraftforge:legacydev:0.2.3.+:fatjar")
             addLibrary("net.sourceforge.argo:argo:2.25")
             addLibrary("org.bouncycastle:bcprov-jdk15on:1.47")
+            addLibrary("${project.group}:${project.name}:${project.version}:launcher")
             addSourceFilter("^(?!argo|org/bouncycastle).*")
 
             runs {
@@ -1135,17 +1116,18 @@ project(":forge") {
     configure<PublishingExtension> {
         publications { 
             create<MavenPublication>("mavenJava") {
-                artifact(tasks.getByName("universalJar"))
                 if (changelog.exists()) {
                     artifact(changelog) {
                         classifier = "changelog"
                     }
                 }
                 
+                artifact(tasks.getByName("universalJar"))
                 artifact(tasks.getByName("installerJar"))
                 artifact(tasks.getByName("makeMdk"))
                 artifact(tasks.getByName("userdevJar"))
                 artifact(tasks.getByName("sourcesJar"))
+                artifact(tasks.getByName("launcherJar"))
                 
                 pom {
                     name.set("forge")

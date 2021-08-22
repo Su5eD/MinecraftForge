@@ -27,8 +27,11 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
+import org.lwjgl.Sys;
 
 import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -59,7 +62,7 @@ public class ClientLaunchWrapper {
         OptionSpec<String> password = parser.accepts("password").withRequiredArg();
         OptionSpec<String> nonOptions = parser.nonOptions();
         OptionSet optionSet = parser.parse(args);
-        List<String> values = nonOptions.values(optionSet);
+        List<String> values = new ArrayList<>(nonOptions.values(optionSet));
 
         YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Proxy.NO_PROXY, "1");
         MinecraftSessionService sessionService = authService.createMinecraftSessionService();
@@ -83,11 +86,16 @@ public class ClientLaunchWrapper {
                     .toArray(String[]::new);
         }
 
-        if (!optionSet.has(uuid))
-            throw new RuntimeException("UUID option is required when username/password are not specified");
-        GameProfile profile = new GameProfile(UUIDTypeAdapter.fromString(uuid.value(optionSet)), values.get(0));
+        if (values.size() < 1) values.add("Player" + getSystemTime() % 1000L);
+        String usernameValue = values.get(0);
+        UUID profileId = optionSet.has(uuid) ? UUIDTypeAdapter.fromString(uuid.value(optionSet)) : UUID.nameUUIDFromBytes(("OfflinePlayer:" + usernameValue).getBytes(StandardCharsets.UTF_8));
+        GameProfile profile = new GameProfile(profileId, values.get(0));
         FMLAuth.instance = new FMLAuth(profile, sessionService);
 
         return values.toArray(new String[0]);
+    }
+    
+    private static long getSystemTime() {
+        return Sys.getTime() * 1000L / Sys.getTimerResolution();
     }
 }

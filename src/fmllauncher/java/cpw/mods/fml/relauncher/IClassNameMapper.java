@@ -12,14 +12,11 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-package cpw.mods.fml.relauncher.wrapper;
+package cpw.mods.fml.relauncher;
 
-import cpw.mods.fml.relauncher.FMLRelauncher;
-
-public class ServerLaunchWrapper {
+public interface IClassNameMapper {
     
-    public static void main(String[] args) {
-        // TODO filter args as well
-        FMLRelauncher.handleServerRelaunch(args);
-    }
+    String unmapClassName(String name);
+
+    String mapClassName(String name);
 }

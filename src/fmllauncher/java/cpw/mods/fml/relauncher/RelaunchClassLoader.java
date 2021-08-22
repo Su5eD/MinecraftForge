@@ -30,21 +30,18 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RelaunchClassLoader extends URLClassLoader {
-    private static final Manifest EMPTY = new Manifest();
-    private static final String[] RESERVED = {"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
+    private static final String[] RESERVED = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
     private static final boolean DEBUG_CLASSLOADING = Boolean.parseBoolean(System.getProperty("fml.debugClassLoading", "false"));
     private final List<URL> sources;
     private final URLClassLoader parent;
     private final List<IClassTransformer> transformers;
+    private IClassNameMapper nameTransformer;
     private final Map<String, Class<?>> cachedClasses;
     private final Set<String> invalidClasses;
     private final Set<String> classLoaderExceptions = new HashSet<>();
     private final Set<String> transformerExceptions = new HashSet<>();
-    private final Map<Package, Manifest> packageManifests = new HashMap<>();
     private URLClassLoader childClassLoader;
 
     public RelaunchClassLoader(URL[] sources) {
@@ -54,7 +51,6 @@ public class RelaunchClassLoader extends URLClassLoader {
         this.cachedClasses = new HashMap<>(1000);
         this.invalidClasses = new HashSet<>(1000);
         this.transformers = new ArrayList<>(2);
-//        ReflectionHelper.setPrivateValue(ClassLoader.class, null, this, "scl");
         Thread.currentThread().setContextClassLoader(this);
 
         // standard classloader exclusions
@@ -63,7 +59,6 @@ public class RelaunchClassLoader extends URLClassLoader {
         addClassLoaderExclusion("org.lwjgl.");
         addClassLoaderExclusion("cpw.mods.fml.relauncher.");
         addClassLoaderExclusion("com.mojang.authlib.");
-        //addClassLoaderExclusion("net.minecraftforge.classloading.");
 
         // standard transformer exclusions
         addTransformerExclusion("javax.");
@@ -73,10 +68,22 @@ public class RelaunchClassLoader extends URLClassLoader {
 
     public void registerTransformer(String transformerClassName) {
         try {
-            transformers.add((IClassTransformer) loadClass(transformerClassName).newInstance());
+            IClassTransformer transformer = (IClassTransformer) loadClass(transformerClassName).newInstance();
+            transformers.add(transformer);
+            if (transformer instanceof IClassNameMapper && nameTransformer == null) {
+                nameTransformer = (IClassNameMapper) transformer;
+            }
         } catch (Exception e) {
             FMLRelaunchLog.log(Level.SEVERE, e, "A critical problem occured registering the ASM transformer class %s", transformerClassName);
         }
+    }
+    
+    private String unmapClassName(final String name) {
+        return nameTransformer != null ? nameTransformer.unmapClassName(name) : name; 
+    }
+    
+    private String mapClassName(final String name) {
+        return nameTransformer != null ? nameTransformer.mapClassName(name) : name;
     }
     
     public void setChildClassLoader(URLClassLoader ucl) {
@@ -85,21 +92,18 @@ public class RelaunchClassLoader extends URLClassLoader {
 
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
-        if (invalidClasses.contains(name)) {
-            throw new ClassNotFoundException(name);
-        }
-        for (String st : classLoaderExceptions) {
-            if (name.startsWith(st)) {
+        if (invalidClasses.contains(name)) throw new ClassNotFoundException(name);
+        
+        for (String str : classLoaderExceptions) {
+            if (name.startsWith(str)) {
                 return parent.loadClass(name);
             }
         }
 
-        if (cachedClasses.containsKey(name)) {
-            return cachedClasses.get(name);
-        }
+        if (cachedClasses.containsKey(name)) return cachedClasses.get(name);
 
-        for (String st : transformerExceptions) {
-            if (name.startsWith(st)) {
+        for (String str : transformerExceptions) {
+            if (name.startsWith(str)) {
                 try {
                     Class<?> cl = super.findClass(name);
                     cachedClasses.put(name, cl);
@@ -112,11 +116,17 @@ public class RelaunchClassLoader extends URLClassLoader {
         }
 
         try {
+            final String mappedName = mapClassName(name);
+            if (cachedClasses.containsKey(mappedName)) return cachedClasses.get(mappedName);
+            
+            final String unmappedName = unmapClassName(name);
+                        
             CodeSigner[] signers = null;
-            int lastDot = name.lastIndexOf('.');
-            String pkgname = lastDot == -1 ? "" : name.substring(0, lastDot);
-            String fName = name.replace('.', '/').concat(".class");
+            int lastDot = unmappedName.lastIndexOf('.');
+            String pkgname = lastDot == -1 ? "" : unmappedName.substring(0, lastDot);
+            String fName = unmappedName.replace('.', '/').concat(".class");
             URLConnection urlConnection = findCodeSourceConnectionFor(fName);
+            
             if (urlConnection instanceof JarURLConnection && lastDot > -1) {
                 JarURLConnection jarUrlConn = (JarURLConnection) urlConnection;
                 JarFile jf = jarUrlConn.getJarFile();
@@ -124,11 +134,10 @@ public class RelaunchClassLoader extends URLClassLoader {
                     Manifest mf = jf.getManifest();
                     JarEntry ent = jf.getJarEntry(fName);
                     Package pkg = getPackage(pkgname);
-                    getClassBytes(name);
+                    getClassBytes(unmappedName);
                     signers = ent.getCodeSigners();
                     if (pkg == null) {
-                        pkg = definePackage(pkgname, mf, jarUrlConn.getJarFileURL());
-                        packageManifests.put(pkg, mf);
+                        definePackage(pkgname, mf, jarUrlConn.getJarFileURL());
                     } else {
                         if (pkg.isSealed() && !pkg.isSealed(jarUrlConn.getJarFileURL())) {
                             FMLRelaunchLog.severe("The jar file %s is trying to seal already secured path %s", jf.getName(), pkgname);
@@ -140,17 +149,16 @@ public class RelaunchClassLoader extends URLClassLoader {
             } else if (lastDot > -1) {
                 Package pkg = getPackage(pkgname);
                 if (pkg == null) {
-                    pkg = definePackage(pkgname, null, null, null, null, null, null, null);
-                    packageManifests.put(pkg, EMPTY);
+                    definePackage(pkgname, null, null, null, null, null, null, null);
                 } else if (pkg.isSealed()) {
                     FMLRelaunchLog.severe("The URL %s is defining elements for sealed path %s", urlConnection.getURL(), pkgname);
                 }
             }
-            byte[] basicClass = getClassBytes(name);
-            byte[] transformedClass = runTransformers(name, basicClass);
+            
+            byte[] transformedClass = runTransformers(unmappedName, getClassBytes(unmappedName));
             CodeSource codeSource = urlConnection == null ? null : new CodeSource(urlConnection.getURL(), signers);
-            Class<?> cl = defineClass(name, transformedClass, 0, transformedClass.length, codeSource);
-            cachedClasses.put(name, cl);
+            Class<?> cl = defineClass(mappedName, transformedClass, 0, transformedClass.length, codeSource);
+            cachedClasses.put(mappedName, cl);
             return cl;
         } catch (Throwable e) {
             invalidClasses.add(name);
