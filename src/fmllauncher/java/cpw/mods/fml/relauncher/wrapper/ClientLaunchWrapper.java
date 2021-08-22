@@ -29,6 +29,7 @@ import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
 import org.lwjgl.Sys;
 
+import java.io.File;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -51,17 +52,19 @@ public class ClientLaunchWrapper {
      *
      * <p>Javadoc Credit: MinecraftForge</p>
      */
-    public static String[] prepareArgs(String[] args) {
+    public static FMLArgs prepareArgs(String[] args) {
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
-        Stream.of("version", "assetIndex", "gameDir", "assetsDir", "accessToken", "userProperties")
+        Stream.of("version", "assetIndex", "gameDir", "accessToken", "userProperties")
                 .map(parser::accepts)
                 .forEach(OptionSpecBuilder::withRequiredArg);
         OptionSpec<String> uuid = parser.accepts("uuid").withRequiredArg();
         OptionSpec<String> username = parser.accepts("username").withRequiredArg();
         OptionSpec<String> password = parser.accepts("password").withRequiredArg();
+        OptionSpec<String> assetsDirOpt = parser.accepts("assetsDir").withRequiredArg();
         OptionSpec<String> nonOptions = parser.nonOptions();
         OptionSet optionSet = parser.parse(args);
+        File assetsDir = new File(assetsDirOpt.value(optionSet));
         List<String> values = new ArrayList<>(nonOptions.values(optionSet));
 
         YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Proxy.NO_PROXY, "1");
@@ -82,8 +85,11 @@ public class ClientLaunchWrapper {
             GameProfile profile = new GameProfile(uuidValue, usernameValue);
             FMLAuth.instance = new FMLAuth(profile, sessionService);
             String uuidString = uuidValue.toString().replace("-", "");
-            return Stream.concat(Stream.of(usernameValue, "token:" + auth.getAuthenticatedToken() + ":" + uuidString), values.stream())
-                    .toArray(String[]::new);
+            return new FMLArgs(
+                    Stream.concat(Stream.of(usernameValue, "token:" + auth.getAuthenticatedToken() + ":" + uuidString), values.stream())
+                            .toArray(String[]::new),
+                    assetsDir
+            );
         }
 
         if (values.size() < 1) values.add("Player" + getSystemTime() % 1000L);
@@ -92,7 +98,7 @@ public class ClientLaunchWrapper {
         GameProfile profile = new GameProfile(profileId, values.get(0));
         FMLAuth.instance = new FMLAuth(profile, sessionService);
 
-        return values.toArray(new String[0]);
+        return new FMLArgs(values.toArray(new String[0]), assetsDir);
     }
     
     private static long getSystemTime() {

@@ -20,6 +20,6 @@ public class ServerLaunchWrapper {
     
     public static void main(String[] args) {
         // TODO filter args as well
-        FMLRelauncher.handleServerRelaunch(args);
+        FMLRelauncher.handleServerRelaunch(new FMLArgs(args, null));
     }
 }
