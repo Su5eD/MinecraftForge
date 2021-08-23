@@ -883,6 +883,7 @@ project(":forge") {
             runs {
                 register("client") {
                     main = "net.minecraftforge.legacydev.MainClient"
+                    arg("--extractResources")
 
                     environment(
                         mapOf(
@@ -980,7 +981,7 @@ project(":forge") {
         }
         
         tasks.named<ExtractExistingFiles>("extractMappedNew") {
-            srcDirs.forEach { targets.from(it) } // TODO targets access
+            srcDirs.forEach { targets.from(it) }
         }
     }
     
@@ -1181,7 +1182,6 @@ fun artifactTree(project: Project, artifact: String): Map<String, JsonObject> {
 }
 
 fun gitInfo(): Map<String, String> {
-    val legacyBuild = 534 // Base build number to not conflict with existing build numbers
     val git: Git
     try {
         git = Git.open(rootProject.file("."))
@@ -1200,7 +1200,7 @@ fun gitInfo(): Map<String, String> {
 
     val ret: MutableMap<String, String> = kotlin.collections.HashMap()
     ret["tag"] = desc[0]
-    ret["offset"] = (desc[1].toInt() + legacyBuild).toString()
+    ret["offset"] = desc[1]
     ret["hash"] = desc[2]
     ret["branch"] = git.repository.branch
     ret["commit"] = ObjectId.toString(head)
@@ -1220,7 +1220,7 @@ fun getVersion(info: Map<String, String>): String {
             minecraftVersion,
             "$minecraftVersion.0",
             minecraftVersion.substring(0, minecraftVersion.lastIndexOf(".")) + ".x",
-            "$minecraftVersion-FG4"        
+            "$minecraftVersion-FG5"        
         )
     )
         return "${minecraftVersion}-${info["tag"]}.${info["offset"]}"

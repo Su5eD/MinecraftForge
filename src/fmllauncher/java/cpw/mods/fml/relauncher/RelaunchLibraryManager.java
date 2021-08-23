@@ -46,7 +46,7 @@ public class RelaunchLibraryManager {
     private static List<IFMLLoadingPlugin> loadPlugins;
 
     public static void handleLaunch(File mcDir, FMLArgs args, RelaunchClassLoader actualClassLoader) {
-        if (FMLRelauncher.side().equals("CLIENT") && args != null && args.shouldExtractResources()) setupResources(mcDir, args.getAssetsDir());
+        if (args != null && args.shouldExtractResources()) setupResources(mcDir, args.getAssetsDir());
         
         pluginLocations = new HashMap<>();
         loadPlugins = new ArrayList<>();
