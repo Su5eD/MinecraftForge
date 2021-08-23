@@ -1182,6 +1182,7 @@ fun artifactTree(project: Project, artifact: String): Map<String, JsonObject> {
 }
 
 fun gitInfo(): Map<String, String> {
+    val legacyBuild = 543 // Base build number to not conflict with existing build numbers
     val git: Git
     try {
         git = Git.open(rootProject.file("."))
@@ -1200,7 +1201,7 @@ fun gitInfo(): Map<String, String> {
 
     val ret: MutableMap<String, String> = kotlin.collections.HashMap()
     ret["tag"] = desc[0]
-    ret["offset"] = desc[1]
+    ret["offset"] = (desc[1].toInt() + legacyBuild).toString()
     ret["hash"] = desc[2]
     ret["branch"] = git.repository.branch
     ret["commit"] = ObjectId.toString(head)
