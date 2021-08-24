@@ -60,10 +60,10 @@ public class FMLSanityChecker implements IFMLCallHook {
 
                 for (Certificate cert : certificates) {
                     String fingerprint = CertificateHelper.getFingerprint(cert);
-                    if (fingerprint.equals(FMLFINGERPRINT)) {
+                    if (FMLFINGERPRINT.equals(fingerprint)) {
                         FMLLog.info("Found valid fingerprint for FML. Certificate fingerprint %s", fingerprint);
                         goodFML = true;
-                    } else if (fingerprint.equals(FORGEFINGERPRINT)) {
+                    } else if (FORGEFINGERPRINT.equals(fingerprint)) {
                         FMLLog.info("Found valid fingerprint for Minecraft Forge. Certificate fingerprint %s", fingerprint);
                         goodFML = true;
                     } else {
@@ -104,5 +104,4 @@ public class FMLSanityChecker implements IFMLCallHook {
     public void injectData(Map<String, Object> data) {
         cl = (RelaunchClassLoader) data.get("classLoader");
     }
-
 }

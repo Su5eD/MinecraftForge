@@ -36,7 +36,7 @@ public class LibraryFinder {
         Path path = root.resolve(rawPath).toAbsolutePath();
         
         if (!Files.exists(path)) throw new RuntimeException("Cannot find Forge dependency");
-        else FMLRelaunchLog.finest("Found Forge dependency at " + path);
+        else FMLRelaunchLog.finest("Found Forge dep at " + path);
         
         return path;
     }

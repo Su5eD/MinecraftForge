@@ -189,7 +189,7 @@ public class RelaunchLibraryManager {
 
         for (IFMLLoadingPlugin plug : loadPlugins)
         {
-            if (plug.getASMTransformerClass()!=null)
+            if (plug.getASMTransformerClass() != null)
             {
                 for (String xformClass : plug.getASMTransformerClass())
                 {

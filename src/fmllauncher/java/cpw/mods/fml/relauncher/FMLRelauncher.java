@@ -37,6 +37,7 @@ public class FMLRelauncher {
     private final RelaunchClassLoader classLoader;
     private Object newApplet;
     private Class<? super Object> appletClass;
+    private boolean deobfEnvironment;
 
     private FMLRelauncher() {
         URLClassLoader ucl = (URLClassLoader) getClass().getClassLoader();
@@ -76,6 +77,14 @@ public class FMLRelauncher {
 
     public static String side() {
         return side;
+    }
+
+    public static boolean isDeobfEnvironment() {
+        return instance.deobfEnvironment;
+    }
+    
+    public static RelaunchClassLoader getClassLoader() {
+        return instance.classLoader;
     }
 
     private void showWindow(boolean showIt) {
@@ -129,7 +138,7 @@ public class FMLRelauncher {
 
     private Class<? super Object> setupNewClientHome(File minecraftHome) {
         Class<? super Object> client = ReflectionHelper.getClass(classLoader, "net.minecraft.client.Minecraft");
-        ReflectionHelper.setPrivateValue(client, null, minecraftHome, "minecraftDir", "an", "minecraftDir");
+        ReflectionHelper.setPrivateValue(client, null, minecraftHome, "field_71463_am", "an", "minecraftDir");
         return client;
     }
 
@@ -154,9 +163,15 @@ public class FMLRelauncher {
         FMLRelaunchLog.info("Forge Mod Loader version %s for Minecraft %s loading", FMLInjectionData.fmlversion, FMLInjectionData.mcversion, FMLInjectionData.mcpversion);
 
         try {
-            URL[] mcDeps = locateMcDeps();
-            if (mcDeps.length > 0) {
-                classLoader.setChildClassLoader(new URLClassLoader(mcDeps));
+            Class.forName("net.minecraft.block.Block", false, ClassLoader.getSystemClassLoader());
+            deobfEnvironment = true;
+        } catch (ClassNotFoundException ignored) {
+            deobfEnvironment = false;
+        }
+        
+        try {
+            if (!deobfEnvironment) {
+                classLoader.setChildClassLoader(locateMcDeps());
             }
             
             RelaunchLibraryManager.handleLaunch(minecraftHome, args, classLoader);
@@ -204,25 +219,20 @@ public class FMLRelauncher {
     }
 
     private static URL[] locateMcDeps() {
-        try {
-            Class.forName("net.minecraft.block.Block", false, ClassLoader.getSystemClassLoader());
-            return new URL[0];
-        } catch (ClassNotFoundException ignored) { // We are in an obfuscated environment
-            Path root = LibraryFinder.getLibrariesRoot();
-            Path forge = LibraryFinder.getForgePath(root);
-            Path[] mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
-            
-            return Stream.concat(Arrays.stream(mcDeps), Stream.of(forge))
-                    .map(Path::toUri)
-                    .map(uri -> {
-                        try {
-                            return uri.toURL();
-                        } catch (MalformedURLException e) {
-                            throw new RuntimeException("Cannot resolve path of library", e);
-                        }
-                    })
-                    .toArray(URL[]::new);
-        }
+        Path root = LibraryFinder.getLibrariesRoot();
+        Path forge = LibraryFinder.getForgePath(root);
+        Path[] mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
+
+        return Stream.concat(Arrays.stream(mcDeps), Stream.of(forge))
+                .map(Path::toUri)
+                .map(uri -> {
+                    try {
+                        return uri.toURL();
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException("Cannot resolve path of library", e);
+                    }
+                })
+                .toArray(URL[]::new);
     }
 
     private void relaunchApplet(Applet minecraftApplet) {

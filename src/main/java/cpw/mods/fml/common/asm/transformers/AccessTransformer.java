@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
-import cpw.mods.fml.relauncher.IClassTransformer;
+import cpw.mods.fml.relauncher.IExtendedClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -40,7 +40,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class AccessTransformer implements IClassTransformer {
+public class AccessTransformer implements IExtendedClassTransformer {
     private static final boolean DEBUG = false;
 
     private static class Modifier {
@@ -99,16 +99,16 @@ public class AccessTransformer implements IClassTransformer {
                     return true;
                 }
                 List<String> parts = Lists.newArrayList(Splitter.on(" ").trimResults().split(line));
-                if (parts.size() > 2) {
+                if (parts.size() > 3) {
                     throw new RuntimeException("Invalid config file line " + input);
                 }
                 Modifier m = new Modifier();
                 m.setTargetAccess(parts.get(0));
-                List<String> descriptor = Lists.newArrayList(Splitter.on(".").trimResults().split(parts.get(1)));
-                if (descriptor.size() == 1) {
+
+                if (parts.size() == 2) {
                     m.modifyClassVisibility = true;
                 } else {
-                    String nameReference = descriptor.get(1);
+                    String nameReference = parts.get(2);
                     int parenIdx = nameReference.indexOf('(');
                     if (parenIdx > 0) {
                         m.desc = nameReference.substring(parenIdx);
@@ -117,18 +117,21 @@ public class AccessTransformer implements IClassTransformer {
                         m.name = nameReference;
                     }
                 }
-                modifiers.put(descriptor.get(0).replace('/', '.'), m);
+                String className = parts.get(1).replace('/', '.');
+                modifiers.put(className, m);
+                if (DEBUG)
+                    System.out.printf("AT RULE: %s %s %s (type %s)\n", toBinary(m.targetAccess), m.name, m.desc, className);
                 return true;
             }
         });
     }
 
     @Override
-    public byte[] transform(String name, byte[] bytes) {
+    public byte[] transform(String name, String transformerName, byte[] bytes) {
         if (bytes == null) {
             return null;
         }
-        if (!modifiers.containsKey(name)) {
+        if (!modifiers.containsKey(transformerName)) {
             return bytes;
         }
 
@@ -136,12 +139,12 @@ public class AccessTransformer implements IClassTransformer {
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, 0);
 
-        Collection<Modifier> mods = modifiers.get(name);
+        Collection<Modifier> mods = modifiers.get(transformerName);
         for (Modifier m : mods) {
             if (m.modifyClassVisibility) {
                 classNode.access = getFixedAccess(classNode.access, m);
                 if (DEBUG) {
-                    System.out.printf("Class: %s %s -> %s%n", name, toBinary(m.oldAccess), toBinary(m.newAccess));
+                    System.out.printf("Class: %s %s -> %s%n", transformerName, toBinary(m.oldAccess), toBinary(m.newAccess));
                 }
                 continue;
             }
@@ -150,7 +153,7 @@ public class AccessTransformer implements IClassTransformer {
                     if (n.name.equals(m.name) || m.name.equals("*")) {
                         n.access = getFixedAccess(n.access, m);
                         if (DEBUG) {
-                            System.out.printf("Field: %s.%s %s -> %s%n", name, n.name, toBinary(m.oldAccess), toBinary(m.newAccess));
+                            System.out.printf("Field: %s.%s %s -> %s%n", transformerName, n.name, toBinary(m.oldAccess), toBinary(m.newAccess));
                         }
 
                         if (!m.name.equals("*")) {
@@ -163,7 +166,7 @@ public class AccessTransformer implements IClassTransformer {
                     if ((n.name.equals(m.name) && n.desc.equals(m.desc)) || m.name.equals("*")) {
                         n.access = getFixedAccess(n.access, m);
                         if (DEBUG) {
-                            System.out.printf("Method: %s.%s%s %s -> %s%n", name, n.name, n.desc, toBinary(m.oldAccess), toBinary(m.newAccess));
+                            System.out.printf("Method: %s.%s%s %s -> %s%n", transformerName, n.name, n.desc, toBinary(m.oldAccess), toBinary(m.newAccess));
                         }
 
                         if (!m.name.equals("*")) {
@@ -311,7 +314,7 @@ public class AccessTransformer implements IClassTransformer {
                     String name = cls.name.replace('/', '.').replace('\\', '.');
 
                     for (AccessTransformer trans : transformers) {
-                        entryData = trans.transform(name, entryData);
+                        entryData = trans.transform(name, name, entryData);
                     }
                 }
 

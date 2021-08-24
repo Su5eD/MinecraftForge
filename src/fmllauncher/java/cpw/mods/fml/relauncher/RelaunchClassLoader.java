@@ -37,12 +37,12 @@ public class RelaunchClassLoader extends URLClassLoader {
     private final List<URL> sources;
     private final URLClassLoader parent;
     private final List<IClassTransformer> transformers;
-    private IClassNameMapper nameTransformer;
+    private final List<IClassNameMapper> nameTransformers;
     private final Map<String, Class<?>> cachedClasses;
     private final Set<String> invalidClasses;
     private final Set<String> classLoaderExceptions = new HashSet<>();
     private final Set<String> transformerExceptions = new HashSet<>();
-    private URLClassLoader childClassLoader;
+    private ChildClassLoader childClassLoader;
 
     public RelaunchClassLoader(URL[] sources) {
         super(sources, null);
@@ -51,6 +51,7 @@ public class RelaunchClassLoader extends URLClassLoader {
         this.cachedClasses = new HashMap<>(1000);
         this.invalidClasses = new HashSet<>(1000);
         this.transformers = new ArrayList<>(2);
+        this.nameTransformers = new ArrayList<>(2);
         Thread.currentThread().setContextClassLoader(this);
 
         // standard classloader exclusions
@@ -58,20 +59,24 @@ public class RelaunchClassLoader extends URLClassLoader {
         addClassLoaderExclusion("sun.");
         addClassLoaderExclusion("org.lwjgl.");
         addClassLoaderExclusion("cpw.mods.fml.relauncher.");
+        addClassLoaderExclusion("net.minecraftforge.classloading.");
         addClassLoaderExclusion("com.mojang.authlib.");
 
         // standard transformer exclusions
         addTransformerExclusion("javax.");
         addTransformerExclusion("org.objectweb.asm.");
         addTransformerExclusion("com.google.common.");
+        addTransformerExclusion("com.google.gson.");
+        addTransformerExclusion("cpw.mods.fml.common.asm.transformers.deobf.");
+        addTransformerExclusion("cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer");
     }
 
     public void registerTransformer(String transformerClassName) {
         try {
             IClassTransformer transformer = (IClassTransformer) loadClass(transformerClassName).newInstance();
             transformers.add(transformer);
-            if (transformer instanceof IClassNameMapper && nameTransformer == null) {
-                nameTransformer = (IClassNameMapper) transformer;
+            if (transformer instanceof IClassNameMapper) {
+                nameTransformers.add((IClassNameMapper) transformer);
             }
         } catch (Exception e) {
             FMLRelaunchLog.log(Level.SEVERE, e, "A critical problem occured registering the ASM transformer class %s", transformerClassName);
@@ -79,24 +84,46 @@ public class RelaunchClassLoader extends URLClassLoader {
     }
     
     private String unmapClassName(final String name) {
-        return nameTransformer != null ? nameTransformer.unmapClassName(name) : name; 
+        for (IClassNameMapper mapper : nameTransformers) {
+            String unMapped = mapper.unmapClassName(name);
+            if (!unMapped.equals(name)) return unMapped;
+        }
+        return name; 
     }
     
     private String mapClassName(final String name) {
-        return nameTransformer != null ? nameTransformer.mapClassName(name) : name;
+        for (IClassNameMapper mapper : nameTransformers) {
+            String mapped = mapper.mapClassName(name);
+            if (!mapped.equals(name)) return mapped;
+        }
+        return name; 
     }
     
-    public void setChildClassLoader(URLClassLoader ucl) {
-        childClassLoader = ucl;
+    public void setChildClassLoader(URL[] urls) {
+        childClassLoader = new ChildClassLoader(urls, parent);
     }
 
+    private Class<?> findClass(String name, ChildClassLoader childClassLoader) throws ClassNotFoundException {
+        try {
+            Class<?> cl = childClassLoader != null ? childClassLoader.findClass(name) : super.findClass(name);
+            cachedClasses.put(name, cl);
+            return cl;
+        } catch (ClassNotFoundException e) {
+            if (childClassLoader == null) {
+                invalidClasses.add(name);
+                throw e;
+            }
+            else return findClass(name, null);
+        }
+    }
+    
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
         if (invalidClasses.contains(name)) throw new ClassNotFoundException(name);
         
         for (String str : classLoaderExceptions) {
             if (name.startsWith(str)) {
-                return parent.loadClass(name);
+                return childClassLoader != null ? childClassLoader.loadClass(name) : parent.loadClass(name);
             }
         }
 
@@ -104,24 +131,14 @@ public class RelaunchClassLoader extends URLClassLoader {
 
         for (String str : transformerExceptions) {
             if (name.startsWith(str)) {
-                try {
-                    Class<?> cl = super.findClass(name);
-                    cachedClasses.put(name, cl);
-                    return cl;
-                } catch (ClassNotFoundException e) {
-                    invalidClasses.add(name);
-                    throw e;
-                }
+                return findClass(name, childClassLoader);
             }
         }
 
         try {
-            final String mappedName = mapClassName(name);
-            if (cachedClasses.containsKey(mappedName)) return cachedClasses.get(mappedName);
-            
-            final String unmappedName = unmapClassName(name);
-                        
             CodeSigner[] signers = null;
+            String mappedName = mapClassName(name);
+            String unmappedName = unmapClassName(name);
             int lastDot = unmappedName.lastIndexOf('.');
             String pkgname = lastDot == -1 ? "" : unmappedName.substring(0, lastDot);
             String fName = unmappedName.replace('.', '/').concat(".class");
@@ -155,7 +172,7 @@ public class RelaunchClassLoader extends URLClassLoader {
                 }
             }
             
-            byte[] transformedClass = runTransformers(unmappedName, getClassBytes(unmappedName));
+            byte[] transformedClass = runTransformers(unmappedName, mappedName, getClassBytes(unmappedName));
             CodeSource codeSource = urlConnection == null ? null : new CodeSource(urlConnection.getURL(), signers);
             Class<?> cl = defineClass(mappedName, transformedClass, 0, transformedClass.length, codeSource);
             cachedClasses.put(mappedName, cl);
@@ -208,9 +225,10 @@ public class RelaunchClassLoader extends URLClassLoader {
         }
     }
 
-    private byte[] runTransformers(String name, byte[] basicClass) {
+    private byte[] runTransformers(String name, String transformedName, byte[] basicClass) {
         for (IClassTransformer transformer : transformers) {
-            basicClass = transformer.transform(name, basicClass);
+            if (transformer instanceof IExtendedClassTransformer) basicClass = ((IExtendedClassTransformer) transformer).transform(name, transformedName, basicClass);
+            else basicClass = transformer.transform(name, basicClass);
         }
         return basicClass;
     }
@@ -287,6 +305,28 @@ public class RelaunchClassLoader extends URLClassLoader {
                 } catch (IOException e) {
                     // Swallow the close exception
                 }
+            }
+        }
+    }
+    
+    // Stupid java access
+    static class ChildClassLoader extends URLClassLoader {
+
+        public ChildClassLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
+        }
+
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            return super.findClass(name);
+        }
+
+        @Override
+        public Class<?> loadClass(String name) throws ClassNotFoundException {
+            try {
+                return super.loadClass(name);
+            } catch (ClassNotFoundException ignored) {
+                return getParent().loadClass(name);
             }
         }
     }
