@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import cpw.mods.fml.relauncher.FMLRelauncher;
 import cpw.mods.fml.relauncher.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -42,6 +44,15 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class AccessTransformer implements IClassTransformer {
     private static final boolean DEBUG = false;
+    private static final FMLDeobfuscatingRemapper REMAPPER;
+    
+    static {
+        if (!FMLRelauncher.isDeobfEnvironment()) {
+            FMLDeobfuscatingRemapper.INSTANCE.setup();
+            REMAPPER = FMLDeobfuscatingRemapper.INSTANCE;
+        }
+        else REMAPPER = null;
+    }
 
     private static class Modifier {
         public String name = "";
@@ -68,7 +79,7 @@ public class AccessTransformer implements IClassTransformer {
         }
     }
 
-    private Multimap<String, Modifier> modifiers = ArrayListMultimap.create();
+    private final Multimap<String, Modifier> modifiers = ArrayListMultimap.create();
 
     public AccessTransformer() throws IOException {
         this("fml_at.cfg");
@@ -99,28 +110,46 @@ public class AccessTransformer implements IClassTransformer {
                     return true;
                 }
                 List<String> parts = Lists.newArrayList(Splitter.on(" ").trimResults().split(line));
-                if (parts.size() > 2) {
+                if (parts.size() > 3) {
                     throw new RuntimeException("Invalid config file line " + input);
                 }
                 Modifier m = new Modifier();
                 m.setTargetAccess(parts.get(0));
+                
                 List<String> descriptor = Lists.newArrayList(Splitter.on(".").trimResults().split(parts.get(1)));
-                if (descriptor.size() == 1) {
-                    m.modifyClassVisibility = true;
-                } else {
-                    String nameReference = descriptor.get(1);
-                    int parenIdx = nameReference.indexOf('(');
-                    if (parenIdx > 0) {
-                        m.desc = nameReference.substring(parenIdx);
-                        m.name = nameReference.substring(0, parenIdx);
-                    } else {
-                        m.name = nameReference;
-                    }
-                }
-                modifiers.put(descriptor.get(0).replace('/', '.'), m);
+                if (descriptor.size() <= 2) readObfLine(m, descriptor);
+                else readSrgLine(m, parts);
+                
                 return true;
             }
         });
+    }
+    
+    private void readSrgLine(Modifier m, List<String> parts) {
+        readATLine(m, parts, 2, 3, 2);
+        String className = parts.get(1).replace('.', '/');
+        modifiers.put(mapClassName(className), mapModifier(className, m));
+    }
+    
+    private void readObfLine(Modifier m, List<String> parts) {
+        readATLine(m, parts, 1, 2, 1);
+        modifiers.put(parts.get(0).replace('/', '.'), m);
+    }
+
+    private void readATLine(Modifier m, List<String> parts, int classVisibilitySize, int memberVisibilitySize, int nameReferenceIndex) {
+        int size = parts.size();
+        if (size == classVisibilitySize) {
+            m.modifyClassVisibility = true;
+        } else if (size == memberVisibilitySize) {
+            String nameReference = parts.get(nameReferenceIndex);
+            int parenIdx = nameReference.indexOf('(');
+            if (parenIdx > 0) {
+                m.desc = nameReference.substring(parenIdx);
+                m.name = nameReference.substring(0, parenIdx);
+            } else {
+                m.name = nameReference;
+            }
+        }
     }
 
     @Override
@@ -143,9 +172,8 @@ public class AccessTransformer implements IClassTransformer {
                 if (DEBUG) {
                     System.out.printf("Class: %s %s -> %s%n", name, toBinary(m.oldAccess), toBinary(m.newAccess));
                 }
-                continue;
             }
-            if (m.desc.isEmpty()) {
+            else if (m.desc.isEmpty()) {
                 for (FieldNode n : classNode.fields) {
                     if (n.name.equals(m.name) || m.name.equals("*")) {
                         n.access = getFixedAccess(n.access, m);
@@ -215,6 +243,33 @@ public class AccessTransformer implements IClassTransformer {
         }
         target.newAccess = ret;
         return ret;
+    }
+    
+    private Modifier mapModifier(String className, Modifier modifier) {
+        if (!modifier.modifyClassVisibility) {
+            if (modifier.desc.isEmpty()) modifier.name = mapFieldName(className, modifier.name);
+            else {
+                modifier.name = mapMethodName(className, modifier.name, modifier.desc);
+                modifier.desc = mapMethodDesc(modifier.desc);
+            }
+        }
+        return modifier;
+    }
+    
+    private String mapClassName(String name) {
+        return REMAPPER == null ? name : REMAPPER.map(name);
+    }
+    
+    private String mapFieldName(String owner, String name) {
+        return REMAPPER == null ? name : REMAPPER.mapFieldName(owner, name, "null");
+    }
+    
+    private String mapMethodName(String owner, String name, String desc) {
+        return REMAPPER == null ? name : REMAPPER.mapMethodName(owner, name, desc);
+    }
+    
+    private String mapMethodDesc(String desc) {
+        return REMAPPER == null ? desc : REMAPPER.mapMethodDesc(desc);
     }
 
     public static void main(String[] args) {
@@ -323,14 +378,14 @@ public class AccessTransformer implements IClassTransformer {
             if (outJar != null) {
                 try {
                     outJar.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
             }
 
             if (inJar != null) {
                 try {
                     inJar.close();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
             }
         }

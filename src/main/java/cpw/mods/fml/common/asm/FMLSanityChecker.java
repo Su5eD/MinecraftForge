@@ -104,5 +104,4 @@ public class FMLSanityChecker implements IFMLCallHook {
     public void injectData(Map<String, Object> data) {
         cl = (RelaunchClassLoader) data.get("classLoader");
     }
-
 }

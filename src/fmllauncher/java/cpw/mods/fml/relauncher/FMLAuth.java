@@ -14,9 +14,9 @@
 
 package cpw.mods.fml.relauncher;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.GameProfile;
 
 import java.util.Map;
 
@@ -37,6 +37,6 @@ public class FMLAuth {
         Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> textures = sessionService.getTextures(profile, false);
         if (textures.containsKey(type)) return textures.get(type).getUrl();
         
-        return "unknown";
+        return "https://skins.minecraft.net/MinecraftSkins/" + profile.getName() + ".png";
     }
 }

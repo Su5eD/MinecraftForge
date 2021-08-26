@@ -47,6 +47,10 @@ public class FMLInjectionData {
         mcpversion = properties.getProperty("fmlbuild.mcpversion", "missing");
     }
 
+    public static String getMcversion() {
+        return mcversion;
+    }
+
     public static Object[] data() {
         return new Object[]{fmlversion, mcversion, mcpversion, minecraftHome, containers};
     }

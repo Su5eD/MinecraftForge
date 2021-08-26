@@ -2,6 +2,7 @@ import de.undercouch.gradle.tasks.download.DownloadAction
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import lzma.streams.LzmaOutputStream
 import net.minecraftforge.forge.tasks.CheckATs
 import net.minecraftforge.forge.tasks.CheckSAS
 import net.minecraftforge.gradle.common.tasks.*
@@ -13,6 +14,7 @@ import net.minecraftforge.gradle.mcp.tasks.DownloadMCPConfig
 import net.minecraftforge.gradle.mcp.tasks.GenerateSRG
 import net.minecraftforge.gradle.patcher.PatcherExtension
 import net.minecraftforge.gradle.patcher.tasks.*
+import net.minecraftforge.srgutils.IMappingFile
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.eclipse.jgit.api.Git
@@ -44,6 +46,7 @@ buildscript {
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
+        classpath("com.github.jponge:lzma-java:1.3")
         
         classpath(kotlin("gradle-plugin", version = "1.5.0"))
         classpath(kotlin("serialization", version = "1.5.0"))
@@ -271,7 +274,7 @@ project(":forge") {
         patchedSrc.set(file("src/main/java"))
         isSrgPatches = true
         notchObf = true
-        accessTransformer(file("$rootDir/src/main/resources/forge_dev_at.cfg"))
+        accessTransformers(file("$rootDir/src/main/resources/fml_at.cfg"), file("$rootDir/src/main/resources/forge_at.cfg"))
         //sideAnnotationStripper = file("$rootDir/src/main/resources/forge.sas")
         processor(postProcessor)
 
@@ -482,8 +485,47 @@ project(":forge") {
             inheritance.set(extractInheritance.output)
             sass.from(project.extensions.getByType(PatcherExtension::class).sideAnnotationStrippers)
         }
+
+        register<ExtractMCPData>("extractObf2Srg") {
+            dependsOn(":mcp:downloadConfig")
+            config.set(project(":mcp").tasks.getByName<DownloadMCPConfig>("downloadConfig").output)
+        }
+
+        register("deobfDataLzma") {
+            val extractObf2Srg = getByName<ExtractMCPData>("extractObf2Srg")
+            dependsOn(extractObf2Srg)
+
+            val outputSrg = file("$buildDir/deobfDataLzma/data.srg")
+            val output = file("$buildDir/deobfDataLzma/data.lzma")
+
+            inputs.file(extractObf2Srg.output)
+            outputs.file(output)
+
+            doLast {
+                IMappingFile.load(extractObf2Srg.output.get().asFile)
+                    .reverse()
+                    .write(outputSrg.toPath(), IMappingFile.Format.SRG, false)
+
+                val ins = outputSrg.inputStream()
+                val os = output.outputStream()
+
+                val lzma = LzmaOutputStream.Builder(os)
+                    .useEndMarkerMode(true)
+                    .build()
+
+                ins.copyTo(lzma)
+
+                lzma.close()
+            }
+        }
         
         named<Jar>("universalJar") {
+            val deobfDataLzma = getByName("deobfDataLzma")
+            dependsOn(deobfDataLzma)
+            from(deobfDataLzma.outputs){
+                rename{"deobfuscation_data-${minecraftVersion}.lzma"}
+            }
+            
             from(extraTxts)
             
             filesMatching("*.properties") {
@@ -775,11 +817,6 @@ project(":forge") {
                 installerJson.dependsOn(name)
                 installerJson.inputs.file(task.output)
             }
-        }
-        
-        register<ExtractMCPData>("extractObf2Srg") {
-            dependsOn(":mcp:downloadConfig")
-            config.set(project(":mcp").tasks.getByName<DownloadMCPConfig>("downloadConfig").output)
         }
         
         register<DownloadMavenArtifact>("downloadInstaller") {
