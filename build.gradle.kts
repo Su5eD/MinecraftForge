@@ -406,7 +406,7 @@ project(":forge") {
         installer("commons-io:commons-io:2.10.0")
         installer("commons-codec:commons-codec:1.15")
 
-        implementation("net.minecraftforge:legacydev:0.2.3.+:fatjar")
+        implementation("net.minecraftforge:legacydev:0.2.4.0:fatjar")
         implementation("org.bouncycastle:bcprov-jdk15on:1.47")
     }
     
@@ -911,7 +911,7 @@ project(":forge") {
             artifacts.forEach { (_, lib) ->
                 libraries.add(lib["name"]?.jsonPrimitive?.content!!)
             }
-            libraries.add("net.minecraftforge:legacydev:0.2.3.+:fatjar")
+            libraries.add("net.minecraftforge:legacydev:0.2.4.0:fatjar")
             libraries.add("net.sourceforge.argo:argo:2.25")
             libraries.add("org.bouncycastle:bcprov-jdk15on:1.47")
             libraries.add("${project.group}:${project.name}:${project.version}:launcher")
