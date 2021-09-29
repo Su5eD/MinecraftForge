@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ import java.util.Set;
 import static cpw.mods.fml.common.network.FMLPacket.Type.MOD_LIST_REQUEST;
 
 public class FMLNetworkHandler {
-    private static final int FML_HASH = Hashing.murmur3_32().hashString("FML", StandardCharsets.UTF_8).asInt();
+    private static final int FML_HASH = Hashing.murmur3_32().hashString("FML").asInt();
     private static final int PROTOCOL_VERSION = 0x2;
     private static final FMLNetworkHandler INSTANCE = new FMLNetworkHandler();
 
