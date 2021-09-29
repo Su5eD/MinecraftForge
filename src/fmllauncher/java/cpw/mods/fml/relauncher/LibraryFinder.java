@@ -16,19 +16,47 @@ package cpw.mods.fml.relauncher;
 
 import net.minecraftforge.common.ForgeVersion;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LibraryFinder {
     
-    public static Path getLibrariesRoot() {
-        if (FMLInjectionData.minecraftHome == null) {
-            throw new IllegalStateException("minecraftHome hasn't been set up yet, can't resolve libraries root");
+    // Credit: MinecraftForge
+    
+    static Path getLibrariesRoot() {
+        Path asm = findJarPathFor("org/objectweb/asm/Opcodes.class", "asm");
+        Path libs = asm.getParent().getParent().getParent().getParent().getParent().getParent();
+        FMLRelaunchLog.finest("Found probable library path %s", libs);
+        return libs;
+    }
+
+    public static Path findJarPathFor(String className, String jarName) {
+        URL resource = LibraryFinder.class.getClassLoader().getResource(className);
+        return findJarPathFor(className, jarName, resource);
+    }
+
+    public static Path findJarPathFor(String resourceName, String jarName, URL resource) {
+        try {
+            URI uri = resource.toURI();
+            Path path;
+            if (uri.getRawSchemeSpecificPart().contains("!")) {
+                path = Paths.get(new URI(uri.getRawSchemeSpecificPart().split("!")[0]));
+            } else {
+                path = Paths.get(new URI("file://" + uri.getRawSchemeSpecificPart().substring(0, uri.getRawSchemeSpecificPart().length() - resourceName.length())));
+            }
+
+            FMLRelaunchLog.finest("Found JAR %s at path %s", jarName, path.toString());
+            return path;
+        } catch (URISyntaxException | NullPointerException var5) {
+            FMLRelaunchLog.severe("Failed to find JAR for class %s - %s", resourceName, jarName);
+            throw new RuntimeException("Unable to locate " + resourceName + " - " + jarName, var5);
         }
-        
-        return FMLInjectionData.minecraftHome.toPath().resolve("libraries");
     }
     
     public static Path getForgePath(Path root) {
