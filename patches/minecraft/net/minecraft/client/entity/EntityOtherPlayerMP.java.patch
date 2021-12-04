@@ -13,7 +13,7 @@
          if (p_i3117_2_ != null && p_i3117_2_.length() > 0)
          {
 -            this.field_70120_cr = "http://skins.minecraft.net/MinecraftSkins/" + StringUtils.func_76338_a(p_i3117_2_) + ".png";
-+            this.field_70120_cr = FMLAuth.instance.getTextureURL(MinecraftProfileTexture.Type.SKIN);
++            this.field_70120_cr = FMLAuth.instance.getTextureURL(this.field_71092_bJ, MinecraftProfileTexture.Type.SKIN);
          }
  
          this.field_70145_X = true;
@@ -22,7 +22,7 @@
      public void func_70059_ac()
      {
 -        this.field_71084_cw = "http://skins.minecraft.net/MinecraftCloaks/" + StringUtils.func_76338_a(this.field_71092_bJ) + ".png";
-+        this.field_71084_cw = FMLAuth.instance.getTextureURL(MinecraftProfileTexture.Type.CAPE);
++        this.field_71084_cw = FMLAuth.instance.getTextureURL(this.field_71092_bJ, MinecraftProfileTexture.Type.CAPE);
          this.field_70119_cs = this.field_71084_cw;
      }
  

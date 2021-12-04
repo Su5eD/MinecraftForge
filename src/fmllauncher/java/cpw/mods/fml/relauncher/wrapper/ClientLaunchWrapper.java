@@ -16,11 +16,11 @@ package cpw.mods.fml.relauncher.wrapper;
 
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.UserAuthentication;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mojang.util.UUIDTypeAdapter;
 import cpw.mods.fml.relauncher.FMLAuth;
 import cpw.mods.fml.relauncher.FMLRelauncher;
 import joptsimple.OptionParser;
@@ -31,7 +31,6 @@ import org.lwjgl.Sys;
 
 import java.io.File;
 import java.net.Proxy;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +39,7 @@ import java.util.stream.Stream;
 public class ClientLaunchWrapper {
     
     public static void main(String[] args) {
-        FMLRelauncher.handleClientRelaunch(prepareArgs(args));
+        FMLRelauncher.handleClientRelaunch(processArgs(args));
     }
 
     /**
@@ -52,14 +51,13 @@ public class ClientLaunchWrapper {
      *
      * <p>Javadoc Credit: MinecraftForge</p>
      */
-    public static FMLArgs prepareArgs(String[] args) {
+    public static FMLArgs processArgs(String[] args) {
         OptionParser parser = new OptionParser();
         parser.allowsUnrecognizedOptions();
         parser.accepts("extractResources");
-        Stream.of("version", "assetIndex", "gameDir", "accessToken", "userProperties")
+        Stream.of("version", "assetIndex", "gameDir", "accessToken", "userProperties", "uuid")
                 .map(parser::accepts)
                 .forEach(OptionSpecBuilder::withRequiredArg);
-        OptionSpec<String> uuid = parser.accepts("uuid").withRequiredArg();
         OptionSpec<String> username = parser.accepts("username").withRequiredArg();
         OptionSpec<String> password = parser.accepts("password").withRequiredArg();
         OptionSpec<String> assetsDirOpt = parser.accepts("assetsDir").withRequiredArg();
@@ -70,7 +68,10 @@ public class ClientLaunchWrapper {
         List<String> values = new ArrayList<>(nonOptions.values(optionSet));
 
         YggdrasilAuthenticationService authService = new YggdrasilAuthenticationService(Proxy.NO_PROXY, "1");
+        GameProfileRepository profileRepository = authService.createProfileRepository();
         MinecraftSessionService sessionService = authService.createMinecraftSessionService();
+        FMLAuth.instance = new FMLAuth(profileRepository, sessionService);
+        
         if (optionSet.has(username) && optionSet.has(password)) {
             String usernameValue = username.value(optionSet);
             UserAuthentication auth = authService.createUserAuthentication(Agent.MINECRAFT);
@@ -83,24 +84,16 @@ public class ClientLaunchWrapper {
                 throw new RuntimeException("Login failed!", e);
             }
 
-            UUID uuidValue = auth.getSelectedProfile().getId();
-            GameProfile profile = new GameProfile(uuidValue, usernameValue);
-            FMLAuth.instance = new FMLAuth(profile, sessionService);
+            GameProfile profile = auth.getSelectedProfile();
+            UUID uuidValue = profile.getId();
             String uuidString = uuidValue.toString().replace("-", "");
-            return new FMLArgs(
-                    Stream.concat(Stream.of(usernameValue, "token:" + auth.getAuthenticatedToken() + ":" + uuidString), values.stream())
-                            .toArray(String[]::new),
-                    assetsDir,
-                    extractResources
-            );
+            String[] newArgs = Stream.concat(Stream.of(profile.getName(), "token:" + auth.getAuthenticatedToken() + ":" + uuidString), values.stream())
+                    .toArray(String[]::new); 
+            return new FMLArgs(newArgs, assetsDir, extractResources);
         }
 
         if (values.size() < 1) values.add("Player" + getSystemTime() % 1000L);
-        String usernameValue = values.get(0);
-        UUID profileId = optionSet.has(uuid) ? UUIDTypeAdapter.fromString(uuid.value(optionSet)) : UUID.nameUUIDFromBytes(("OfflinePlayer:" + usernameValue).getBytes(StandardCharsets.UTF_8));
-        GameProfile profile = new GameProfile(profileId, values.get(0));
-        FMLAuth.instance = new FMLAuth(profile, sessionService);
-
+        
         return new FMLArgs(values.toArray(new String[0]), assetsDir, extractResources);
     }
     
