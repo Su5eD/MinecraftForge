@@ -12,7 +12,10 @@ import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.tasks.DownloadMCPConfig
 import net.minecraftforge.gradle.mcp.tasks.GenerateSRG
 import net.minecraftforge.gradle.patcher.PatcherExtension
-import net.minecraftforge.gradle.patcher.tasks.*
+import net.minecraftforge.gradle.patcher.tasks.ApplyPatches
+import net.minecraftforge.gradle.patcher.tasks.GenerateBinPatches
+import net.minecraftforge.gradle.patcher.tasks.GeneratePatches
+import net.minecraftforge.gradle.patcher.tasks.GenerateUserdevConfig
 import net.minecraftforge.srgutils.IMappingFile
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -185,11 +188,8 @@ allprojects {
             if (requested.name == "jopt-simple") {
                 useVersion("5.0.4")
             }
-            
-            if (requested.name == "asm-all") {
-                useVersion("5.2")
-            }
         }
+        exclude(group = "org.ow2.asm", module = "asm-all")
     }
 }
 
@@ -232,17 +232,6 @@ project(":forge") {
             }
             resources {
                 srcDirs("$rootDir/src/test/resources")
-            }
-        }
-        create("userdev") {
-            val runtime = getByName("main").runtimeClasspath
-            compileClasspath += runtime
-            runtimeClasspath += runtime
-            java {
-                srcDirs("$rootDir/src/userdev/java")
-            }
-            resources {
-                srcDirs("$rootDir/src/userdev/resources")
             }
         }
     }
@@ -942,32 +931,7 @@ project(":forge") {
             }
         }
         
-        register<Jar>("userdevExtras") {
-            dependsOn("classes")
-            from(project.extensions.getByType(SourceSetContainer::class).getByName("userdev").output)
-            archiveClassifier.set("userdev-temp")
-        }
-        
-        register<ReobfuscateJar>("userdevExtrasReobf") {
-            val userdevExtras = getByName<Jar>("userdevExtras")
-            val createMcp2Srg = getByName<GenerateSRG>("createMcp2Srg")
-            dependsOn(userdevExtras, createMcp2Srg)
-            input.set(userdevExtras.archiveFile.get().asFile)
-            classpath.setFrom(project.configurations.getByName("compileClasspath"))
-            srg.set(createMcp2Srg.output)
-        }
-        
         named<Jar>("userdevJar") {
-            val userdevExtrasReobf = getByName<ReobfuscateJar>("userdevExtrasReobf")
-            dependsOn(userdevExtrasReobf)
-            from(zipTree(userdevExtrasReobf.output)) {
-                into("/inject/")
-            }
-            project.extensions.getByType(SourceSetContainer::class).getByName("userdev").output.resourcesDir?.let {
-                from (it) {
-                    into("/inject/")
-                }
-            }
             archiveClassifier.set("userdev3")
         }
         
