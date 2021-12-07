@@ -7,7 +7,6 @@ import net.minecraftforge.forge.tasks.CheckATs
 import net.minecraftforge.forge.tasks.CheckSAS
 import net.minecraftforge.gradle.common.tasks.*
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
-import net.minecraftforge.gradle.common.util.MinecraftRepo
 import net.minecraftforge.gradle.common.util.RunConfig
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.tasks.DownloadMCPConfig
@@ -33,16 +32,16 @@ import java.util.function.Predicate
 buildscript {
     repositories {
         mavenLocal()
+        mavenCentral()
         maven {
             url = uri("https://su5ed.jfrog.io/artifactory/maven/")
         }
-        mavenCentral()
         maven {
             url = uri("https://maven.minecraftforge.net/")
         }
     }
     dependencies {
-        classpath("net.minecraftforge.gradle:ForgeGradle:5.1.legacy.+")
+        classpath("net.minecraftforge.gradle:ForgeGradle:5.1-legacy.+")
         classpath("org.ow2.asm:asm:7.1")
         classpath("org.ow2.asm:asm-tree:7.1")
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r")
@@ -72,8 +71,6 @@ plugins {
     eclipse
 }
 
-MinecraftRepo.MCP_URL = "https://su5ed.jfrog.io/artifactory/maven/"
-
 val minecraftVersion = "1.4.7"
 val mappingsChannel = "stable"
 val mcpVersion = "7.26"
@@ -97,13 +94,27 @@ val extraTxts = files(
         "LICENSE-Paulscode IBXM Library.txt",
         "LICENSE-Paulscode SoundSystem CodecIBXM.txt"
 )
-val artifactRepositories = listOf("https://libraries.minecraft.net", "https://maven.minecraftforge.net", "https://su5ed.jfrog.io/artifactory/maven")
+val SU5ED_MAVEN = "https://su5ed.jfrog.io/artifactory/maven/"
+val artifactRepositories = listOf("https://libraries.minecraft.net", "https://maven.minecraftforge.net", SU5ED_MAVEN)
+
+subprojects { 
+    repositories { 
+        exclusiveContent { 
+            forRepository {
+                maven { 
+                    name = "argo"
+                    url = uri(SU5ED_MAVEN)
+                }
+            }
+            filter {
+                includeGroup("net.sourceforge.argo")
+            }
+        }
+    }
+}
 
 project(":mcp") {
     apply(plugin = "net.minecraftforge.gradle.mcp")
-    repositories {
-        mavenLocal()
-    }
     configure<MCPExtension> {
         setConfig(minecraftVersion)
         pipeline.set("joined")
@@ -125,20 +136,6 @@ project(":clean") {
             filter.set(Predicate { zipEntry ->
                 zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
             })
-        }
-    }
-
-    repositories {
-        exclusiveContent { 
-            forRepository {
-                maven {
-                    name = "argo"
-                    url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-                }
-            }
-            filter {
-                includeGroup("net.sourceforge.argo")
-            }
         }
     }
 
@@ -348,9 +345,9 @@ project(":forge") {
     )
     
     configurations {
-        val installer = register("installer") {
+        val installer = create("installer") {
             isTransitive = false //Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
-        }.get()
+        }
         val implementation = getByName("implementation")
     
         named("api") {
@@ -371,20 +368,11 @@ project(":forge") {
 
     repositories {
         maven {
-            name = "artifactory"
-            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-        }
-        mavenCentral()
-
-        exclusiveContent {
-            forRepository {
-                maven {
-                    name = "argo"
-                    url = uri("https://su5ed.jfrog.io/artifactory/maven/")
-                }
-            }
-            filter {
-                includeGroup("net.sourceforge.argo")
+            name = "Su5eD"
+            url = uri(SU5ED_MAVEN)
+            content { 
+                includeGroup("de.oceanlabs.mcp")
+                includeModule("net.minecraftforge", "legacydev")
             }
         }
     }
@@ -1053,12 +1041,9 @@ project(":forge") {
                     }
                 }
                 
-                artifact(tasks.getByName("universalJar"))
-                artifact(tasks.getByName("installerJar"))
-                artifact(tasks.getByName("makeMdk"))
-                artifact(tasks.getByName("userdevJar"))
-                artifact(tasks.getByName("sourcesJar"))
-                artifact(tasks.getByName("launcherJar"))
+                sequenceOf("universalJar", "installerJar", "makeMdk", "userdevJar", "sourcesJar", "launcherJar")
+                    .map(tasks::getByName)
+                    .forEach(::artifact)
                 
                 pom {
                     name.set("forge")
@@ -1103,7 +1088,7 @@ project(":forge") {
             if (project.hasProperty("artifactoryPassword")) {
                 maven {
                     name = "artifactory"
-                    url = uri("https://su5ed.jfrog.io/artifactory/maven")
+                    url = uri(SU5ED_MAVEN)
                     credentials { 
                         username = project.properties["artifactoryUser"] as String
                         password = project.properties["artifactoryPassword"] as String
