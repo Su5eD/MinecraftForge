@@ -17,4 +17,10 @@
 
 #Patch reject
 *.rej
-projects
+
+projects/mcp/*
+projects/clean/*
+projects/forge/*
+
+
+!projects/*/build.gradle.kts
