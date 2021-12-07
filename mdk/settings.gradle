@@ -11,7 +11,7 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         maven {
-            name 'Su5eD'
+            name 'Su5eD Artifactory'
             url 'https://su5ed.jfrog.io/artifactory/maven/'
         }
         maven {
