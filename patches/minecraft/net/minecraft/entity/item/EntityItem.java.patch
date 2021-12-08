@@ -70,7 +70,7 @@
  
          if (this.func_92059_d() != null)
          {
-@@ -244,20 +277,39 @@
+@@ -244,9 +277,16 @@
          NBTTagCompound var2 = p_70037_1_.func_74775_l("Item");
          this.func_92058_a(ItemStack.func_77949_a(var2));
  
@@ -88,22 +88,22 @@
          }
      }
  
-     public void func_70100_b_(EntityPlayer p_70100_1_)
+@@ -254,10 +294,22 @@
      {
-+        if (this.field_70293_c > 0)
-+        {
-+            return;
-+        }
-+        
-+        EntityItemPickupEvent event = new EntityItemPickupEvent(p_70100_1_, this);
-+        
-+        if (MinecraftForge.EVENT_BUS.post(event))
-+        {
-+            return;
-+        }
-+        
          if (!this.field_70170_p.field_72995_K)
          {
++            if (this.field_70293_c > 0)
++            {
++                return;
++            }
++            
++            EntityItemPickupEvent event = new EntityItemPickupEvent(p_70100_1_, this);
++            
++            if (MinecraftForge.EVENT_BUS.post(event))
++            {
++                return;
++            }
++            
              ItemStack var2 = this.func_92059_d();
              int var3 = var2.field_77994_a;
  
