@@ -214,6 +214,7 @@ repositories {
             includeModule("net.minecraftforge", "legacydev")
         }
     }
+    mavenCentral()
 }
 
 dependencies {
@@ -224,8 +225,8 @@ dependencies {
     installer("com.google.code.gson:gson:2.3")
     installer("net.sourceforge.argo:argo:2.25")
     installer("com.mojang:authlib:2.1.28")
-    installer("org.apache.logging.log4j:log4j-core:2.5")
-    installer("org.apache.logging.log4j:log4j-api:2.5")
+    installer("org.apache.logging.log4j:log4j-core:2.15.0")
+    installer("org.apache.logging.log4j:log4j-api:2.15.0")
     installer("org.apache.commons:commons-lang3:3.12.0")
     installer("commons-io:commons-io:2.10.0")
     installer("commons-codec:commons-codec:1.15")
