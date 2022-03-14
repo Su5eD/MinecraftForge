@@ -19,20 +19,25 @@
 
 package net.minecraftforge.fml.loading;
 
+import cpw.mods.jarhandling.SecureJar;
 import cpw.mods.modlauncher.api.LamdbaExceptionUtils;
 import cpw.mods.modlauncher.api.NamedPath;
 import cpw.mods.modlauncher.serviceapi.ITransformerDiscoveryService;
 import org.apache.logging.log4j.LogManager;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipFile;
 
 public class ModDirTransformerDiscoverer implements ITransformerDiscoveryService {
+    private static final List<String> SERVICE_SEARCH = Arrays.asList(
+        "cpw.mods.modlauncher.api.ITransformationService",
+        "net.minecraftforge.forgespi.locating.IModLocator"
+    );
+    
     @Override
     public List<NamedPath> candidates(final Path gameDirectory) {
         ModDirTransformerDiscoverer.scan(gameDirectory);
@@ -59,17 +64,11 @@ public class ModDirTransformerDiscoverer implements ITransformerDiscoveryService
     }
 
     private static void visitFile(Path path) {
-        if (!Files.isRegularFile(path)) return;
-        if (!path.toString().endsWith(".jar")) return;
-        if (LamdbaExceptionUtils.uncheck(() -> Files.size(path)) == 0) return;
-        try (ZipFile zf = new ZipFile(new File(path.toUri()))) {
-            if (zf.getEntry("META-INF/services/cpw.mods.modlauncher.api.ITransformationService") != null) {
-                found.add(new NamedPath(zf.getName(), path));
-            } else if (zf.getEntry("META-INF/services/net.minecraftforge.forgespi.locating.IModLocator") != null) {
-                found.add(new NamedPath(zf.getName(), path));
-            }
-        } catch (IOException ioe) {
-            LogManager.getLogger().error("Zip Error when loading jar file {}", path, ioe);
+        if (Files.isRegularFile(path) && path.toString().endsWith(".jar") && LamdbaExceptionUtils.uncheck(() -> Files.size(path)) != 0) {
+            SecureJar jar = SecureJar.from(path);
+            jar.getProviders().stream()
+                    .filter(p -> SERVICE_SEARCH.contains(p.serviceName()))
+                    .forEach(p -> found.add(new NamedPath(jar.name(), path)));
         }
     }
 }

@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.jar.Manifest;
 
 public abstract class AbstractModLocator implements IModLocator {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -45,12 +44,7 @@ public abstract class AbstractModLocator implements IModLocator {
 
     protected Optional<IModFile> createMod(Path... path) {
         var mjm = new ModJarMetadata();
-        var sj = SecureJar.from(
-                Manifest::new,
-                jar -> jar.findFile(MODS_TOML).isPresent() ? mjm : JarMetadata.from(jar, path),
-                (root, p) -> true,
-                path
-        );
+        var sj = SecureJar.from(jar -> jar.findFile(MODS_TOML).isPresent() ? mjm : JarMetadata.from(jar, path), path);
 
         IModFile mod;
         var type = sj.getManifest().getMainAttributes().getValue(ModFile.TYPE);
