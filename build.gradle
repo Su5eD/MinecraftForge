@@ -30,6 +30,7 @@ plugins {
     id 'net.minecraftforge.gradleutils' version '2.+'
     id 'eclipse'
     id 'de.undercouch.download' version '4.1.2'
+    id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
 }
 
 Util.init() //Init all our extension methods!
@@ -53,7 +54,6 @@ ext {
     EVENTBUS_VERSION = '5.0.3'
     MODLAUNCHER_VERSION = '9.1.3'
     SECUREJARHANDLER_VERSION = '1.0.3'
-    BOOTSTRAPLAUNCHER_VERSION = '1.0.0'
     ASM_VERSION = '9.2'
     INSTALLER_VERSION = '2.1.+'
     MIXIN_VERSION = '0.8.5'
@@ -139,6 +139,10 @@ subprojects {
     }
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+    plugins.withId('org.javamodularity.moduleplugin') {
+        modularity.moduleVersion(FORGE_VERSION)
+    }
 
     tasks.withType(Javadoc).configureEach {
         options.tags = [
@@ -242,14 +246,6 @@ project(':clean') {
 }
 
 def sharedDeps = {
-    moduleonly "cpw.mods:securejarhandler:${SECUREJARHANDLER_VERSION}"
-    moduleonly "org.ow2.asm:asm:${ASM_VERSION}"
-    moduleonly "org.ow2.asm:asm-commons:${ASM_VERSION}"
-    moduleonly "org.ow2.asm:asm-tree:${ASM_VERSION}"
-    moduleonly "org.ow2.asm:asm-util:${ASM_VERSION}"
-    moduleonly "org.ow2.asm:asm-analysis:${ASM_VERSION}"
-    moduleonly "cpw.mods:bootstraplauncher:${BOOTSTRAPLAUNCHER_VERSION}"
-
     installer "cpw.mods:securejarhandler:${SECUREJARHANDLER_VERSION}"
     installer "org.ow2.asm:asm:${ASM_VERSION}"
     installer "org.ow2.asm:asm-commons:${ASM_VERSION}"
@@ -350,10 +346,6 @@ def sharedFmlonlyForge = { Project prj ->
     prj.tasks.userdevConfig {
         def launchPrefix = prj.name == "forge" ? "forge" : "fml"
         getArtifacts(prj, prj.configurations.installer, true).each { key, lib -> libraries.add(lib.name) }
-        getArtifacts(prj, prj.configurations.moduleonly, true).each { key, lib ->
-            libraries.add(lib.name)
-            modules.add(lib.name)
-        }
         for (child in prj.ext.PACKED_DEPS) {
             libraries.add(Util.getMavenDep(rootProject.tasks.findByPath(child)))
         }
@@ -406,11 +398,13 @@ def sharedFmlonlyForge = { Project prj ->
         }
     }
 
+    def EXCLUDED_MODULES = [ 'net.minecraft:client', 'net.minecraftforge:fmlcore', 'net.minecraftforge:javafmllanguage', 'net.minecraftforge:mclanguage', 'net.minecraftforge:mergetool' ] +
+            (prj.group + ':' + prj.name)
     def userdevRuns = prj.tasks.userdevConfig.runs
     for (def run : prj.patcher.runs + userdevRuns) {
         if (run.parents) continue // We already added this to the parent run config
         //run.property 'bsl.debug', 'true'
-        run.main 'cpw.mods.bootstraplauncher.BootstrapLauncher'
+        run.main 'cpw.mods.modlauncher.Launcher'
 
         run.args '--gameDir', '.'
         run.args '--fml.forgeVersion', FORGE_VERSION
@@ -424,22 +418,29 @@ def sharedFmlonlyForge = { Project prj ->
             run.client false
         }
 
-        // SecureJarHandler bootstrap values.
-        run.property 'ignoreList', prj.configurations.moduleonly.files.collect {it.name.replaceAll(/([-_]([.\d]*\d+)|\.jar$)/, '') }.join(',') + ",client-extra,fmlcore,javafmllanguage,mclanguage,${prj.name}-"
-        // FIXME: Without this jna doesn't work at runtime. Someone figure out why please?
-        run.property 'mergeModules', 'jna-5.10.0.jar,jna-platform-5.10.0.jar,java-objc-bridge-1.0.0.jar'
         if (userdevRuns.contains(run)) {
-            run.property 'legacyClassPath.file', '{minecraft_classpath_file}'
-            run.jvmArgs '-p', '{modules}'
+            run.token 'excluded_modules', EXCLUDED_MODULES.join(",")
+            run.jvmArgs '-p', '{module_classpath}'
         } else {
-            run.property 'legacyClassPath.file', '{runtime_classpath_file}'
-            run.jvmArgs '-p', prj.configurations.moduleonly.files.collect { it.path }.join(File.pathSeparator)
+            run.lazyToken('module_dev_classpath', {
+                prj.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts
+                        .findAll {
+                            def id = it.moduleVersion.id
+                            def artifactName = id.group + ':' + id.name
+                            
+                            !(artifactName in EXCLUDED_MODULES) && it.extension == 'jar'
+                        }
+                        .collect { it.file.absolutePath }
+                        .join(File.pathSeparator)
+            })
+            run.jvmArgs '-p', '{module_dev_classpath}'
         }
         run.jvmArgs '--add-modules', 'ALL-MODULE-PATH'
         // Additions to these JVM module args should be mirrored to server_files/args.txt and other similar blocks in the buildscript
         run.jvmArgs '--add-opens', 'java.base/java.util.jar=cpw.mods.securejarhandler'
         run.jvmArgs '--add-exports', 'java.base/sun.security.util=cpw.mods.securejarhandler'
         run.jvmArgs '--add-exports', 'jdk.naming.dns/com.sun.jndi.dns=java.naming'
+        run.jvmArgs '--add-opens', 'java.base/java.lang=net.minecraftforge.fmlloader'
     }
     for (def run : prj.patcher.runs) {
         if (run.parents) continue // We already added this to the parent run config
@@ -475,7 +476,6 @@ def sharedFmlonlyForge = { Project prj ->
         }
     }
 
-    def MODULE_PATH = Util.getArtifacts(prj, prj.configurations.moduleonly, false).values().collect{"libraries/${it.downloads.artifact.path}"}
     def tokens = [
             TASK:          prj.name.equals('forge') ? 'forgeserver' : 'fmlserver',
             MAVEN_PATH:    prj.ext.MAVEN_PATH.toString(),
@@ -483,22 +483,22 @@ def sharedFmlonlyForge = { Project prj ->
             MC_VERSION:    MC_VERSION,
             MCP_VERSION:   MCP_VERSION,
             FORGE_GROUP:   prj.group,
-            IGNORE_LIST: Util.getArtifacts(prj, prj.configurations.moduleonly, false).values().collect{it.downloads.artifact.path.rsplit('/', 1)[1]}.join(','),
             MODULES: 'ALL-MODULE-PATH'
     ]
     
     prj.task([dependsOn: rootProject.downloadServerRaw], 'makeClasspathFiles') {
         doLast {
-            def CLASS_PATH = Util.getArtifacts(prj, prj.configurations.installer, false).values().collect{"libraries/${it.downloads.artifact.path}"} +
+            def MODULE_PATH = Util.getArtifacts(prj, prj.configurations.installer, false).values().collect{"libraries/${it.downloads.artifact.path}"} + 
             [
                 'libraries/' + Util.getMavenPath(rootProject.tasks.findByPath(':fmlloader:jar')),
-                "libraries/net/minecraft/server/${MC_VERSION}-${MCP_VERSION}/server-${MC_VERSION}-${MCP_VERSION}-extra.jar"
             ]
-            def claimed = CLASS_PATH.collect{ it.rsplit('/', 2)[0] }.toSet() // Allow us to override versions
+            def claimed = MODULE_PATH.collect{ it.rsplit('/', 2)[0] }.toSet() // Allow us to override versions
             try (def zip = new java.util.zip.ZipFile(rootProject.downloadServerRaw.dest)) {
-                CLASS_PATH += zip.getInputStream(zip.getEntry('META-INF/classpath-joined')).text.split(';')
+                MODULE_PATH += zip.getInputStream(zip.getEntry('META-INF/classpath-joined')).text.split(';')
                     .findAll{ it.startsWith('libraries/') && !claimed.contains(it.rsplit('/', 2)[0]) }
             }
+
+            def CLASS_PATH = [ "libraries/net/minecraft/server/${MC_VERSION}-${MCP_VERSION}/server-${MC_VERSION}-${MCP_VERSION}-extra.jar" ]
 
             configure(prj.installerJar) {
                 from(rootProject.file('server_files/args.txt')) {
@@ -539,6 +539,7 @@ project(':fmlonly') {
 
     ext {
         MCP_ARTIFACT = project(':mcp').mcp.config.get()
+        VERSION_JSON = project(':mcp').file('build/mcp/downloadJson/version.json')
         PACKED_DEPS = [':fmlcore:jar', ':fmlloader:jar', ':javafmllanguage:jar', ':mclanguage:jar']
         MAVEN_PATH = "${group.replace('.', '/')}/${project.name}/${VERSION}"
     }
@@ -555,7 +556,6 @@ project(':fmlonly') {
     }
 
     configurations {
-        moduleonly
         installer {
             // Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
             transitive = false
@@ -569,7 +569,6 @@ project(':fmlonly') {
         implementation project(':fmlloader')
         implementation project(':javafmllanguage')
         implementation project(':mclanguage')
-        runtimeOnly "cpw.mods:bootstraplauncher:${BOOTSTRAPLAUNCHER_VERSION}"
     }
     dependencies sharedDeps
 
@@ -601,17 +600,20 @@ project(':fmlonly') {
 
     sharedFmlonlyForge.call(project)
 
-    task launcherJson(type: LauncherJson) {
+    task launcherJson(type: LauncherJson, dependsOn: ':mcp:setupMCP') {
         packedDependencies = [':fmlloader:jar']
         doFirst {
-            def fmlonly_client = project(':fmlonly').patcher.runs.fmlonly_client
+            def packedDepPaths = packedDependencies.get().collect { Util.getMavenPath(rootProject.tasks.findByPath(it)) }
+            def mcLibraryPaths = VERSION_JSON.json().libraries.collect { it.downloads.artifact.path }
+            def installerPaths = Util.getArtifacts(project, configurations.installer, false).values().collect { it.downloads.artifact.path }
+
             json = [
                 _comment_: comment,
                 id: id,
                 time: timestamp,
                 releaseTime: timestamp,
                 type: 'release',
-                mainClass: 'cpw.mods.bootstraplauncher.BootstrapLauncher',
+                mainClass: 'cpw.mods.modlauncher.Launcher',
                 inheritsFrom: MC_VERSION,
                 logging: {},
                 arguments: [
@@ -620,15 +622,14 @@ project(':fmlonly') {
                            '--fml.mcVersion', MC_VERSION,
                            '--fml.forgeGroup', project.group,
                            '--fml.mcpVersion', MCP_VERSION],
-                    jvm: ["-DignoreList=${fmlonly_client.properties.ignoreList},\${version_name}.jar",
-                          "-DmergeModules=${fmlonly_client.properties.mergeModules}",
-                          '-DlibraryDirectory=${library_directory}',
-                          '-p', Util.getArtifacts(project, configurations.moduleonly, false).values().collect{"\${library_directory}/${it.downloads.artifact.path}"}.join('${classpath_separator}'),
+                    jvm: ['-DlibraryDirectory=${library_directory}',
+                          '-p', (packedDepPaths + mcLibraryPaths + installerPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
                           '--add-modules', 'ALL-MODULE-PATH',
                           // Additions to these JVM module args should be mirrored to server_files/args.txt and other similar blocks in the buildscript
                           '--add-opens', 'java.base/java.util.jar=cpw.mods.securejarhandler',
                           '--add-exports', 'java.base/sun.security.util=cpw.mods.securejarhandler',
-                          '--add-exports', 'jdk.naming.dns/com.sun.jndi.dns=java.naming'
+                          '--add-exports', 'jdk.naming.dns/com.sun.jndi.dns=java.naming',
+                          '--add-opens', 'java.base/java.lang=net.minecraftforge.fmlloader'
                     ]
                 ],
                 libraries: []
@@ -903,7 +904,6 @@ project(':forge') {
             // Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
             transitive = false
         }
-        moduleonly
         api.extendsFrom(installer)
     }
 
@@ -916,7 +916,6 @@ project(':forge') {
         implementation project(':fmlloader')
         implementation project(':javafmllanguage')
         implementation project(':mclanguage')
-        runtimeOnly "cpw.mods:bootstraplauncher:${BOOTSTRAPLAUNCHER_VERSION}"
     }
     dependencies sharedDeps
 
@@ -1173,17 +1172,20 @@ project(':forge') {
         lineEnding = '\n'
     }
 
-    task launcherJson(type: LauncherJson) {
+    task launcherJson(type: LauncherJson, dependsOn: ':mcp:setupMCP') {
         packedDependencies = [':fmlloader:jar']
         doFirst {
-            def forge_client = project(':forge').patcher.runs.forge_client
+            def packedDepPaths = packedDependencies.get().collect { Util.getMavenPath(rootProject.tasks.findByPath(it)) }
+            def mcLibraryPaths = VERSION_JSON.json().libraries.collect { it.downloads.artifact.path }
+            def installerPaths = Util.getArtifacts(project, configurations.installer, false).values().collect { it.downloads.artifact.path }
+            
             json = [
                 _comment_: comment,
                 id: id,
                 time: timestamp,
                 releaseTime: timestamp,
                 type: 'release',
-                mainClass: 'cpw.mods.bootstraplauncher.BootstrapLauncher',
+                mainClass: 'cpw.mods.modlauncher.Launcher',
                 inheritsFrom: MC_VERSION,
                 logging: {},
                 arguments: [
@@ -1192,15 +1194,14 @@ project(':forge') {
                            '--fml.mcVersion', MC_VERSION,
                            '--fml.forgeGroup', project.group,
                            '--fml.mcpVersion', MCP_VERSION],
-                    jvm: ["-DignoreList=${forge_client.properties.ignoreList},\${version_name}.jar",
-                          "-DmergeModules=${forge_client.properties.mergeModules}",
-                          '-DlibraryDirectory=${library_directory}',
-                          '-p', Util.getArtifacts(project, configurations.moduleonly, false).values().collect{'${library_directory}/' + it.downloads.artifact.path}.join('${classpath_separator}'),
+                    jvm: ['-DlibraryDirectory=${library_directory}',
+                          '-p', (packedDepPaths + mcLibraryPaths + installerPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
                           '--add-modules', 'ALL-MODULE-PATH',
                           // Additions to these JVM module args should be mirrored to server_files/args.txt and other similar blocks in the buildscript
                           '--add-opens', 'java.base/java.util.jar=cpw.mods.securejarhandler',
                           '--add-exports', 'java.base/sun.security.util=cpw.mods.securejarhandler',
-                          '--add-exports', 'jdk.naming.dns/com.sun.jndi.dns=java.naming'
+                          '--add-exports', 'jdk.naming.dns/com.sun.jndi.dns=java.naming',
+                          '--add-opens', 'java.base/java.lang=net.minecraftforge.fmlloader'
                     ]
                 ],
                 libraries: []

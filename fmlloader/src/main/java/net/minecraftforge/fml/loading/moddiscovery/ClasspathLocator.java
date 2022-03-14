@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 
 public class ClasspathLocator extends AbstractJarFileLocator {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final List<Path> legacyClasspath = Arrays.stream(System.getProperty("legacyClassPath", "").split(File.pathSeparator)).map(Path::of).toList();
+    private final List<Path> javaClasspath = Arrays.stream(System.getProperty("java.class.path", "").split(File.pathSeparator)).map(Path::of).toList();
     private boolean enabled = false;
 
     @Override
@@ -54,7 +54,7 @@ public class ClasspathLocator extends AbstractJarFileLocator {
             return Stream.of();
 
         try {
-            var claimed = new ArrayList<>(legacyClasspath);
+            var claimed = new ArrayList<>(javaClasspath);
             var paths = Stream.<Path>builder();
 
             findPaths(claimed, MODS_TOML).forEach(paths::add);

@@ -27,6 +27,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -76,5 +79,29 @@ public abstract class CommonLaunchHandler implements ILaunchHandlerService {
         //final var explodedTargets = ((Map<String, List<ExplodedDirectoryLocator.ExplodedMod>>)arguments).computeIfAbsent("explodedTargets", a -> new ArrayList<>());
         //modClassPaths.forEach((modlabel,paths) -> explodedTargets.add(new ExplodedDirectoryLocator.ExplodedMod(modlabel, paths)));
         return modClassPaths;
+    }
+
+    protected void openModulesToMinecraft(ModuleLayer layer) {
+        try {
+            MethodHandle implAddExportsOrOpens = MethodHandles.privateLookupIn(Module.class, MethodHandles.lookup())
+                .findVirtual(Module.class, "implAddExportsOrOpens", MethodType.methodType(void.class, String.class, Module.class, boolean.class, boolean.class));
+            Module mcModule = layer.findModule("minecraft").orElseThrow();
+
+            exportAllToModule(mcModule, implAddExportsOrOpens);
+        } catch (IllegalAccessException | NoSuchMethodException e) {
+            LOGGER.error("Failed to open modules to minecraft", e);
+        }
+    }
+
+    private static void exportAllToModule(Module to, MethodHandle handle) {
+        ModuleLayer.boot().modules()
+            .forEach(module -> module.getPackages()
+                .forEach(pkgName -> {
+                    try {
+                        handle.invokeExact(module, pkgName, to, true, true);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
     }
 }

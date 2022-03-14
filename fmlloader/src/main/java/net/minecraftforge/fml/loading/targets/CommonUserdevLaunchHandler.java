@@ -42,16 +42,16 @@ public abstract class CommonUserdevLaunchHandler extends CommonDevLaunchHandler 
         final var modstream = Stream.<List<Path>>builder();
 
         // The MC extra and forge jars are on the classpath, so try and pull them out
-        var legacyCP = Objects.requireNonNull(System.getProperty("legacyClassPath"), "Missing legacyClassPath, cannot find userdev jars").split(File.pathSeparator);
-        var extra = findJarOnClasspath(legacyCP, "client-extra");
+        var classPath = Objects.requireNonNull(System.getProperty("java.class.path"), "Missing java.class.path, cannot find userdev jars").split(File.pathSeparator);
+        var extra = findJarOnClasspath(classPath, "client-extra");
 
-        processStreams(legacyCP, vers, mcstream, modstream);
+        processStreams(classPath, vers, mcstream, modstream);
         getModClasses().forEach((modid, paths) -> modstream.add(paths));
 
         var minecraft = mcstream.build().collect(Collectors.toList());
         var mcFilter = getMcFilter(extra, minecraft, modstream);
         minecraft.add(extra); // Add extra late so the filter is made correctly
-        return new LocatedPaths(minecraft, mcFilter, modstream.build().toList(), getFmlStuff(legacyCP));
+        return new LocatedPaths(minecraft, mcFilter, modstream.build().toList(), getFmlStuff(classPath));
     }
 
     protected abstract void processStreams(String[] classpath, VersionInfo versionInfo, Stream.Builder<Path> mc, Stream.Builder<List<Path>> mods);

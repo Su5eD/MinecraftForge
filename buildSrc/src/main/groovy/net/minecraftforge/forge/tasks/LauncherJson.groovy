@@ -50,7 +50,6 @@ abstract class LauncherJson extends DefaultTask {
             json.libraries = []
         def libs = [:]
         getArtifacts(project, project.configurations.installer, false).each { key, lib -> libs[key] = lib }
-        getArtifacts(project, project.configurations.moduleonly, false).each { key, lib -> libs[key] = lib }
 
         packedDependencies.get().collect{ project.rootProject.tasks.findByPath(it) }.forEach {
             def path = Util.getMavenPath(it)

@@ -43,8 +43,8 @@ public abstract class CommonDevLaunchHandler extends CommonLaunchHandler {
         final var mcstream = Stream.<Path>builder();
 
         // The extra jar is on the classpath, so try and pull it out of the legacy classpath
-        var legacyCP = Objects.requireNonNull(System.getProperty("legacyClassPath"), "Missing legacyClassPath, cannot find client-extra").split(File.pathSeparator);
-        var extra = Paths.get(Arrays.stream(legacyCP).filter(e -> e.contains("client-extra")).findFirst().orElseThrow(() -> new IllegalStateException("Could not find client-extra in legacy classpath")));
+        var classPath = Objects.requireNonNull(System.getProperty("java.class.path"), "Missing java.class.path, cannot find client-extra").split(File.pathSeparator);
+        var extra = Paths.get(Arrays.stream(classPath).filter(e -> e.contains("client-extra")).findFirst().orElseThrow(() -> new IllegalStateException("Could not find client-extra in legacy classpath")));
         mcstream.add(extra);
 
         // The MC code/Patcher edits are in exploded directories
@@ -57,10 +57,12 @@ public abstract class CommonDevLaunchHandler extends CommonLaunchHandler {
         mods.values().forEach(modstream::add);
 
         var mcFilter = getMcFilter(extra, minecraft, modstream);
-        return new LocatedPaths(mcstream.build().toList(), mcFilter, modstream.build().toList(), getFmlStuff(legacyCP));
+        return new LocatedPaths(mcstream.build().toList(), mcFilter, modstream.build().toList(), getFmlStuff(classPath));
     }
 
     protected String[] preLaunch(String[] arguments, ModuleLayer layer) {
+        openModulesToMinecraft(layer);
+        
         if (getDist().isDedicatedServer())
             return arguments;
 

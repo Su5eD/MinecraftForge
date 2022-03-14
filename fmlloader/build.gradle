@@ -1,10 +1,9 @@
 plugins {
     id 'com.github.ben-manes.versions'
-    id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
+    id 'org.javamodularity.moduleplugin'
 }
 apply plugin: 'java-library'
 apply plugin: 'jacoco'
-apply plugin: 'org.javamodularity.moduleplugin'
 
 dependencyUpdates.rejectVersionIf { isNonStable(it.candidate.version) }
 configurations.forEach{ it.transitive = false }
@@ -15,10 +14,11 @@ dependencies {
     api("org.ow2.asm:asm:${ASM_VERSION}")
     api("org.ow2.asm:asm-tree:${ASM_VERSION}")
     api("org.ow2.asm:asm-commons:${ASM_VERSION}")
+    api("org.ow2.asm:asm-analysis:${ASM_VERSION}")
     api('net.minecraftforge:forgespi:4.0.+')
     api('org.apache.logging.log4j:log4j-api:2.17.0')
     api('org.slf4j:slf4j-api:1.8.0-beta4')
-    api('com.google.guava:guava:21.0')
+    api('com.google.guava:guava:31.0.1-jre')
     api('com.google.code.gson:gson:2.8.9')
     api('org.apache.maven:maven-artifact:3.8.1')
     api('org.apache.commons:commons-lang3:3.12.0')
@@ -33,7 +33,6 @@ dependencies {
     implementation('net.minecrell:terminalconsoleappender:1.2.0')
 //    implementation('org.jline:jline:3.12.+')
     testCompileOnly('org.jetbrains:annotations:21.0.0')
-    testRuntimeOnly("cpw.mods:bootstraplauncher:${BOOTSTRAPLAUNCHER_VERSION}")
 }
 
 task sourcesJar(type: Jar) {

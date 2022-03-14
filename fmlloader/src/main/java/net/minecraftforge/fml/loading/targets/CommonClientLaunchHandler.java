@@ -42,6 +42,8 @@ public abstract class CommonClientLaunchHandler extends CommonLaunchHandler {
     @Override
     public Callable<Void> launchService(String[] arguments, ModuleLayer layer) {
         return () -> {
+            openModulesToMinecraft(layer);
+            
             Class.forName(layer.findModule("minecraft").orElseThrow(),"net.minecraft.client.main.Main").getMethod("main", String[].class).invoke(null, (Object)arguments);
             return null;
         };
