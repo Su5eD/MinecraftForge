@@ -96,6 +96,18 @@ public class Util {
 		}
 		return ret
 	}
+	
+	public static def mergeLibraries(mcLibraries, installerLibraries) {
+		def filteredLibraries = mcLibraries
+				.findAll { lib ->
+					def libName = lib.name.substring(0, lib.name.lastIndexOf(':'))
+					!installerLibraries.any {
+						def mcLibName = it.name.substring(0, it.name.lastIndexOf(':'))
+						libName == mcLibName
+					}
+				}
+		return filteredLibraries + installerLibraries
+	}
     
     public static def getMavenPath(task) {        
         def classifier = task.archiveClassifier.get()

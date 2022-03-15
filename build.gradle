@@ -268,6 +268,7 @@ def sharedDeps = {
     installer 'org.jline:jline-terminal:3.12.+' //Dep of TerminaalConsoleeAppender
     installer "org.spongepowered:mixin:${MIXIN_VERSION}"
     installer 'org.openjdk.nashorn:nashorn-core:15.3'
+    installer 'ca.weblite:java-objc-bridge:1.1'
 
     /*
     installer 'org.lwjgl:lwjgl:3.2.2'
@@ -406,7 +407,15 @@ def sharedFmlonlyForge = { Project prj ->
         //run.property 'bsl.debug', 'true'
         run.main 'cpw.mods.modlauncher.Launcher'
 
-        run.args '--gameDir', '.'
+        if (run.name.contains('client')) {
+            run.client true
+        } else {
+            run.client false
+        }
+
+        if (run.client || prj.name == 'forge') {
+            run.args '--gameDir', '.'
+        }
         run.args '--fml.forgeVersion', FORGE_VERSION
         run.args '--fml.mcVersion', MC_VERSION
         run.args '--fml.forgeGroup', prj.group
@@ -414,12 +423,6 @@ def sharedFmlonlyForge = { Project prj ->
 
         if (prj.name == 'forge') {
             run.args '--fml.forgeSpec', prj.SPEC_VERSION
-        }
-
-        if (run.name.contains('client')) {
-            run.client true
-        } else {
-            run.client false
         }
 
         if (userdevRuns.contains(run)) {
@@ -604,8 +607,9 @@ project(':fmlonly') {
         packedDependencies = [':fmlloader:jar']
         doFirst {
             def packedDepPaths = packedDependencies.get().collect { Util.getMavenPath(rootProject.tasks.findByPath(it)) }
-            def mcLibraryPaths = VERSION_JSON.json().libraries.collect { it.downloads.artifact.path }
-            def installerPaths = Util.getArtifacts(project, configurations.installer, false).values().collect { it.downloads.artifact.path }
+            def mcLibraryPaths = VERSION_JSON.json().libraries
+            def installerPaths = Util.getArtifacts(project, configurations.installer, false).values()
+            def allPaths = Util.mergeLibraries(mcLibraryPaths, installerPaths).collect { it.downloads.artifact.path }
 
             json = [
                 _comment_: comment,
@@ -623,7 +627,7 @@ project(':fmlonly') {
                            '--fml.forgeGroup', project.group,
                            '--fml.mcpVersion', MCP_VERSION],
                     jvm: ['-DlibraryDirectory=${library_directory}',
-                          '-p', (packedDepPaths + mcLibraryPaths + installerPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
+                          '-p', (packedDepPaths + allPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
                           '--add-modules', 'ALL-MODULE-PATH',
                           // Additions to these JVM module args should be mirrored to server_files/args.txt and other similar blocks in the buildscript
                           '--add-opens', 'java.base/java.util.jar=cpw.mods.securejarhandler',
@@ -1176,8 +1180,9 @@ project(':forge') {
         packedDependencies = [':fmlloader:jar']
         doFirst {
             def packedDepPaths = packedDependencies.get().collect { Util.getMavenPath(rootProject.tasks.findByPath(it)) }
-            def mcLibraryPaths = VERSION_JSON.json().libraries.collect { it.downloads.artifact.path }
-            def installerPaths = Util.getArtifacts(project, configurations.installer, false).values().collect { it.downloads.artifact.path }
+            def mcLibraryPaths = VERSION_JSON.json().libraries
+            def installerPaths = Util.getArtifacts(project, configurations.installer, false).values()
+            def allPaths = Util.mergeLibraries(mcLibraryPaths, installerPaths).collect { it.downloads.artifact.path }
             
             json = [
                 _comment_: comment,
@@ -1196,7 +1201,7 @@ project(':forge') {
                            '--fml.mcpVersion', MCP_VERSION,
                            '--fml.forgeSpec', SPEC_VERSION],
                     jvm: ['-DlibraryDirectory=${library_directory}',
-                          '-p', (packedDepPaths + mcLibraryPaths + installerPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
+                          '-p', (packedDepPaths + allPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
                           '--add-modules', 'ALL-MODULE-PATH',
                           // Additions to these JVM module args should be mirrored to server_files/args.txt and other similar blocks in the buildscript
                           '--add-opens', 'java.base/java.util.jar=cpw.mods.securejarhandler',
