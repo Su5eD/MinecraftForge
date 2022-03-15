@@ -67,27 +67,7 @@ public class LanguageLoadingProvider
         return languageProviders.stream().map(function);
     }
 
-    private static class ModLanguageWrapper {
-        private final IModLanguageProvider modLanguageProvider;
-
-        private final ArtifactVersion version;
-        public ModLanguageWrapper(IModLanguageProvider modLanguageProvider, ArtifactVersion version)
-        {
-            this.modLanguageProvider = modLanguageProvider;
-            this.version = version;
-        }
-        public ArtifactVersion getVersion()
-        {
-            return version;
-        }
-
-        public IModLanguageProvider getModLanguageProvider()
-        {
-            return modLanguageProvider;
-        }
-
-
-    }
+    private record ModLanguageWrapper(IModLanguageProvider modLanguageProvider, ArtifactVersion version) {}
 
     LanguageLoadingProvider() {
         var sl = Launcher.INSTANCE.environment().findModuleLayerManager().flatMap(lm->lm.getLayer(IModuleLayerManager.Layer.PLUGIN)).orElseThrow();
@@ -105,8 +85,9 @@ public class LanguageLoadingProvider
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Huh?", e);
             }
-            Optional<String> implementationVersion = JarVersionLookupHandler.getImplementationVersion(lp.getClass());
-            String impl = implementationVersion.orElse(Files.isDirectory(lpPath) ? FMLLoader.versionInfo().forgeVersion().split("\\.")[0] : null);
+            
+            String impl = JarVersionLookupHandler.maybeGetImplementationVersion(lp.getClass())
+                    .orElse(Files.isDirectory(lpPath) ? FMLLoader.versionInfo().forgeVersion().split("\\.")[0] : null);
             if (impl == null) {
                 LOGGER.fatal(CORE, "Found unversioned language provider {}", lp.name());
                 throw new RuntimeException("Failed to find implementation version for language provider "+ lp.name());
@@ -154,11 +135,11 @@ public class LanguageLoadingProvider
             LOGGER.error(LOADING,"Missing language {} version {} wanted by {}", modLoader, modLoaderVersion, languageFileName);
             throw new EarlyLoadingException("Missing language "+modLoader, null, Collections.singletonList(new EarlyLoadingException.ExceptionData("fml.language.missingversion", modLoader, modLoaderVersion, languageFileName, "null")));
         }
-        if (!VersionSupportMatrix.testVersionSupportMatrix(modLoaderVersion, modLoader, "languageloader", (llid, range) -> range.containsVersion(mlw.getVersion()))) {
-            LOGGER.error(LOADING,"Missing language {} version {} wanted by {}, found {}", modLoader, modLoaderVersion, languageFileName, mlw.getVersion());
-            throw new EarlyLoadingException("Missing language "+ modLoader + " matching range "+modLoaderVersion + " found "+mlw.getVersion(), null, Collections.singletonList(new EarlyLoadingException.ExceptionData("fml.language.missingversion", modLoader, modLoaderVersion, languageFileName, mlw.getVersion())));
+        if (!VersionSupportMatrix.testVersionSupportMatrix(modLoaderVersion, modLoader, "languageloader", (llid, range) -> range.containsVersion(mlw.version()))) {
+            LOGGER.error(LOADING,"Missing language {} version {} wanted by {}, found {}", modLoader, modLoaderVersion, languageFileName, mlw.version());
+            throw new EarlyLoadingException("Missing language "+ modLoader + " matching range "+modLoaderVersion + " found "+mlw.version(), null, Collections.singletonList(new EarlyLoadingException.ExceptionData("fml.language.missingversion", modLoader, modLoaderVersion, languageFileName, mlw.version())));
         }
 
-        return mlw.getModLanguageProvider();
+        return mlw.modLanguageProvider();
     }
 }

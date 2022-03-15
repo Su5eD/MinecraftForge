@@ -412,6 +412,10 @@ def sharedFmlonlyForge = { Project prj ->
         run.args '--fml.forgeGroup', prj.group
         run.args '--fml.mcpVersion', MCP_VERSION
 
+        if (prj.name == 'forge') {
+            run.args '--fml.forgeSpec', prj.SPEC_VERSION
+        }
+
         if (run.name.contains('client')) {
             run.client true
         } else {
@@ -460,10 +464,6 @@ def sharedFmlonlyForge = { Project prj ->
             run.args '--accessToken', '0'
             run.args '--userType', 'mojang'
             run.args '--versionType', 'release'
-        }
-
-        if (prj.name == 'forge') {
-            run.environment 'FORGE_SPEC', prj.SPEC_VERSION
         }
     }
 
@@ -1193,7 +1193,8 @@ project(':forge') {
                            '--fml.forgeVersion', FORGE_VERSION,
                            '--fml.mcVersion', MC_VERSION,
                            '--fml.forgeGroup', project.group,
-                           '--fml.mcpVersion', MCP_VERSION],
+                           '--fml.mcpVersion', MCP_VERSION,
+                           '--fml.forgeSpec', SPEC_VERSION],
                     jvm: ['-DlibraryDirectory=${library_directory}',
                           '-p', (packedDepPaths + mcLibraryPaths + installerPaths).collect{"\${library_directory}/${it}"}.join('${classpath_separator}'),
                           '--add-modules', 'ALL-MODULE-PATH',

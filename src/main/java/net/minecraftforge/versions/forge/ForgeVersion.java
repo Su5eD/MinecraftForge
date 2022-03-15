@@ -8,7 +8,6 @@ package net.minecraftforge.versions.forge;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.VersionChecker;
 import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fml.loading.JarVersionLookupHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,11 +27,11 @@ public class ForgeVersion
 
     static {
         LOGGER.debug(CORE, "Forge Version package {} from {}", ForgeVersion.class.getPackage(), ForgeVersion.class.getClassLoader());
-        String vers = JarVersionLookupHandler.getImplementationVersion(ForgeVersion.class).orElse(FMLLoader.versionInfo().forgeVersion());
+        String vers = FMLLoader.versionInfo().forgeVersion();
         if (vers == null) throw new RuntimeException("Missing forge version, cannot continue");
-        String spec = JarVersionLookupHandler.getSpecificationVersion(ForgeVersion.class).orElse(System.getenv("FORGE_SPEC"));
+        String spec = FMLLoader.versionInfo().forgeSpec();
         if (spec == null) throw new RuntimeException("Missing forge spec, cannot continue");
-        String group = JarVersionLookupHandler.getImplementationTitle(ForgeVersion.class).orElse(FMLLoader.versionInfo().forgeGroup());
+        String group = FMLLoader.versionInfo().forgeGroup();
         if (group == null) {
             group = "net.minecraftforge"; // If all else fails, Our normal group
         }

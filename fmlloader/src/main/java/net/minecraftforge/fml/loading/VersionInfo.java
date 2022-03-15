@@ -2,9 +2,9 @@ package net.minecraftforge.fml.loading;
 
 import java.util.Map;
 
-public record VersionInfo(String forgeVersion, String mcVersion, String mcpVersion, String forgeGroup) {
+public record VersionInfo(String forgeSpec, String forgeVersion, String mcVersion, String mcpVersion, String forgeGroup) {
     VersionInfo(Map<String, ?> arguments) {
-        this((String) arguments.get("forgeVersion"), (String) arguments.get("mcVersion"), (String) arguments.get("mcpVersion"), (String) arguments.get("forgeGroup"));
+        this((String) arguments.get("forgeSpec"), (String) arguments.get("forgeVersion"), (String) arguments.get("mcVersion"), (String) arguments.get("mcpVersion"), (String) arguments.get("forgeGroup"));
     }
 
     public String mcAndForgeVersion() {

@@ -73,36 +73,24 @@ public class FMLLoader
     {
         final String version = LauncherVersion.getVersion();
         LOGGER.debug(CORE,"FML {} loading", version);
-        final Package modLauncherPackage = ITransformationService.class.getPackage();
-        LOGGER.debug(CORE,"FML found ModLauncher version : {}", modLauncherPackage.getImplementationVersion());
-        if (!modLauncherPackage.isCompatibleWith("4.0")) {
-            LOGGER.fatal(CORE,"Found incompatible ModLauncher specification : {}, version {} from {}", modLauncherPackage.getSpecificationVersion(), modLauncherPackage.getImplementationVersion(), modLauncherPackage.getImplementationVendor());
-            throw new IncompatibleEnvironmentException("Incompatible modlauncher found "+modLauncherPackage.getSpecificationVersion());
-        }
+        final String modLauncherVersion = JarVersionLookupHandler.getImplementationVersion(ITransformationService.class);
+        LOGGER.debug(CORE,"FML found ModLauncher version : {}", modLauncherVersion);
 
         accessTransformer = (AccessTransformerService) environment.findLaunchPlugin("accesstransformer").orElseThrow(()-> {
             LOGGER.fatal(CORE,"Access Transformer library is missing, we need this to run");
             return new IncompatibleEnvironmentException("Missing AccessTransformer, cannot run");
         });
 
-        final Package atPackage = accessTransformer.getClass().getPackage();
-        LOGGER.debug(CORE,"FML found AccessTransformer version : {}", atPackage.getImplementationVersion());
-        if (!atPackage.isCompatibleWith("1.0")) {
-            LOGGER.fatal(CORE,"Found incompatible AccessTransformer specification : {}, version {} from {}", atPackage.getSpecificationVersion(), atPackage.getImplementationVersion(), atPackage.getImplementationVendor());
-            throw new IncompatibleEnvironmentException("Incompatible accesstransformer found "+atPackage.getSpecificationVersion());
-        }
+        final String atVersion = JarVersionLookupHandler.getImplementationVersion(accessTransformer.getClass());
+        LOGGER.debug(CORE,"FML found AccessTransformer version : {}", atVersion);
 
         eventBus = environment.findLaunchPlugin("eventbus").orElseThrow(()-> {
             LOGGER.fatal(CORE,"Event Bus library is missing, we need this to run");
             return new IncompatibleEnvironmentException("Missing EventBus, cannot run");
         });
 
-        final Package eventBusPackage = eventBus.getClass().getPackage();
-        LOGGER.debug(CORE,"FML found EventBus version : {}", eventBusPackage.getImplementationVersion());
-        if (!eventBusPackage.isCompatibleWith("1.0")) {
-            LOGGER.fatal(CORE,"Found incompatible EventBus specification : {}, version {} from {}", eventBusPackage.getSpecificationVersion(), eventBusPackage.getImplementationVersion(), eventBusPackage.getImplementationVendor());
-            throw new IncompatibleEnvironmentException("Incompatible eventbus found "+eventBusPackage.getSpecificationVersion());
-        }
+        final String eventBusVersion = JarVersionLookupHandler.getImplementationVersion(eventBus.getClass());
+        LOGGER.debug(CORE,"FML found EventBus version : {}", eventBusVersion);
 
         runtimeDistCleaner = (RuntimeDistCleaner)environment.findLaunchPlugin("runtimedistcleaner").orElseThrow(()-> {
             LOGGER.fatal(CORE,"Dist Cleaner is missing, we need this to run");
@@ -121,16 +109,10 @@ public class FMLLoader
         }
 
         coreModProvider = coreModProviders.get(0);
-        final Package coremodPackage = coreModProvider.getClass().getPackage();
-        LOGGER.debug(CORE,"FML found CoreMod version : {}", coremodPackage.getImplementationVersion());
+        final String coremodVersion = JarVersionLookupHandler.getImplementationVersion(coreModProvider.getClass()); 
+        LOGGER.debug(CORE,"FML found CoreMod version : {}", coremodVersion);
 
-
-        LOGGER.debug(CORE, "Found ForgeSPI package implementation version {}", Environment.class.getPackage().getImplementationVersion());
-        LOGGER.debug(CORE, "Found ForgeSPI package specification {}", Environment.class.getPackage().getSpecificationVersion());
-        if (Integer.parseInt(Environment.class.getPackage().getSpecificationVersion()) < 2) {
-            LOGGER.fatal(CORE, "Found an out of date ForgeSPI implementation: {}, loading cannot continue", Environment.class.getPackage().getSpecificationVersion());
-            throw new IncompatibleEnvironmentException("ForgeSPI is out of date, we cannot continue");
-        }
+        LOGGER.debug(CORE, "Found ForgeSPI package implementation version {}", JarVersionLookupHandler.getImplementationVersion(Environment.class));
 
         try {
             Class.forName("com.electronwill.nightconfig.core.Config", false, environment.getClass().getClassLoader());
