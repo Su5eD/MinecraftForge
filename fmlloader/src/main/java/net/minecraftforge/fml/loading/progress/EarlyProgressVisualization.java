@@ -57,7 +57,7 @@ public enum EarlyProgressVisualization {
         Runnable start(@Nullable String mcVersion);
 
         default long handOffWindow(final IntSupplier width, final IntSupplier height, final Supplier<String> title, LongSupplier monitorSupplier) {
-            return FMLLoader.getGameLayer().findModule("forge")
+            return FMLLoader.getGameLayer().findModule("net.minecraftforge.forge")
                     .map(l->Class.forName(l, "net.minecraftforge.client.loading.NoVizFallback"))
                     .map(LamdbaExceptionUtils.rethrowFunction(c->c.getMethod("fallback", IntSupplier.class, IntSupplier.class, Supplier.class, LongSupplier.class)))
                     .map(LamdbaExceptionUtils.rethrowFunction(m->(LongSupplier)m.invoke(null, width, height, title, monitorSupplier)))

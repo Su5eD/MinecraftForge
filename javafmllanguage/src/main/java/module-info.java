@@ -1,5 +1,6 @@
 module net.minecraftforge.javafmllanguage {
     requires cpw.mods.modlauncher;
+    requires cpw.mods.securejarhandler;
     requires eventbus;
     requires net.minecraftforge.fmlcore;
     requires net.minecraftforge.fmlloader;

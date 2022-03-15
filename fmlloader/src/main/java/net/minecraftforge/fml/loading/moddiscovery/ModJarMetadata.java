@@ -2,6 +2,7 @@ package net.minecraftforge.fml.loading.moddiscovery;
 
 import cpw.mods.jarhandling.JarMetadata;
 import cpw.mods.jarhandling.SecureJar;
+import cpw.mods.jarhandling.impl.ModuleJarMetadata;
 import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.forgespi.locating.IModLocator;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +63,7 @@ public final class ModJarMetadata implements JarMetadata {
 
     @Override
     public String name() {
-        return modFile.getModFileInfo().moduleName();
+        return descriptor().name();
     }
 
     @Override
@@ -72,13 +73,24 @@ public final class ModJarMetadata implements JarMetadata {
 
     @Override
     public ModuleDescriptor descriptor() {
-        if (descriptor != null) return descriptor;
-        var bld = ModuleDescriptor.newAutomaticModule(name())
-                .version(version())
-                .packages(modFile.getSecureJar().getPackages());
-        providers().forEach(p -> bld.provides(p.serviceName(), p.providers()));
-        modFile.getModFileInfo().usesServices().forEach(bld::uses);
-        descriptor = bld.build();
+        if (descriptor == null) {
+            SecureJar secureJar = modFile.getSecureJar();
+            descriptor = secureJar.findFile("module-info.class")
+                    .map(uri -> {
+                        JarMetadata metadata = new ModuleJarMetadata(uri, secureJar.getPackages());
+                        return metadata.descriptor();
+                    })
+                    .orElseGet(() -> {
+                        var name = Optional.ofNullable(secureJar.getManifest().getMainAttributes().getValue("Automatic-Module-Name"))
+                                .orElseGet(() -> modFile.getModFileInfo().moduleName());
+                        var bld = ModuleDescriptor.newAutomaticModule(name)
+                                .version(version())
+                                .packages(modFile.getSecureJar().getPackages());
+                        providers().forEach(p -> bld.provides(p.serviceName(), p.providers()));
+                        modFile.getModFileInfo().usesServices().forEach(bld::uses);
+                        return bld.build();
+                    });
+        }
         return descriptor;
     }
 
