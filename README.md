@@ -10,7 +10,7 @@ The update was done with backwards compatibility in mind, so it can run your old
 
 ## Installation
 
-You can get the latest release [here](https://su5ed.jfrog.io/ui/repos/tree/General/maven%2Fnet%2Fminecraftforge%2Fforge).
+You can get the latest release [here](https://maven.su5ed.dev/#/releases/net/minecraftforge/forge).
 
 ### Users
 

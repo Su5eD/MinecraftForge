@@ -3,7 +3,7 @@ import java.util.function.Predicate
 
 plugins {
     eclipse
-    id("net.minecraftforge.gradle.patcher")
+    id("net.minecraftforge.gradle-legacy.patcher")
 }
 
 evaluationDependsOn(":mcp")

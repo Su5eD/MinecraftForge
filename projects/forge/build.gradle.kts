@@ -32,7 +32,7 @@ plugins {
     `java-library`
     `maven-publish`
     eclipse
-    id("net.minecraftforge.gradle.patcher")
+    id("net.minecraftforge.gradle-legacy.patcher")
     id("org.cadixdev.licenser")
     id("de.undercouch.download")
 }

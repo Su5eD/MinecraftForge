@@ -1,23 +1,14 @@
 pluginManagement {
     repositories {
-        mavenLocal()
         gradlePluginPortal()
         mavenCentral()
         maven {
-            name = "Su5eD Artifactory"
-            url = uri("https://su5ed.jfrog.io/artifactory/maven/")
+            name = "Su5eD Maven"
+            url = uri("https://maven.su5ed.dev/releases/")
         }
         maven {
             name = "MinecraftForge"
             url = uri("https://maven.minecraftforge.net/")
-        }
-    }
-    
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "net.minecraftforge.gradle") {
-                useModule("${requested.id}:ForgeGradle:${requested.version}")
-            }
         }
     }
 }

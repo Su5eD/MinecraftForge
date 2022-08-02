@@ -28,7 +28,7 @@ buildscript {
 }
 
 plugins {
-    id("net.minecraftforge.gradle") version "5.1-legacy.+" apply false
+    id("net.minecraftforge.gradle-legacy") version "5.1.+" apply false
     id("org.cadixdev.licenser") version "0.6.1" apply false
     id("de.undercouch.download") version "3.3.0" apply false
     id("com.github.ben-manes.versions") version "0.22.0" apply false
@@ -58,7 +58,7 @@ val extraTxts: FileCollection by extra(files(
     "LICENSE-Paulscode IBXM Library.txt",
     "LICENSE-Paulscode SoundSystem CodecIBXM.txt"
 ))
-val su5edMaven: String by extra("https://su5ed.jfrog.io/artifactory/maven/")
+val su5edMaven: String by extra("https://maven.su5ed.dev/releases")
 val artifactRepositories: List<String> by extra(listOf("https://libraries.minecraft.net", "https://maven.minecraftforge.net", su5edMaven))
 
 subprojects {
