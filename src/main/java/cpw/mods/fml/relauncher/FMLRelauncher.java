@@ -169,11 +169,11 @@ public class FMLRelauncher {
             } catch (ClassNotFoundException ignored) { // We are in an obfuscated environment
                 deobfEnvironment = false;
             }
-            
+
             if (!deobfEnvironment) {
                 classLoader.setChildClassLoader(new URLClassLoader(locateMcDeps()));
             }
-            
+
             RelaunchLibraryManager.handleLaunch(minecraftHome, args, classLoader);
         } catch (Throwable t) {
             if (popupWindow != null) {
@@ -222,17 +222,17 @@ public class FMLRelauncher {
         Path root = LibraryFinder.getLibrariesRoot();
         Path forge = LibraryFinder.getForgePath(root);
         Path[] mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
-                    
+
         return Stream.concat(Arrays.stream(mcDeps), Stream.of(forge))
-                .map(Path::toUri)
-                .map(uri -> {
-                    try {
-                        return uri.toURL();
-                    } catch (MalformedURLException e) {
-                        throw new RuntimeException("Cannot resolve path of library", e);
-                    }
-                })
-                .toArray(URL[]::new);
+            .map(Path::toUri)
+            .map(uri -> {
+                try {
+                    return uri.toURL();
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException("Cannot resolve path of library", e);
+                }
+            })
+            .toArray(URL[]::new);
     }
 
     private void relaunchApplet(Applet minecraftApplet) {

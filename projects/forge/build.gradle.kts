@@ -8,7 +8,6 @@ import net.minecraftforge.forge.tasks.CheckSAS
 import net.minecraftforge.gradle.common.tasks.*
 import net.minecraftforge.gradle.common.util.Artifact
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
-import net.minecraftforge.gradle.common.util.RunConfig
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.mcp.tasks.DownloadMCPConfig
 import net.minecraftforge.gradle.patcher.tasks.GenerateBinPatches
@@ -51,19 +50,8 @@ val extraTxts: ConfigurableFileCollection by rootProject.extra
 val su5edMaven: String by rootProject.extra
 val artifactRepositories: List<String> by rootProject.extra
 
-val fmllauncher: SourceSet by sourceSets.creating {
-    java {
-        srcDirs("$rootDir/src/fmllauncher/java")
-    }
-    resources {
-        srcDirs("$rootDir/src/fmllauncher/resources")
-    }
-}
-
 sourceSets {
     main {
-        compileClasspath += fmllauncher.runtimeClasspath
-        runtimeClasspath += fmllauncher.runtimeClasspath
         java {
             srcDirs("$rootDir/src/main/java")
         }
@@ -188,16 +176,6 @@ val installer: Configuration by configurations.creating {
 configurations {
     api {
         extendsFrom(installer)
-    }
-    
-    val implementation = getByName("implementation")
-    
-    "fmllauncherImplementation" {
-        extendsFrom(installer, implementation)
-    }
-
-    register("shade") {
-        implementation.extendsFrom(this)
     }
 
     minecraftImplementation {
@@ -379,48 +357,8 @@ tasks {
         }
     }
 
-    val launcherJar by creating(Jar::class) {
-        archiveClassifier.set("launcher")
-        from(fmllauncher.output)
-
-        doFirst {
-            val classpath = StringBuilder()
-            val artifacts = getArtifacts(installer, false)
-            artifacts.forEach { (_, lib) ->
-                classpath.append(
-                    "libraries/${
-                        lib["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get(
-                            "path"
-                        )?.jsonPrimitive?.content
-                    } "
-                )
-            }
-            classpath.append("libraries/net/minecraft/server/${minecraftVersion}-${mcpVersion}/server-${minecraftVersion}-${mcpVersion}-extra.jar")
-
-            manifests.forEach { (pkg, values) ->
-                if (pkg == "/") {
-                    manifest.attributes(
-                        "Main-Class" to "cpw.mods.fml.relauncher.wrapper.ServerLaunchWrapper",
-                        "Class-Path" to classpath.toString()
-                    )
-                } else {
-                    manifest.attributes(values, pkg)
-                }
-            }
-        }
-    }
-
-    val launcherJarFile = launcherJar.archiveFile.get().asFile
-    val names = patcher.runs.map(RunConfig::getTaskName)
-    whenTaskAdded {
-        if (this is JavaExec && names.contains(this.name)) {
-            dependsOn(launcherJar)
-            classpath(launcherJarFile)
-        }
-    }
-
     val launcherJson by creating {
-        dependsOn(launcherJar)
+        dependsOn("signUniversalJar")
 
         val vanilla = project(":mcp").file("build/mcp/downloadJson/version.json")
         val version = project.version as String
@@ -440,7 +378,8 @@ tasks {
             set("id", id)
         }
 
-        inputs.file(launcherJarFile)
+        val universalJarFile = universalJar.map { it.archiveFile.get().asFile }
+        inputs.file(universalJarFile)
         inputs.file(vanilla)
         outputs.file(output)
 
@@ -478,8 +417,10 @@ tasks {
                                     "url",
                                     ""
                                 ) //Do not include the URL so that the installer/launcher won't grab it. This is also why we don't have the universal classifier
-                                put("sha1", launcherJarFile.sha1())
-                                put("size", launcherJarFile.length())
+                                universalJarFile.get().apply { 
+                                    put("sha1", sha1())
+                                    put("size", length())   
+                                }
                             }
                         }
                     }
@@ -681,7 +622,7 @@ tasks {
     }
 
     register<DownloadMavenArtifact>("downloadInstaller") {
-        setArtifact("net.minecraftforge:installer:2.0.+:shrunk")
+        setArtifact("net.minecraftforge:installer:2.1.+:shrunk")
         changing = true
     }
 
@@ -709,9 +650,6 @@ tasks {
             rename { "data/server.lzma" }
         }
         from(universalJar) {
-            into("/maven/${project.group.toString().replace('.', '/')}/${project.name}/${project.version}/")
-        }
-        from(launcherJar) {
             into("/maven/${project.group.toString().replace('.', '/')}/${project.name}/${project.version}/")
             rename { "${project.name}-${project.version}.jar" }
         }
@@ -762,7 +700,7 @@ tasks {
         }
     }
 
-    named<ProcessResources>("processFmllauncherResources") {
+    processResources {
         inputs.property("version", project.version)
 
         filesMatching("*.properties") {
@@ -892,7 +830,7 @@ publishing {
                 }
             }
 
-            sequenceOf("universalJar", "installerJar", "makeMdk", "userdevJar", "sourcesJar", "launcherJar")
+            sequenceOf("universalJar", "installerJar", "makeMdk", "userdevJar", "sourcesJar")
                 .map(tasks::getByName)
                 .forEach(::artifact)
 
