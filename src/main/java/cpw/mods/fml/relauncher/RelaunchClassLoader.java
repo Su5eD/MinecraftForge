@@ -58,7 +58,6 @@ public class RelaunchClassLoader extends URLClassLoader {
         addClassLoaderExclusion("sun.");
         addClassLoaderExclusion("org.lwjgl.");
         addClassLoaderExclusion("cpw.mods.fml.relauncher.");
-        addClassLoaderExclusion("com.mojang.authlib.");
 
         // standard transformer exclusions
         addTransformerExclusion("javax.");

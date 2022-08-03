@@ -14,13 +14,8 @@
 
 package cpw.mods.fml.relauncher;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import cpw.mods.fml.common.CertificateHelper;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
-import cpw.mods.fml.relauncher.wrapper.FMLArgs;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -31,10 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -45,9 +37,7 @@ public class RelaunchLibraryManager {
     private static Map<IFMLLoadingPlugin, File> pluginLocations;
     private static List<IFMLLoadingPlugin> loadPlugins;
 
-    public static void handleLaunch(File mcDir, FMLArgs args, RelaunchClassLoader actualClassLoader) {
-        if (args != null && args.shouldExtractResources()) setupResources(mcDir, args.getAssetsDir());
-        
+    public static void handleLaunch(File mcDir, RelaunchClassLoader actualClassLoader) {
         pluginLocations = new HashMap<>();
         loadPlugins = new ArrayList<>();
         List<ILibrarySet> libraries = new ArrayList<>();
@@ -457,49 +447,5 @@ public class RelaunchLibraryManager {
 
     private static String generateChecksum(ByteBuffer buffer) {
         return CertificateHelper.getFingerprint(buffer);
-    }
-
-    private static void setupResources(File mcDir, File assetsDir) {
-        downloadMonitor.updateProgressString("Extracting resources");
-
-        if (assetsDir == null) {
-            FMLRelaunchLog.warning("Could not locate assets index directory, skipping resources extraction");
-            return;
-        }
-
-        Path resourcesPath = mcDir.toPath().resolve("resources");
-        File resourcesDir = resourcesPath.toFile();
-        Path assetsDirPath = assetsDir.toPath();
-        if (!resourcesDir.exists()) resourcesDir.mkdirs();
-
-        try {
-            Gson gson = new Gson();
-            JsonObject node = gson.fromJson(Files.newBufferedReader(assetsDirPath.resolve("indexes/pre-1.6.json")), JsonObject.class);
-            Multimap<String, String> hashToName = HashMultimap.create();
-            node.getAsJsonObject("objects").entrySet()
-                    .forEach(entry -> hashToName.put(entry.getValue().getAsJsonObject().get("hash").getAsString(), entry.getKey()));
-
-            downloadMonitor.resetProgress(hashToName.size());
-            AtomicInteger i = new AtomicInteger(0);
-            Files.walk(assetsDirPath.resolve("objects"))
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> hashToName.get(path.getFileName().toString())
-                            .forEach(name -> {
-                                downloadMonitor.updateProgress(i.incrementAndGet());
-                                Path dest = resourcesPath.resolve(name);
-                                File destFile = dest.toFile();
-                                if (!destFile.exists()) {
-                                    try {
-                                        destFile.getParentFile().mkdirs();
-                                        Files.copy(path, dest);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }));
-        } catch (IOException e) {
-            FMLRelaunchLog.severe("Failed to extract resources");
-            e.printStackTrace();
-        }
     }
 }

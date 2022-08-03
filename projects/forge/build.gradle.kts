@@ -105,7 +105,6 @@ patcher {
             taskName = "forge_client"
             workingDirectory = project.file("run").absolutePath
             main = "net.minecraftforge.legacydev.MainClient"
-            arg("--extractResources")
 
             environment(
                 mapOf(
@@ -117,7 +116,8 @@ patcher {
                     "MCP_MAPPINGS" to "{mcp_mappings}",
                     "MCP_TO_SRG" to "{mcp_to_srg}",
                     "FORGE_GROUP" to project.group,
-                    "FORGE_VERSION" to (project.version as String).substring(minecraftVersion.length + 1)
+                    "FORGE_VERSION" to (project.version as String).substring(minecraftVersion.length + 1),
+                    "extractResources" to "true"
                 )
             )
         }
@@ -202,14 +202,8 @@ dependencies {
     installer("com.google.guava:guava:14.0")
     installer("com.google.code.gson:gson:2.3")
     installer("net.sourceforge.argo:argo:2.25")
-    installer("com.mojang:authlib:2.1.28")
-    installer("org.apache.logging.log4j:log4j-core:2.15.0")
-    installer("org.apache.logging.log4j:log4j-api:2.15.0")
-    installer("org.apache.commons:commons-lang3:3.12.0")
-    installer("commons-io:commons-io:2.10.0")
-    installer("commons-codec:commons-codec:1.15")
 
-    implementation("net.minecraftforge:legacydev:0.2.4.+:fatjar")
+    implementation("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
     implementation("org.bouncycastle:bcprov-jdk15on:1.47")
 }
 
@@ -713,7 +707,7 @@ tasks {
         artifacts.values.forEach { lib ->
             libraries.add(lib["name"]!!.jsonPrimitive.content)
         }
-        libraries.add("net.minecraftforge:legacydev:0.2.4.+:fatjar")
+        libraries.add("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
         libraries.add("net.sourceforge.argo:argo:2.25")
         libraries.add("org.bouncycastle:bcprov-jdk15on:1.47")
         libraries.add("${project.group}:${project.name}:${project.version}:launcher")
@@ -722,7 +716,6 @@ tasks {
         runs {
             register("client") {
                 main = "net.minecraftforge.legacydev.MainClient"
-                arg("--extractResources")
 
                 environment(
                     mapOf(
@@ -734,7 +727,8 @@ tasks {
                         "MCP_MAPPINGS" to "{mcp_mappings}",
                         "MCP_TO_SRG" to "{mcp_to_srg}",
                         "FORGE_GROUP" to project.group,
-                        "FORGE_VERSION" to project.version.toString().substring(minecraftVersion.length + 1)
+                        "FORGE_VERSION" to project.version.toString().substring(minecraftVersion.length + 1),
+                        "extractResources" to "true"
                     )
                 )
             }
