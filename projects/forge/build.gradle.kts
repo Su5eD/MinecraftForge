@@ -2,16 +2,13 @@ import de.undercouch.gradle.tasks.download.DownloadAction
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import lzma.streams.LzmaOutputStream
 import net.minecraftforge.forge.tasks.CheckATs
 import net.minecraftforge.forge.tasks.CheckSAS
 import net.minecraftforge.gradle.common.tasks.*
 import net.minecraftforge.gradle.common.util.Artifact
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import net.minecraftforge.gradle.mcp.MCPExtension
-import net.minecraftforge.gradle.mcp.tasks.DownloadMCPConfig
 import net.minecraftforge.gradle.patcher.tasks.GenerateBinPatches
-import net.minecraftforge.srgutils.IMappingFile
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.eclipse.jgit.api.Git
@@ -197,7 +194,6 @@ repositories {
 
 dependencies {
     installer("org.ow2.asm:asm-debug-all:5.2")
-    installer("lzma:lzma:0.0.1")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
     installer("com.google.guava:guava:14.0")
     installer("com.google.code.gson:gson:2.3")
@@ -277,47 +273,8 @@ tasks {
         inheritance.set(extractInheritance.output)
         sass.from(patcher.sideAnnotationStrippers)
     }
-    
-    val extractObf2Srg by creating(ExtractMCPData::class) {
-        val downloadConfig = project(":mcp").tasks.getByName<DownloadMCPConfig>("downloadConfig")
-        dependsOn(downloadConfig)
-        
-        config.set(downloadConfig.output)
-    }
-
-    val deobfDataLzma by creating {
-        dependsOn(extractObf2Srg)
-
-        val outputSrg = file("$buildDir/deobfDataLzma/data.srg")
-        val output = file("$buildDir/deobfDataLzma/data.lzma")
-
-        inputs.file(extractObf2Srg.output)
-        outputs.file(output)
-
-        doLast {
-            IMappingFile.load(extractObf2Srg.output.get().asFile)
-                .reverse()
-                .write(outputSrg.toPath(), IMappingFile.Format.SRG, false)
-
-            val ins = outputSrg.inputStream()
-            val os = output.outputStream()
-
-            val lzma = LzmaOutputStream.Builder(os)
-                .useEndMarkerMode(true)
-                .build()
-
-            ins.copyTo(lzma)
-
-            lzma.close()
-        }
-    }
 
     universalJar {
-        dependsOn(deobfDataLzma)
-        from(deobfDataLzma.outputs) {
-            rename { "deobfuscation_data-${minecraftVersion}.lzma" }
-        }
-
         from(extraTxts)
 
         filesMatching("*.properties") {
@@ -708,9 +665,7 @@ tasks {
             libraries.add(lib["name"]!!.jsonPrimitive.content)
         }
         libraries.add("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
-        libraries.add("net.sourceforge.argo:argo:2.25")
         libraries.add("org.bouncycastle:bcprov-jdk15on:1.47")
-        libraries.add("${project.group}:${project.name}:${project.version}:launcher")
         sourceFilters.set(listOf("^(?!argo|org/bouncycastle).*"))
 
         runs {
