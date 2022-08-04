@@ -48,7 +48,7 @@ public class ItemData {
         }
         this.modId = mc.getModId();
         if (!modOrdinals.containsKey(mc.getModId())) {
-            modOrdinals.put(mc.getModId(), HashMultiset.create());
+            modOrdinals.put(mc.getModId(), HashMultiset.<String>create());
         }
         this.ordinal = modOrdinals.get(mc.getModId()).add(itemType, 1);
     }

@@ -76,7 +76,7 @@ public class FMLCommonHandler {
     private boolean noForge;
     private List<String> brandings;
     private List<ICrashCallable> crashCallables = Lists.newArrayList(Loader.instance().getCallableCrashInformation());
-    private Set<SaveHandler> handlerSet = Sets.newSetFromMap(new MapMaker().weakKeys().makeMap());
+    private Set<SaveHandler> handlerSet = Sets.newSetFromMap(new MapMaker().weakKeys().<SaveHandler,Boolean>makeMap());
 
 
     public void beginLoading(IFMLSidedHandler handler) {

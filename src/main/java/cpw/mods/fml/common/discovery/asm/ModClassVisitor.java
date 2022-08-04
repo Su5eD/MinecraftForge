@@ -46,7 +46,7 @@ public class ModClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        if (discoverer.isBaseMod(Collections.emptyList()) && name.equals("getPriorities") && desc.equals(Type.getMethodDescriptor(Type.getType(String.class)))) {
+        if (discoverer.isBaseMod(Collections.<String>emptyList()) && name.equals("getPriorities") && desc.equals(Type.getMethodDescriptor(Type.getType(String.class)))) {
             return new ModMethodVisitor(name, discoverer);
         }
         return null;

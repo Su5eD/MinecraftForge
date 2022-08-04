@@ -1,5 +1,4 @@
 import net.minecraftforge.gradle.common.tasks.ExtractNatives
-import java.util.function.Predicate
 
 plugins {
     eclipse
@@ -9,15 +8,10 @@ plugins {
 evaluationDependsOn(":mcp")
 
 tasks {
-    compileJava { // Need this here so eclipse task generates correctly.
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
-
     extractMapped {
-        filter.set(Predicate { zipEntry ->
+        filter.set { zipEntry ->
             zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
-        })
+        }
     }
 }
 
@@ -28,15 +22,9 @@ val mappingsVersion: String by rootProject.extra
 val postProcessor: Map<String, Any> by rootProject.extra
 
 dependencies {
-    implementation("net.minecraftforge:mergetool:0.2.3.3:cpw")
+    implementation("net.minecraftforge:mergetool:1.1.6-legacy:cpw")
     implementation("org.bouncycastle:bcprov-jdk15on:1.47")
     implementation("net.sourceforge.argo:argo:2.25")
-}
-
-configurations {
-    minecraftImplementation {
-        exclude(group = "net.minecraft", module = "launchwrapper")
-    }
 }
 
 patcher {

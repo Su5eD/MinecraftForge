@@ -326,13 +326,13 @@ public class ForgeChunkManager {
         ArrayListMultimap<String, Ticket> newTickets = ArrayListMultimap.create();
         tickets.put(world, newTickets);
 
-        forcedChunks.put(world, ImmutableSetMultimap.of());
+        forcedChunks.put(world, ImmutableSetMultimap.<ChunkCoordIntPair, Ticket>of());
 
         if (!(world instanceof WorldServer)) {
             return;
         }
 
-        dormantChunkCache.put(world, CacheBuilder.newBuilder().maximumSize(dormantChunkCacheSize).build());
+        dormantChunkCache.put(world, CacheBuilder.newBuilder().maximumSize(dormantChunkCacheSize).<Long, Chunk>build());
         WorldServer worldServer = (WorldServer) world;
         File chunkDir = worldServer.getChunkSaveLocation();
         File chunkLoaderData = new File(chunkDir, "forcedchunks.dat");
@@ -376,7 +376,7 @@ public class ForgeChunkManager {
                     if (ticket.hasKey("Player")) {
                         tick.player = ticket.getString("Player");
                         if (!playerLoadedTickets.containsKey(tick.modId)) {
-                            playerLoadedTickets.put(modId, ArrayListMultimap.create());
+                            playerLoadedTickets.put(modId, ArrayListMultimap.<String, Ticket>create());
                         }
                         playerLoadedTickets.get(tick.modId).put(tick.player, tick);
                     } else {
@@ -665,7 +665,7 @@ public class ForgeChunkManager {
      * @return the list of persistent chunks in the world
      */
     public static ImmutableSetMultimap<ChunkCoordIntPair, Ticket> getPersistentChunksFor(World world) {
-        return forcedChunks.containsKey(world) ? forcedChunks.get(world) : ImmutableSetMultimap.of();
+        return forcedChunks.containsKey(world) ? forcedChunks.get(world) : ImmutableSetMultimap.<ChunkCoordIntPair, Ticket>of();
     }
 
     static void saveWorld(World world) {

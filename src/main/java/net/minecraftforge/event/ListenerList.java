@@ -94,7 +94,7 @@ public class ListenerList {
             priorities = new ArrayList<>(count);
 
             for (int x = 0; x < count; x++) {
-                priorities.add(new ArrayList<>());
+                priorities.add(new ArrayList<IEventListener>());
             }
         }
 

@@ -22,10 +22,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.stream.Stream;
 
 public class FMLRelauncher {
     private static FMLRelauncher instance;
@@ -219,18 +219,17 @@ public class FMLRelauncher {
     private static URL[] locateMcDeps() {
         Path root = LibraryFinder.getLibrariesRoot();
         Path forge = LibraryFinder.getForgePath(root);
-        Path[] mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
+        List<Path> mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
+        List<URL> urls = new ArrayList<>();
+        
+        try {
+            for (Path path : mcDeps) urls.add(path.toUri().toURL());
+            urls.add(forge.toUri().toURL());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Cannot resolve path of library", e);
+        }
 
-        return Stream.concat(Arrays.stream(mcDeps), Stream.of(forge))
-            .map(Path::toUri)
-            .map(uri -> {
-                try {
-                    return uri.toURL();
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException("Cannot resolve path of library", e);
-                }
-            })
-            .toArray(URL[]::new);
+        return urls.toArray(new URL[0]);
     }
 
     private void relaunchApplet(Applet minecraftApplet) {

@@ -19,6 +19,8 @@ import java.awt.Dialog.ModalityType;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class Downloader extends JOptionPane implements IDownloadDisplay {
     private JDialog container;
@@ -51,10 +53,12 @@ public class Downloader extends JOptionPane implements IDownloadDisplay {
         setMessageType(JOptionPane.INFORMATION_MESSAGE);
         setMessage(makeProgressPanel());
         setOptions(new Object[]{"Stop"});
-        addPropertyChangeListener(evt ->
-        {
-            if (evt.getSource() == Downloader.this && evt.getPropertyName().equals(VALUE_PROPERTY)) {
-                requestClose("This will stop minecraft from launching\nAre you sure you want to do this?");
+        addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getSource() == Downloader.this && evt.getPropertyName() == VALUE_PROPERTY) {
+                    requestClose("This will stop minecraft from launching\nAre you sure you want to do this?");
+                }
             }
         });
         container = new JDialog(null, "Hello", ModalityType.MODELESS);

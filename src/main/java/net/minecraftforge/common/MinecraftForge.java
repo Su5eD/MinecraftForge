@@ -163,8 +163,8 @@ public class MinecraftForge {
      * Method invoked by FML before any other mods are loaded.
      */
     public static void initialize() {
-        System.out.printf("MinecraftForge v%s Initialized\n", ForgeVersion.getVersion());
-        FMLLog.info("MinecraftForge v%s Initialized", ForgeVersion.getVersion());
+        System.out.printf("MinecraftForge v%s Initialized\n", ForgeVersion.version);
+        FMLLog.info("MinecraftForge v%s Initialized", ForgeVersion.version);
 
         Block filler = new Block(0, Material.air);
         Block.blocksList[0] = null;
@@ -186,6 +186,6 @@ public class MinecraftForge {
     }
 
     public static String getBrandingVersion() {
-        return "Minecraft Forge " + ForgeVersion.getVersion();
+        return "Minecraft Forge " + ForgeVersion.version;
     }
 }

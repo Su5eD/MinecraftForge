@@ -17,6 +17,7 @@ package cpw.mods.fml.common;
 import com.google.common.collect.ImmutableList;
 import cpw.mods.fml.common.asm.transformers.AccessTransformer;
 import cpw.mods.fml.common.modloader.BaseModProxy;
+import cpw.mods.fml.relauncher.IClassTransformer;
 import cpw.mods.fml.relauncher.RelaunchClassLoader;
 
 import java.io.File;
@@ -70,11 +71,12 @@ public class ModClassLoader extends URLClassLoader {
     }
 
     public Class<? extends BaseModProxy> loadBaseModClass(String modClazzName) throws Exception {
-        AccessTransformer transformer = (AccessTransformer) mainClassLoader.getTransformers().stream()
-                .filter(AccessTransformer.class::isInstance)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Could not find the AccessTransformer transformer"));
-        transformer.ensurePublicAccessFor(modClazzName);
-        return (Class<? extends BaseModProxy>) Class.forName(modClazzName, true, this);
+        for (IClassTransformer transformer : mainClassLoader.getTransformers()) {
+            if (transformer instanceof AccessTransformer) {
+                ((AccessTransformer) transformer).ensurePublicAccessFor(modClazzName);
+                return (Class<? extends BaseModProxy>) Class.forName(modClazzName, true, this);
+            }
+        }
+        throw new RuntimeException("Could not find the AccessTransformer transformer");
     }
 }

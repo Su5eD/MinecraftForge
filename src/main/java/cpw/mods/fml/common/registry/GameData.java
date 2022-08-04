@@ -14,6 +14,7 @@
 
 package cpw.mods.fml.common.registry;
 
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapDifference;
@@ -100,8 +101,14 @@ public class GameData {
             }
             return;
         }
+        
+        Function<? super ItemData, Integer> idMapFunction = new Function<ItemData, Integer>() {
+            public Integer apply(ItemData input) {
+                return input.getItemId();
+            }
+        };
 
-        Map<Integer, ItemData> worldMap = Maps.uniqueIndex(worldSaveItems, ItemData::getItemId);
+        Map<Integer, ItemData> worldMap = Maps.uniqueIndex(worldSaveItems, idMapFunction);
         difference = Maps.difference(worldMap, idMap);
         FMLLog.log("fml.ItemTracker", Level.FINE, "The difference set is %s", difference);
         if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()) {

@@ -27,6 +27,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.SpawnListEntry;
 
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -239,8 +240,15 @@ public class EntityRegistry {
 
     public static void removeSpawn(Class<? extends EntityLiving> entityClass, EnumCreatureType typeOfCreature, BiomeGenBase... biomes) {
         for (BiomeGenBase biome : biomes) {
+            @SuppressWarnings("unchecked")
+            Iterator<SpawnListEntry> spawns = biome.getSpawnableList(typeOfCreature).iterator();
 
-            biome.getSpawnableList(typeOfCreature).removeIf(entry -> ((SpawnListEntry) entry).entityClass == entityClass);
+            while (spawns.hasNext()) {
+                SpawnListEntry entry = spawns.next();
+                if (entry.entityClass == entityClass) {
+                    spawns.remove();
+                }
+            }
         }
     }
 

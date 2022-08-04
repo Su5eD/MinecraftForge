@@ -56,7 +56,11 @@ public class EventBus {
             ASMEventHandler listener = new ASMEventHandler(target, method);
             event.getListenerList().register(busID, listener.getPriority(), listener);
 
-            ArrayList<IEventListener> others = listeners.computeIfAbsent(target, k -> new ArrayList<>());
+            ArrayList<IEventListener> others = listeners.get(target);
+            if (others == null) {
+                others = new ArrayList<>();
+                listeners.put(target, others);
+            }
             others.add(listener);
         } catch (Exception e) {
             e.printStackTrace();

@@ -15,6 +15,7 @@
 package cpw.mods.fml.client.modloader;
 
 import com.google.common.base.Equivalence;
+import com.google.common.base.Supplier;
 import com.google.common.collect.*;
 import com.google.common.collect.MapDifference.ValueDifference;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
@@ -40,6 +41,7 @@ import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.src.BaseMod;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -94,7 +96,12 @@ public class ModLoaderClientHelper implements IModLoaderSidedHelper {
     public ModLoaderClientHelper(Minecraft client) {
         this.client = client;
         ModLoaderHelper.sidedHelper = this;
-        keyBindingContainers = Multimaps.newMultimap(Maps.newHashMap(), () -> Collections.singleton(new ModLoaderKeyBindingHandler()));
+        keyBindingContainers = Multimaps.newMultimap(Maps.<ModLoaderModContainer, Collection<ModLoaderKeyBindingHandler>>newHashMap(), new Supplier<Collection<ModLoaderKeyBindingHandler>>() {
+            @Override
+            public Collection<ModLoaderKeyBindingHandler> get() {
+                return Collections.singleton(new ModLoaderKeyBindingHandler());
+            }
+        });
     }
 
     private Minecraft client;

@@ -7,10 +7,7 @@ import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 public class ChestGenHooks {
     //Currently implemented categories for chests/dispensers, Dungeon loot is still in DungeonHooks
@@ -184,7 +181,13 @@ public class ChestGenHooks {
      * @param item The item to check
      */
     public void removeItem(ItemStack item) {
-        contents.removeIf(cont -> item.isItemEqual(cont.theItemId) || (item.getItemDamage() == -1 && item.itemID == cont.theItemId.itemID));
+        Iterator<WeightedRandomChestContent> itr = contents.iterator();
+        while (itr.hasNext()) {
+            WeightedRandomChestContent cont = itr.next();
+            if (item.isItemEqual(cont.theItemId) || (item.getItemDamage() == -1 && item.itemID == cont.theItemId.itemID)) {
+                itr.remove();
+            }
+        }
     }
 
     /**

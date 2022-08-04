@@ -15,6 +15,7 @@
 package cpw.mods.fml.common;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.*;
@@ -163,7 +164,11 @@ public class Loader {
                     FMLLog.severe("The mod %s does not wish to run in Minecraft version %s. You will have to remove it to play.", mod.getModId(), getMCVersionString());
                     throw new WrongMinecraftVersionException(mod);
                 }
-                Map<String, ArtifactVersion> names = Maps.uniqueIndex(mod.getRequirements(), ArtifactVersion::getLabel);
+                Map<String, ArtifactVersion> names = Maps.uniqueIndex(mod.getRequirements(), new Function<ArtifactVersion, String>() {
+                    public String apply(ArtifactVersion v) {
+                        return v.getLabel();
+                    }
+                });
                 Set<ArtifactVersion> versionMissingMods = Sets.newHashSet();
                 Set<String> missingMods = Sets.difference(names.keySet(), modVersions.keySet());
                 if (!missingMods.isEmpty()) {
@@ -366,7 +371,7 @@ public class Loader {
     }
 
     public List<ModContainer> getModList() {
-        return instance().mods != null ? ImmutableList.copyOf(instance().mods) : ImmutableList.of();
+        return instance().mods != null ? ImmutableList.copyOf(instance().mods) : ImmutableList.<ModContainer>of();
     }
 
     /**
@@ -436,7 +441,11 @@ public class Loader {
         modStates.putAll(sysPropertyStateList);
         FMLLog.fine("After merging, found state information for %d mods", modStates.size());
 
-        Map<String, Boolean> isEnabled = Maps.transformValues(modStates, Boolean::parseBoolean);
+        Map<String, Boolean> isEnabled = Maps.transformValues(modStates, new Function<String, Boolean>() {
+            public Boolean apply(String input) {
+                return Boolean.parseBoolean(input);
+            }
+        });
 
         for (Map.Entry<String, Boolean> entry : isEnabled.entrySet()) {
             if (namedMods.containsKey(entry.getKey())) {
@@ -567,7 +576,7 @@ public class Loader {
     }
 
     public List<ModContainer> getActiveModList() {
-        return modController != null ? modController.getActiveModList() : ImmutableList.of();
+        return modController != null ? modController.getActiveModList() : ImmutableList.<ModContainer>of();
     }
 
     public ModState getModState(ModContainer selectedMod) {

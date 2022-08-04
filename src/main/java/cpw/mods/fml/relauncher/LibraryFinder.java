@@ -22,7 +22,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LibraryFinder {
@@ -60,7 +62,7 @@ public class LibraryFinder {
     }
     
     public static Path getForgePath(Path root) {
-        String rawPath = getJarMavenCoordinates("net.minecraftforge", "forge", FMLInjectionData.mcversion + "-" + ForgeVersion.getVersion(), "universal");
+        String rawPath = getJarMavenCoordinates("net.minecraftforge", "forge", FMLInjectionData.mcversion + "-" + ForgeVersion.version, "universal");
         Path path = root.resolve(rawPath).toAbsolutePath();
         
         if (!Files.exists(path)) throw new RuntimeException("Cannot find Forge dependency");
@@ -69,25 +71,24 @@ public class LibraryFinder {
         return path;
     }
     
-    public static Path[] getMcDeps(Path root, String side) {
+    public static List<Path> getMcDeps(Path root, String side) {
         Map<String, String> mcDeps = new HashMap<>();
         mcDeps.put("MC SLIM", getJarMavenCoordinates("net.minecraft", side, FMLInjectionData.mcversion + "-" +  FMLInjectionData.mcpversion, "slim"));
         mcDeps.put("MC EXTRA", getJarMavenCoordinates("net.minecraft", side, FMLInjectionData.mcversion + "-" +  FMLInjectionData.mcpversion, "extra"));
-        mcDeps.put("Forge Patches", getJarMavenCoordinates("net.minecraftforge", "forge", FMLInjectionData.mcversion + "-" + ForgeVersion.getVersion(), side));
-        
-        return mcDeps.entrySet().stream()
-                .map(entry -> {
-                    String name = entry.getKey();
-                    String rawPath = entry.getValue();
-                    Path path = root.resolve(rawPath);
-                    
-                    if (!Files.exists(path)) throw new RuntimeException("Cannot find MC dependency " + name);
-                    
-                    FMLRelaunchLog.finest("Found MC dep " + name + " at " + path);
-                    
-                    return path.toAbsolutePath();
-                })
-                .toArray(Path[]::new);
+        mcDeps.put("Forge Patches", getJarMavenCoordinates("net.minecraftforge", "forge", FMLInjectionData.mcversion + "-" + ForgeVersion.version, side));
+
+        List<Path> paths = new ArrayList<>();
+        for (Map.Entry<String, String> entry : mcDeps.entrySet()) {
+            String name = entry.getKey();
+            String rawPath = entry.getValue();
+            Path path = root.resolve(rawPath);
+
+            if (!Files.exists(path)) throw new RuntimeException("Cannot find MC dependency " + name);
+
+            FMLRelaunchLog.finest("Found MC dep " + name + " at " + path);
+            paths.add(path.toAbsolutePath());
+        }
+        return paths;
     }
     
     private static String getJarMavenCoordinates(String group, String name, String version, String classifier) {

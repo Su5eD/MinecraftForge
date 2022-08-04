@@ -135,7 +135,7 @@ public class OreDictionary {
         if (val == null) {
             val = maxID++;
             oreIDs.put(name, val);
-            oreStacks.put(val, new ArrayList<>());
+            oreStacks.put(val, new ArrayList<ItemStack>());
         }
         return val;
     }
@@ -205,7 +205,11 @@ public class OreDictionary {
      * @return An arrayList containing ItemStacks registered for this ore
      */
     public static ArrayList<ItemStack> getOres(Integer id) {
-        ArrayList<ItemStack> val = oreStacks.computeIfAbsent(id, k -> new ArrayList<>());
+        ArrayList<ItemStack> val = oreStacks.get(id);
+        if (val == null) {
+            val = new ArrayList<ItemStack>();
+            oreStacks.put(id, val);
+        }
         return val;
     }
 

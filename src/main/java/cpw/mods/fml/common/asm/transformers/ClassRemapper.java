@@ -244,7 +244,7 @@ public class ClassRemapper extends ClassVisitor {
         @Deprecated
         @Override
         public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
-            if (api >= Opcodes.ASM4) {
+            if (api < Opcodes.ASM4) {
                 super.visitMethodInsn(opcode, owner, name, desc);
                 return;
             }

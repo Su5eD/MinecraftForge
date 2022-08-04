@@ -16,6 +16,7 @@ package cpw.mods.fml.common.asm.transformers;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Sets;
 import cpw.mods.fml.relauncher.IClassNameMapper;
 import cpw.mods.fml.relauncher.IClassTransformer;
 import org.objectweb.asm.ClassReader;
@@ -24,7 +25,7 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.Set;
 
 public class MLClassNameMapper implements IClassTransformer, IClassNameMapper {
     private static final BiMap<String, String> MAPPING;
@@ -32,8 +33,9 @@ public class MLClassNameMapper implements IClassTransformer, IClassNameMapper {
 
     static {
         BiMap<String, String> map = HashBiMap.create();
-        Stream.of("MLProp", "BaseMod", "EntityRendererProxy", "FMLRenderAccessLibrary", "ModLoader", "ModTextureAnimation", "ModTextureStatic", "TradeEntry")
-                .forEach(str -> map.put("net/minecraft/src/" + str, str));
+
+        Set<String> names = Sets.newHashSet("MLProp", "BaseMod", "EntityRendererProxy", "FMLRenderAccessLibrary", "ModLoader", "ModTextureAnimation", "ModTextureStatic", "TradeEntry");
+        for (String name : names) map.put("net/minecraft/src/" + name, name);
 
         MAPPING = map;
         REMAPPER = new SimpleRemapper(MAPPING);
@@ -60,11 +62,13 @@ public class MLClassNameMapper implements IClassTransformer, IClassNameMapper {
 
     @Override
     public String mapClassName(String name) {
-        return MAPPING.getOrDefault(name.replace('.', '/'), name);
+        String mapped = MAPPING.get(name.replace('.', '/'));
+        return mapped != null ? mapped : name;
     }
 
     @Override
     public String unmapClassName(String name) {
-        return MAPPING.inverse().getOrDefault(name.replace('.', '/'), name);
+        String unmapped = MAPPING.inverse().get(name.replace('.', '/'));
+        return unmapped != null ? unmapped : name;
     }
 }

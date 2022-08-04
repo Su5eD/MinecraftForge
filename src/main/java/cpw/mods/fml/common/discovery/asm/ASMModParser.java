@@ -79,7 +79,7 @@ public class ASMModParser {
                 .add("classVersion", classVersion)
                 .add("superName", asmSuperType.getClassName())
                 .add("annotations", annotations)
-                .add("isBaseMod", isBaseMod(Collections.emptyList()))
+                .add("isBaseMod", isBaseMod(Collections.<String>emptyList()))
                 .add("baseModProperties", baseModProperties)
                 .toString();
     }

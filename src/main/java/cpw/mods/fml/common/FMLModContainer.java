@@ -14,6 +14,7 @@
 
 package cpw.mods.fml.common;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.*;
@@ -40,7 +41,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.cert.Certificate;
 import java.util.*;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -263,8 +263,16 @@ public class FMLModContainer implements ModContainer {
     private void processFieldAnnotations(ASMDataTable asmDataTable) throws Exception {
         SetMultimap<String, ASMData> annotations = asmDataTable.getAnnotationsFor(this);
 
-        parseSimpleFieldAnnotation(annotations, Instance.class.getName(), ModContainer::getMod);
-        parseSimpleFieldAnnotation(annotations, Metadata.class.getName(), ModContainer::getMetadata);
+        parseSimpleFieldAnnotation(annotations, Instance.class.getName(), new Function<ModContainer, Object>() {
+            public Object apply(ModContainer mc) {
+                return mc.getMod();
+            }
+        });
+        parseSimpleFieldAnnotation(annotations, Metadata.class.getName(), new Function<ModContainer, Object>() {
+            public Object apply(ModContainer mc) {
+                return mc.getMetadata();
+            }
+        });
     }
 
     private void parseSimpleFieldAnnotation(SetMultimap<String, ASMData> annotations, String annotationClassName, Function<ModContainer, Object> retreiver) throws IllegalAccessException {

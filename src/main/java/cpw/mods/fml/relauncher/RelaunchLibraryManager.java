@@ -257,7 +257,12 @@ public class RelaunchLibraryManager {
     private static void discoverCoreMods(File mcDir, RelaunchClassLoader classLoader, List<IFMLLoadingPlugin> loadPlugins, List<ILibrarySet> libraries) {
         downloadMonitor.updateProgressString("Discovering coremods");
         File coreMods = setupCoreModDir(mcDir);
-        FilenameFilter ff = (dir, name) -> name.endsWith(".jar");
+        FilenameFilter ff = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        };
         File[] coreModList = coreMods.listFiles(ff);
         Arrays.sort(coreModList);
 

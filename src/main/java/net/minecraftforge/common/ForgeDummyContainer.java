@@ -22,7 +22,7 @@ public class ForgeDummyContainer extends DummyModContainer implements WorldAcces
         ModMetadata meta = getMetadata();
         meta.modId = "Forge";
         meta.name = "Minecraft Forge";
-        meta.version = ForgeVersion.getVersion();
+        meta.version = ForgeVersion.version;
         meta.credits = "Made possible with help from many people";
         meta.authorList = Arrays.asList("LexManos", "Eloraam", "Spacetoad");
         meta.description = "Minecraft Forge is a common open source API allowing a broad range of mods " +
