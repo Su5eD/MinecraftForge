@@ -193,7 +193,6 @@ repositories {
 }
 
 dependencies {
-    installer("org.ow2.asm:asm-debug-all:5.2")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
     installer("com.google.guava:guava:14.0")
     installer("com.google.code.gson:gson:2.3")
@@ -752,11 +751,9 @@ license {
     header.set(rootProject.resources.text.fromFile("LICENSE-header.txt"))
 
     include("cpw/mods/fml/")
+    exclude("cpw/mods/fml/common/asm/transformers/ClassRemapper.java")
 
     tasks {
-        register("fmlllauncher") {
-            files.from("$rootDir/src/fmlllauncher/java")
-        }
         register("main") {
             files.from("$rootDir/src/main/java")
         }

@@ -146,7 +146,7 @@ public class AccessTransformer implements IClassTransformer {
                 continue;
             }
             if (m.desc.isEmpty()) {
-                for (FieldNode n : classNode.fields) {
+                for (FieldNode n : (List<FieldNode>) classNode.fields) {
                     if (n.name.equals(m.name) || m.name.equals("*")) {
                         n.access = getFixedAccess(n.access, m);
                         if (DEBUG) {
@@ -159,7 +159,7 @@ public class AccessTransformer implements IClassTransformer {
                     }
                 }
             } else {
-                for (MethodNode n : classNode.methods) {
+                for (MethodNode n : (List<MethodNode>) classNode.methods) {
                     if ((n.name.equals(m.name) && n.desc.equals(m.desc)) || m.name.equals("*")) {
                         n.access = getFixedAccess(n.access, m);
                         if (DEBUG) {

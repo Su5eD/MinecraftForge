@@ -7,6 +7,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.List;
+
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -53,7 +55,7 @@ public class EventTransformer implements IClassTransformer {
         Class<?> listenerListClazz = Class.forName("net.minecraftforge.event.ListenerList", false, getClass().getClassLoader());
         Type tList = Type.getType(listenerListClazz);
 
-        for (MethodNode method : classNode.methods) {
+        for (MethodNode method : (List<MethodNode>) classNode.methods) {
             if (method.name.equals("setup") &&
                     method.desc.equals(Type.getMethodDescriptor(VOID_TYPE)) &&
                     (method.access & ACC_PROTECTED) == ACC_PROTECTED) {
@@ -91,7 +93,7 @@ public class EventTransformer implements IClassTransformer {
          */
         MethodNode method = new MethodNode(ASM4, ACC_PUBLIC, "<init>", getMethodDescriptor(VOID_TYPE), null, null);
         method.instructions.add(new VarInsnNode(ALOAD, 0));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE), false));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE)));
         method.instructions.add(new InsnNode(RETURN));
         if (!hasDefaultCtr) {
             classNode.methods.add(method);
@@ -110,7 +112,7 @@ public class EventTransformer implements IClassTransformer {
          */
         method = new MethodNode(ASM4, ACC_PROTECTED, "setup", getMethodDescriptor(VOID_TYPE), null, null);
         method.instructions.add(new VarInsnNode(ALOAD, 0));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "setup", getMethodDescriptor(VOID_TYPE), false));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "setup", getMethodDescriptor(VOID_TYPE)));
         method.instructions.add(new FieldInsnNode(GETSTATIC, classNode.name, "LISTENER_LIST", tList.getDescriptor()));
         LabelNode initLisitener = new LabelNode();
         method.instructions.add(new JumpInsnNode(IFNULL, initLisitener));
@@ -120,8 +122,8 @@ public class EventTransformer implements IClassTransformer {
         method.instructions.add(new TypeInsnNode(NEW, tList.getInternalName()));
         method.instructions.add(new InsnNode(DUP));
         method.instructions.add(new VarInsnNode(ALOAD, 0));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "getListenerList", getMethodDescriptor(tList), false));
-        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tList.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE, tList), false));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "getListenerList", getMethodDescriptor(tList)));
+        method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tList.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE, tList)));
         method.instructions.add(new FieldInsnNode(PUTSTATIC, classNode.name, "LISTENER_LIST", tList.getDescriptor()));
         method.instructions.add(new InsnNode(RETURN));
         classNode.methods.add(method);

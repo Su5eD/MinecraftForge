@@ -67,7 +67,6 @@ subprojects {
                 useVersion("5.0.4")
             }
         }
-        exclude(group = "org.ow2.asm", module = "asm-all")
     }
     
     repositories { 

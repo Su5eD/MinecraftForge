@@ -20,7 +20,6 @@ import cpw.mods.fml.relauncher.IClassNameMapper;
 import cpw.mods.fml.relauncher.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 
