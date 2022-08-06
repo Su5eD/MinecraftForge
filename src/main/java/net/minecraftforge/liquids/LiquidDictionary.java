@@ -13,23 +13,26 @@ import java.util.Map;
  *
  * @author CovertJaguar <railcraft.wikispaces.com>
  */
-public abstract class LiquidDictionary {
+public abstract class LiquidDictionary
+{
 
-    private static Map<String, LiquidStack> liquids = new HashMap<>();
+    private static Map<String, LiquidStack> liquids = new HashMap<String, LiquidStack>();
 
     /**
      * When creating liquids you should call this function.
-     * <p>
+     *
      * Upon passing it a name and liquid item it will return either
      * a preexisting implementation of that liquid or the liquid passed in.
      *
-     * @param name   the name of the liquid
+     *
+     * @param name the name of the liquid
      * @param liquid the liquid to use if one doesn't exist
      * @return the matching liquid stack
      */
-    public static LiquidStack getOrCreateLiquid(String name, LiquidStack liquid) {
+    public static LiquidStack getOrCreateLiquid(String name, LiquidStack liquid)
+    {
         LiquidStack existing = liquids.get(name);
-        if (existing != null) {
+        if(existing != null) {
             return existing.copy();
         }
         liquids.put(name, liquid.copy());
@@ -40,16 +43,17 @@ public abstract class LiquidDictionary {
     /**
      * Returns the liquid matching the name,
      * if such a liquid exists.
-     * <p>
+     *
      * Can return null.
      *
-     * @param name   the name of the liquid
+     * @param name the name of the liquid
      * @param amount the amout of liquid
      * @return a liquidstack for the requested liquid
      */
-    public static LiquidStack getLiquid(String name, int amount) {
+    public static LiquidStack getLiquid(String name, int amount)
+    {
         LiquidStack liquid = liquids.get(name);
-        if (liquid == null)
+        if(liquid == null)
             return null;
 
         liquid = liquid.copy();
@@ -62,24 +66,28 @@ public abstract class LiquidDictionary {
      *
      * @return the defined liquids
      */
-    public static Map<String, LiquidStack> getLiquids() {
+    public static Map<String, LiquidStack> getLiquids()
+    {
         return ImmutableMap.copyOf(liquids);
     }
-
     /**
      * Fired when a new liquid is created
+     *
      */
-    public static class LiquidRegisterEvent extends Event {
+    public static class LiquidRegisterEvent extends Event
+    {
         public final String Name;
         public final LiquidStack Liquid;
 
-        public LiquidRegisterEvent(String name, LiquidStack liquid) {
+        public LiquidRegisterEvent(String name, LiquidStack liquid)
+        {
             this.Name = name;
             this.Liquid = liquid.copy();
         }
     }
-
-    static {
+    
+    static
+    {
         getOrCreateLiquid("Water", new LiquidStack(Block.waterStill, LiquidContainerRegistry.BUCKET_VOLUME));
         getOrCreateLiquid("Lava", new LiquidStack(Block.lavaStill, LiquidContainerRegistry.BUCKET_VOLUME));
     }

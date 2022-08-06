@@ -15,36 +15,51 @@ import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.VOID_TYPE;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
-@SuppressWarnings("unused")
-public class EventTransformer implements IClassTransformer {
+public class EventTransformer implements IClassTransformer
+{
+    public EventTransformer()
+    {
+    }
+
     @Override
-    public byte[] transform(String name, byte[] bytes) {
-        if (bytes == null || name.equals("net.minecraftforge.event.Event") || name.startsWith("net.minecraft.") || name.indexOf('.') == -1) {
+    public byte[] transform(String name, byte[] bytes)
+    {
+        if (bytes == null || name.equals("net.minecraftforge.event.Event") || name.startsWith("net.minecraft.") || name.indexOf('.') == -1)
+        {
             return bytes;
         }
         ClassReader cr = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();
         cr.accept(classNode, 0);
 
-        try {
-            if (buildEvents(classNode)) {
+        try
+        {
+            if (buildEvents(classNode))
+            {
                 ClassWriter cw = new ClassWriter(COMPUTE_MAXS | COMPUTE_FRAMES);
                 classNode.accept(cw);
                 return cw.toByteArray();
             }
             return bytes;
-        } catch (ClassNotFoundException ex) {
+        }
+        catch (ClassNotFoundException ex)
+        {
             // Discard silently- it's just noise
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
 
         return bytes;
     }
 
-    private boolean buildEvents(ClassNode classNode) throws Exception {
+    @SuppressWarnings("unchecked")
+    private boolean buildEvents(ClassNode classNode) throws Exception
+    {
         Class<?> parent = this.getClass().getClassLoader().loadClass(classNode.superName.replace('/', '.'));
-        if (!Event.class.isAssignableFrom(parent)) {
+        if (!Event.class.isAssignableFrom(parent))
+        {
             return false;
         }
 
@@ -55,29 +70,37 @@ public class EventTransformer implements IClassTransformer {
         Class<?> listenerListClazz = Class.forName("net.minecraftforge.event.ListenerList", false, getClass().getClassLoader());
         Type tList = Type.getType(listenerListClazz);
 
-        for (MethodNode method : (List<MethodNode>) classNode.methods) {
-            if (method.name.equals("setup") &&
+        for (MethodNode method : (List<MethodNode>)classNode.methods)
+        {
+                if (method.name.equals("setup") &&
                     method.desc.equals(Type.getMethodDescriptor(VOID_TYPE)) &&
-                    (method.access & ACC_PROTECTED) == ACC_PROTECTED) {
-                hasSetup = true;
-            }
-            if (method.name.equals("getListenerList") &&
+                    (method.access & ACC_PROTECTED) == ACC_PROTECTED)
+                {
+                    hasSetup = true;
+                }
+                if (method.name.equals("getListenerList") &&
                     method.desc.equals(Type.getMethodDescriptor(tList)) &&
-                    (method.access & ACC_PUBLIC) == ACC_PUBLIC) {
-                hasGetListenerList = true;
-            }
-            if (method.name.equals("<init>") &&
-                    method.desc.equals(Type.getMethodDescriptor(VOID_TYPE))) {
-                hasDefaultCtr = true;
-            }
+                    (method.access & ACC_PUBLIC) == ACC_PUBLIC)
+                {
+                    hasGetListenerList = true;
+                }
+                if (method.name.equals("<init>") &&
+                    method.desc.equals(Type.getMethodDescriptor(VOID_TYPE)))
+                {
+                    hasDefaultCtr = true;
+                }
         }
 
-        if (hasSetup) {
-            if (!hasGetListenerList) {
-                throw new RuntimeException("Event class defines setup() but does not define getListenerList! " + classNode.name);
-            } else {
-                return false;
-            }
+        if (hasSetup)
+        {
+                if (!hasGetListenerList)
+                {
+                        throw new RuntimeException("Event class defines setup() but does not define getListenerList! " + classNode.name);
+                }
+                else
+                {
+                        return false;
+                }
         }
 
         Type tSuper = Type.getType(classNode.superName);
@@ -95,7 +118,8 @@ public class EventTransformer implements IClassTransformer {
         method.instructions.add(new VarInsnNode(ALOAD, 0));
         method.instructions.add(new MethodInsnNode(INVOKESPECIAL, tSuper.getInternalName(), "<init>", getMethodDescriptor(VOID_TYPE)));
         method.instructions.add(new InsnNode(RETURN));
-        if (!hasDefaultCtr) {
+        if (!hasDefaultCtr)
+        {
             classNode.methods.add(method);
         }
 

@@ -11,7 +11,8 @@ import net.minecraftforge.event.Cancelable;
  * removed from the inventory - and thus removed from the system.
  */
 @Cancelable
-public class ItemTossEvent extends ItemEvent {
+public class ItemTossEvent extends ItemEvent
+{
 
     /**
      * The player tossing the item.
@@ -20,11 +21,12 @@ public class ItemTossEvent extends ItemEvent {
 
     /**
      * Creates a new event for EntityItems tossed by a player.
-     *
+     * 
      * @param entityItem The EntityItem being tossed.
-     * @param player     The player tossing the item.
+     * @param player The player tossing the item.
      */
-    public ItemTossEvent(EntityItem entityItem, EntityPlayer player) {
+    public ItemTossEvent(EntityItem entityItem, EntityPlayer player)
+    {
         super(entityItem);
         this.player = player;
     }

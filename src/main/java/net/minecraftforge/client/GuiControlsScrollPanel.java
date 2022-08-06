@@ -9,7 +9,8 @@ import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-public class GuiControlsScrollPanel extends GuiSlot {
+public class GuiControlsScrollPanel extends GuiSlot
+{
     private GuiControls controls;
     private GameSettings options;
     private Minecraft mc;
@@ -18,7 +19,8 @@ public class GuiControlsScrollPanel extends GuiSlot {
     private int _mouseY;
     private int selected = -1;
 
-    public GuiControlsScrollPanel(GuiControls controls, GameSettings options, Minecraft mc) {
+    public GuiControlsScrollPanel(GuiControls controls, GameSettings options, Minecraft mc)
+    {
         super(mc, controls.width, controls.height, 16, (controls.height - 32) + 4, 25);
         this.controls = controls;
         this.options = options;
@@ -26,16 +28,22 @@ public class GuiControlsScrollPanel extends GuiSlot {
     }
 
     @Override
-    protected int getSize() {
+    protected int getSize()
+    {
         return options.keyBindings.length;
     }
 
     @Override
-    protected void elementClicked(int i, boolean flag) {
-        if (!flag) {
-            if (selected == -1) {
+    protected void elementClicked(int i, boolean flag)
+    {
+        if (!flag)
+        {
+            if (selected == -1)
+            {
                 selected = i;
-            } else {
+            }
+            else
+            {
                 options.setKeyBinding(selected, -100);
                 selected = -1;
                 KeyBinding.resetKeyBindingArrayAndHash();
@@ -44,21 +52,24 @@ public class GuiControlsScrollPanel extends GuiSlot {
     }
 
     @Override
-    protected boolean isSelected(int i) {
+    protected boolean isSelected(int i)
+    {
         return false;
     }
 
     @Override
-    protected void drawBackground() {
-    }
+    protected void drawBackground() {}
 
     @Override
-    public void drawScreen(int mX, int mY, float f) {
+    public void drawScreen(int mX, int mY, float f)
+    {
         _mouseX = mX;
         _mouseY = mY;
 
-        if (selected != -1 && !Mouse.isButtonDown(0) && Mouse.getDWheel() == 0) {
-            if (Mouse.next() && Mouse.getEventButtonState()) {
+        if (selected != -1 && !Mouse.isButtonDown(0) && Mouse.getDWheel() == 0)
+        {
+            if (Mouse.next() && Mouse.getEventButtonState())
+            {
                 System.out.println(Mouse.getEventButton());
                 options.setKeyBinding(selected, -100 + Mouse.getEventButton());
                 selected = -1;
@@ -70,7 +81,8 @@ public class GuiControlsScrollPanel extends GuiSlot {
     }
 
     @Override
-    protected void drawSlot(int index, int xPosition, int yPosition, int l, Tessellator tessellator) {
+    protected void drawSlot(int index, int xPosition, int yPosition, int l, Tessellator tessellator)
+    {
         int width = 70;
         int height = 20;
         xPosition -= 20;
@@ -84,8 +96,10 @@ public class GuiControlsScrollPanel extends GuiSlot {
         controls.drawString(mc.fontRenderer, options.getKeyBindingDescription(index), xPosition + width + 4, yPosition + 6, 0xFFFFFFFF);
 
         boolean conflict = false;
-        for (int x = 0; x < options.keyBindings.length; x++) {
-            if (x != index && options.keyBindings[x].keyCode == options.keyBindings[index].keyCode) {
+        for (int x = 0; x < options.keyBindings.length; x++)
+        {
+            if (x != index && options.keyBindings[x].keyCode == options.keyBindings[index].keyCode)
+            {
                 conflict = true;
                 break;
             }
@@ -95,8 +109,10 @@ public class GuiControlsScrollPanel extends GuiSlot {
         controls.drawCenteredString(mc.fontRenderer, str, xPosition + (width / 2), yPosition + (height - 8) / 2, 0xFFFFFFFF);
     }
 
-    public boolean keyTyped(char c, int i) {
-        if (selected != -1) {
+    public boolean keyTyped(char c, int i)
+    {
+        if (selected != -1)
+        {
             options.setKeyBinding(selected, i);
             selected = -1;
             KeyBinding.resetKeyBindingArrayAndHash();

@@ -8,17 +8,19 @@ import java.util.Random;
 
 /**
  * This event is fired when a sapling grows a tree.
- * <p>
+ * 
  * You can set the result to DENY to prevent the default tree growth.
  */
 @HasResult
-public class SaplingGrowTreeEvent extends WorldEvent {
+public class SaplingGrowTreeEvent extends WorldEvent
+{
     public final int x;
     public final int y;
     public final int z;
     public final Random rand;
-
-    public SaplingGrowTreeEvent(World world, Random rand, int x, int y, int z) {
+    
+    public SaplingGrowTreeEvent(World world, Random rand, int x, int y, int z)
+    {
         super(world);
         this.rand = rand;
         this.x = x;

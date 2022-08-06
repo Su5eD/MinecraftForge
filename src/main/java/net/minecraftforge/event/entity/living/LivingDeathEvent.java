@@ -5,10 +5,11 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.Cancelable;
 
 @Cancelable
-public class LivingDeathEvent extends LivingEvent {
+public class LivingDeathEvent extends LivingEvent
+{
     public final DamageSource source;
-
-    public LivingDeathEvent(EntityLiving entity, DamageSource source) {
+    public LivingDeathEvent(EntityLiving entity, DamageSource source)
+    {
         super(entity);
         this.source = source;
     }

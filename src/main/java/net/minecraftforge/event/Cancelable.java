@@ -8,5 +8,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(value = RUNTIME)
 @Target(value = TYPE)
-public @interface Cancelable {
-}
+public @interface Cancelable{}

@@ -18,13 +18,14 @@ public interface ILiquidTank {
     int getCapacity();
 
     /**
+     *
      * @param resource
      * @param doFill
      * @return Amount of liquid used for filling.
      */
     int fill(LiquidStack resource, boolean doFill);
-
     /**
+     *
      * @param maxDrain
      * @param doDrain
      * @return Null if nothing was drained, otherwise a LiquidStack containing the drained.
@@ -38,6 +39,6 @@ public interface ILiquidTank {
      *
      * @return a number indicating tank pressure
      */
-    int getTankPressure();
+    public int getTankPressure();
 
 }

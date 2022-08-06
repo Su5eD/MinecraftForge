@@ -1,7 +1,7 @@
 /**
  * Copyright (c) SpaceToad, 2011
  * http://www.mod-buildcraft.com
- * <p>
+ *
  * BuildCraft is distributed under the terms of the Minecraft Mod Public
  * License 1.0, or MMPL. Please check the contents of the license located in
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
@@ -23,7 +23,7 @@ public class LiquidContainerData {
         this.filled = filled;
         this.container = container;
 
-        if (stillLiquid == null || filled == null || container == null)
+        if(stillLiquid == null || filled == null || container == null)
             throw new RuntimeException("stillLiquid, filled, or container is null, this is an error");
     }
 

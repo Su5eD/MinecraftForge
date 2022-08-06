@@ -11,7 +11,8 @@ public class LiquidEvent extends Event {
     public final int z;
     public final World world;
 
-    public LiquidEvent(LiquidStack liquid, World world, int x, int y, int z) {
+    public LiquidEvent(LiquidStack liquid, World world, int x, int y, int z)
+    {
         this.liquid = liquid;
         this.world = world;
         this.x = x;
@@ -23,9 +24,12 @@ public class LiquidEvent extends Event {
      * Mods should fire this event when they move liquids around (pipe networks etc)
      *
      * @author cpw
+     *
      */
-    public static class LiquidMotionEvent extends LiquidEvent {
-        public LiquidMotionEvent(LiquidStack liquid, World world, int x, int y, int z) {
+    public static class LiquidMotionEvent extends LiquidEvent
+    {
+        public LiquidMotionEvent(LiquidStack liquid, World world, int x, int y, int z)
+        {
             super(liquid, world, x, y, z);
         }
     }
@@ -35,11 +39,14 @@ public class LiquidEvent extends Event {
      * {@link LiquidTank} does.
      *
      * @author cpw
+     *
      */
-    public static class LiquidFillingEvent extends LiquidEvent {
+    public static class LiquidFillingEvent extends LiquidEvent
+    {
         public final ILiquidTank tank;
 
-        public LiquidFillingEvent(LiquidStack liquid, World world, int x, int y, int z, ILiquidTank tank) {
+        public LiquidFillingEvent(LiquidStack liquid, World world, int x, int y, int z, ILiquidTank tank)
+        {
             super(liquid, world, x, y, z);
             this.tank = tank;
         }
@@ -47,13 +54,15 @@ public class LiquidEvent extends Event {
 
     /**
      * Mods should fire this event when a liquid is {@link ILiquidTank#drain(int, boolean)} from their tank.
-     *
      * @author cpw
+     *
      */
-    public static class LiquidDrainingEvent extends LiquidEvent {
+    public static class LiquidDrainingEvent extends LiquidEvent
+    {
         public final ILiquidTank tank;
 
-        public LiquidDrainingEvent(LiquidStack liquid, World world, int x, int y, int z, ILiquidTank tank) {
+        public LiquidDrainingEvent(LiquidStack liquid, World world, int x, int y, int z, ILiquidTank tank)
+        {
             super(liquid, world, x, y, z);
             this.tank = tank;
         }
@@ -64,9 +73,12 @@ public class LiquidEvent extends Event {
      * Mods should fire this event when a liquid "spills", for example, if a block containing liquid is broken.
      *
      * @author cpw
+     *
      */
-    public static class LiquidSpilledEvent extends LiquidEvent {
-        public LiquidSpilledEvent(LiquidStack liquid, World world, int x, int y, int z) {
+    public static class LiquidSpilledEvent extends LiquidEvent
+    {
+        public LiquidSpilledEvent(LiquidStack liquid, World world, int x, int y, int z)
+        {
             super(liquid, world, x, y, z);
         }
     }
@@ -76,7 +88,8 @@ public class LiquidEvent extends Event {
      *
      * @param event
      */
-    public static void fireEvent(LiquidEvent event) {
+    public static final void fireEvent(LiquidEvent event)
+    {
         MinecraftForge.EVENT_BUS.post(event);
     }
 }

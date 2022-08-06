@@ -8,14 +8,16 @@ import net.minecraftforge.event.Cancelable;
 import java.util.ArrayList;
 
 @Cancelable
-public class LivingDropsEvent extends LivingEvent {
+public class LivingDropsEvent extends LivingEvent
+{
     public final DamageSource source;
     public final ArrayList<EntityItem> drops;
     public final int lootingLevel;
     public final boolean recentlyHit;
     public final int specialDropValue;
-
-    public LivingDropsEvent(EntityLiving entity, DamageSource source, ArrayList<EntityItem> drops, int lootingLevel, boolean recentlyHit, int specialDropValue) {
+    
+    public LivingDropsEvent(EntityLiving entity, DamageSource source, ArrayList<EntityItem> drops, int lootingLevel, boolean recentlyHit, int specialDropValue)
+    {
         super(entity);
         this.source = source;
         this.drops = drops;

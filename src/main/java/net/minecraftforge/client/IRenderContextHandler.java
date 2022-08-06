@@ -4,15 +4,14 @@
  */
 package net.minecraftforge.client;
 
-public interface IRenderContextHandler {
-    /**
-     * Run before the specified rendering context.
+public interface IRenderContextHandler
+{
+    /** Run before the specified rendering context.
      */
-    void beforeRenderContext();
+    public void beforeRenderContext();
 
-    /**
-     * Run after the specified rendering context.
+    /** Run after the specified rendering context.
      */
-    void afterRenderContext();
+    public void afterRenderContext();
 }
 

@@ -1,24 +1,19 @@
-package net.minecraftforge.repackage.paulscode.sound.codecs;
+package paulscode.sound.codecs;
 
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
-import javax.sound.sampled.AudioFormat;
-
+import ibxm.*;
 import paulscode.sound.ICodec;
 import paulscode.sound.SoundBuffer;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemLogger;
 
-import ibxm.FastTracker2;
-import ibxm.IBXM;
-import ibxm.Module;
-import ibxm.ProTracker;
-import ibxm.ScreamTracker3;
+import javax.sound.sampled.AudioFormat;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 
 /**
  * The CodecIBXM class provides an ICodec interface for reading from MOD/S3M/XM
@@ -272,7 +267,7 @@ public class CodecIBXM implements ICodec
 
 /**
  * Reads in one stream buffer worth of audio data.  See
- * {@link SoundSystemConfig SoundSystemConfig} for more
+ * {@link paulscode.sound.SoundSystemConfig SoundSystemConfig} for more
  * information about accessing and changing default settings.
  * @return The audio data wrapped into a SoundBuffer context.
  */
@@ -329,7 +324,7 @@ public class CodecIBXM implements ICodec
 /**
  * Reads in all the audio data from the stream (up to the default
  * "maximum file size".  See
- * {@link SoundSystemConfig SoundSystemConfig} for more
+ * {@link paulscode.sound.SoundSystemConfig SoundSystemConfig} for more
  * information about accessing and changing default settings.
  * @return the audio data wrapped into a SoundBuffer context.
  */

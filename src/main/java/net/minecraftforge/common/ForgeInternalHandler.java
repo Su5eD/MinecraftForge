@@ -10,40 +10,51 @@ import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
-public class ForgeInternalHandler {
+public class ForgeInternalHandler
+{
     @ForgeSubscribe(priority = EventPriority.HIGHEST)
-    public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-        if (!event.world.isRemote) {
-            if (event.entity.getPersistentID() == null) {
+    public void onEntityJoinWorld(EntityJoinWorldEvent event)
+    {
+        if (!event.world.isRemote)
+        {
+            if (event.entity.getPersistentID() == null)
+            {
                 event.entity.generatePersistentID();
-            } else {
+            }
+            else
+            {
                 ForgeChunkManager.loadEntity(event.entity);
             }
         }
 
         Entity entity = event.entity;
-        if (entity.getClass().equals(EntityItem.class)) {
+        if (entity.getClass().equals(EntityItem.class))
+        {
             ItemStack stack = entity.getDataWatcher().getWatchableObjectItemStack(10);
 
-            if (stack == null) {
+            if (stack == null)
+            {
                 //entity.setDead();
                 //event.setCanceled(true);
                 return;
             }
 
             Item item = stack.getItem();
-            if (item == null) {
+            if (item == null)
+            {
                 FMLLog.warning("Attempted to add a EntityItem to the world with a invalid item: ID %d at " +
-                                "(%2.2f,  %2.2f, %2.2f), this is most likely a config issue between you and the server. Please double check your configs",
-                        stack.itemID, entity.posX, entity.posY, entity.posZ);
+                    "(%2.2f,  %2.2f, %2.2f), this is most likely a config issue between you and the server. Please double check your configs",
+                    stack.itemID, entity.posX, entity.posY, entity.posZ);
                 entity.setDead();
                 event.setCanceled(true);
                 return;
             }
 
-            if (item.hasCustomEntity(stack)) {
+            if (item.hasCustomEntity(stack))
+            {
                 Entity newEntity = item.createEntity(event.world, entity, stack);
-                if (newEntity != null) {
+                if (newEntity != null)
+                {
                     entity.setDead();
                     event.setCanceled(true);
                     event.world.spawnEntityInWorld(newEntity);
@@ -53,17 +64,20 @@ public class ForgeInternalHandler {
     }
 
     @ForgeSubscribe(priority = EventPriority.HIGHEST)
-    public void onDimensionLoad(WorldEvent.Load event) {
+    public void onDimensionLoad(WorldEvent.Load event)
+    {
         ForgeChunkManager.loadWorld(event.world);
     }
 
     @ForgeSubscribe(priority = EventPriority.HIGHEST)
-    public void onDimensionSave(WorldEvent.Save event) {
-        ForgeChunkManager.saveWorld(event.world);
+    public void onDimensionSave(WorldEvent.Save event)
+    {
+    	ForgeChunkManager.saveWorld(event.world);
     }
 
     @ForgeSubscribe(priority = EventPriority.HIGHEST)
-    public void onDimensionUnload(WorldEvent.Unload event) {
+    public void onDimensionUnload(WorldEvent.Unload event)
+    {
         ForgeChunkManager.unloadWorld(event.world);
     }
 }
