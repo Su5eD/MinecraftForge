@@ -218,13 +218,11 @@ public class FMLRelauncher {
 
     private static URL[] locateMcDeps() {
         Path root = LibraryFinder.getLibrariesRoot();
-        Path forge = LibraryFinder.getForgePath(root);
         List<Path> mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
         List<URL> urls = new ArrayList<>();
         
         try {
             for (Path path : mcDeps) urls.add(path.toUri().toURL());
-            urls.add(forge.toUri().toURL());
         } catch (MalformedURLException e) {
             throw new RuntimeException("Cannot resolve path of library", e);
         }

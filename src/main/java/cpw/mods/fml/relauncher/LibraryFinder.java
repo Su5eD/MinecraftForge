@@ -61,16 +61,6 @@ public class LibraryFinder {
         }
     }
     
-    public static Path getForgePath(Path root) {
-        String rawPath = getJarMavenCoordinates("net.minecraftforge", "forge", FMLInjectionData.mcversion + "-" + ForgeVersion.version, "universal");
-        Path path = root.resolve(rawPath).toAbsolutePath();
-        
-        if (!Files.exists(path)) throw new RuntimeException("Cannot find Forge dependency");
-        else FMLRelaunchLog.finest("Found Forge dependency at " + path);
-        
-        return path;
-    }
-    
     public static List<Path> getMcDeps(Path root, String side) {
         Map<String, String> mcDeps = new HashMap<>();
         mcDeps.put("MC SLIM", getJarMavenCoordinates("net.minecraft", side, FMLInjectionData.mcversion + "-" +  FMLInjectionData.mcpversion, "slim"));

@@ -181,6 +181,7 @@ repositories {
 }
 
 dependencies {
+    installer("org.ow2.asm:asm-all:4.1")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
     installer("com.google.guava:guava:14.0")
     installer("com.google.code.gson:gson:2.3")
@@ -462,8 +463,7 @@ tasks {
                     addJsonObject {
                         put("jar", installerTools)
                         putJsonArray("classpath") {
-                            getClasspath(project, libs, installerTools)
-                                .forEach(::add)
+                            getClasspath(libs, installerTools).forEach(::add)
                         }
                         putJsonArray("args") {
                             add("--task"); add("MCP_DATA")
@@ -475,8 +475,7 @@ tasks {
                     addJsonObject {
                         put("jar", jarSplitter)
                         putJsonArray("classpath") {
-                            getClasspath(project, libs, jarSplitter)
-                                .forEach(::add)
+                            getClasspath(libs, jarSplitter).forEach(::add)
                         }
                         putJsonArray("args") {
                             add("--input"); add("{MINECRAFT_JAR}")
@@ -492,8 +491,7 @@ tasks {
                     addJsonObject {
                         put("jar", binPatcher)
                         putJsonArray("classpath") {
-                            getClasspath(project, libs, binPatcher)
-                                .forEach(::add)
+                            getClasspath(libs, binPatcher).forEach(::add)
                         }
                         putJsonArray("args") {
                             add("--clean"); add("{MC_SLIM}")
@@ -507,7 +505,7 @@ tasks {
                 }
             }.toMutableMap()
 
-            getClasspath(project, libs, mcpArtifact.descriptor) //Tell it to download mcp_config
+            getClasspath(libs, mcpArtifact.descriptor) //Tell it to download mcp_config
             json["libraries"] = JsonArray(libs.values.sortedBy { it.jsonObject["name"]?.jsonPrimitive?.content })
 
             output.writeText(jsonFormat.encodeToString(json))
@@ -864,8 +862,8 @@ fun checkExists(url: String): Boolean {
     return conn.responseCode == 200
 }
 
-fun getClasspath(project: Project, libs: MutableMap<String, JsonElement>, artifact: String): Set<String> {
-    return artifactTree(project, artifact).values
+fun Project.getClasspath(libs: MutableMap<String, JsonElement>, artifact: String): Set<String> {
+    return artifactTree(artifact).values
         .mapNotNull { lib ->
             lib["name"]?.jsonPrimitive?.content
                 ?.also { 
@@ -875,14 +873,8 @@ fun getClasspath(project: Project, libs: MutableMap<String, JsonElement>, artifa
         .toMutableSet()
 }
 
-fun artifactTree(project: Project, artifact: String): Map<String, JsonObject> {
-    if (!project.ext.has("tree_resolver")) project.ext["tree_resolver"] = 1
-    
-    val treeResolver = project.ext["tree_resolver"] as Int
-    val cfg = project.configurations.create("tree_resolver_$treeResolver")
-    project.ext.set("tree_resolver", treeResolver + 1)
-    
-    val dep = project.dependencies.create(artifact)
-    cfg.dependencies.add(dep)
+fun Project.artifactTree(artifact: String): Map<String, JsonObject> {
+    val dep = dependencies.create(artifact)
+    val cfg = configurations.detachedConfiguration(dep)
     return getArtifacts(cfg, true)
 }
