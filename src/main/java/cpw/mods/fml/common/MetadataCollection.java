@@ -14,60 +14,83 @@
 
 package cpw.mods.fml.common;
 
+import argo.jdom.JdomParser;
+import argo.jdom.JsonNode;
+import argo.jdom.JsonRootNode;
+import argo.saj.InvalidSyntaxException;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import cpw.mods.fml.common.versioning.ArtifactVersion;
-import cpw.mods.fml.common.versioning.VersionParser;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.logging.Level;
 
-public class MetadataCollection {
-    private String modListVersion;
-    private ModMetadata[] modList;
+public class MetadataCollection
+{
+    private static JdomParser parser = new JdomParser();
     private Map<String, ModMetadata> metadatas = Maps.newHashMap();
     private int metadataVersion = 1;
 
-    public static MetadataCollection from(InputStream inputStream, String sourceName) {
-        if (inputStream == null) {
+    public static MetadataCollection from(InputStream inputStream, String sourceName)
+    {
+        if (inputStream == null)
+        {
             return new MetadataCollection();
         }
 
         InputStreamReader reader = new InputStreamReader(inputStream);
-        try {
-            MetadataCollection collection;
-            Gson gson = new GsonBuilder().registerTypeAdapter(ArtifactVersion.class, new ArtifactVersionAdapter()).create();
-            JsonParser parser = new JsonParser();
-            JsonElement rootElement = parser.parse(reader);
-            if (rootElement.isJsonArray()) {
-                collection = new MetadataCollection();
-                JsonArray jsonList = rootElement.getAsJsonArray();
-                collection.modList = new ModMetadata[jsonList.size()];
-                int i = 0;
-                for (JsonElement mod : jsonList) {
-                    collection.modList[i++] = gson.fromJson(mod, ModMetadata.class);
-                }
-            } else {
-                collection = gson.fromJson(rootElement, MetadataCollection.class);
+        try
+        {
+            JsonRootNode root = parser.parse(reader);
+            if (root.hasElements())
+            {
+                return parse10ModInfo(root);
             }
-            collection.parseModMetadataList();
-            return collection;
-        } catch (JsonParseException e) {
+            else
+            {
+                return parseModInfo(root);
+            }
+        }
+        catch (InvalidSyntaxException e)
+        {
             FMLLog.log(Level.SEVERE, e, "The mcmod.info file in %s cannot be parsed as valid JSON. It will be ignored", sourceName);
             return new MetadataCollection();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw Throwables.propagate(e);
         }
     }
 
-    public ModMetadata getMetadataForId(String modId, Map<String, Object> extraData) {
-        if (!metadatas.containsKey(modId)) {
+    private static MetadataCollection parseModInfo(JsonRootNode root)
+    {
+        MetadataCollection mc = new MetadataCollection();
+        mc.metadataVersion = Integer.parseInt(root.getNumberValue("modinfoversion"));
+        mc.parseModMetadataList(root.getNode("modlist"));
+        return mc;
+    }
+
+    private static MetadataCollection parse10ModInfo(JsonRootNode root)
+    {
+        MetadataCollection mc = new MetadataCollection();
+        mc.parseModMetadataList(root);
+        return mc;
+    }
+
+    private void parseModMetadataList(JsonNode metadataList)
+    {
+        for (JsonNode node : metadataList.getElements())
+        {
+            ModMetadata mmd = new ModMetadata(node);
+            metadatas.put(mmd.modId, mmd);
+        }
+    }
+
+    public ModMetadata getMetadataForId(String modId, Map<String, Object> extraData)
+    {
+        if (!metadatas.containsKey(modId))
+        {
             ModMetadata dummy = new ModMetadata();
             dummy.modId = modId;
             dummy.name = (String) extraData.get("name");
@@ -78,22 +101,4 @@ public class MetadataCollection {
         return metadatas.get(modId);
     }
 
-    private void parseModMetadataList() {
-        for (ModMetadata modMetadata : modList) {
-            metadatas.put(modMetadata.modId, modMetadata);
-        }
-    }
-
-    public static class ArtifactVersionAdapter extends TypeAdapter<ArtifactVersion> {
-
-        @Override
-        public ArtifactVersion read(JsonReader in) throws IOException {
-            return VersionParser.parseVersionReference(in.nextString());
-        }
-
-        @Override
-        public void write(JsonWriter out, ArtifactVersion value) {
-            // no op - we never write these out
-        }
-    }
 }

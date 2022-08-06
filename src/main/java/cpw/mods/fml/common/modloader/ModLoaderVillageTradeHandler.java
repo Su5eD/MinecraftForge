@@ -25,21 +25,28 @@ import net.minecraft.village.MerchantRecipeList;
 import java.util.List;
 import java.util.Random;
 
-public class ModLoaderVillageTradeHandler implements IVillageTradeHandler {
+public class ModLoaderVillageTradeHandler implements IVillageTradeHandler
+{
     private List<TradeEntry> trades = Lists.newArrayList();
 
     @Override
-    public void manipulateTradesForVillager(EntityVillager villager, MerchantRecipeList recipeList, Random random) {
-        for (TradeEntry ent : trades) {
-            if (ent.buying) {
+    public void manipulateTradesForVillager(EntityVillager villager, MerchantRecipeList recipeList, Random random)
+    {
+        for (TradeEntry ent : trades)
+        {
+            if (ent.buying)
+            {
                 VillagerRegistry.addEmeraldBuyRecipe(villager, recipeList, random, Item.itemsList[ent.id], ent.chance, ent.min, ent.max);
-            } else {
+            }
+            else
+            {
                 VillagerRegistry.addEmeraldSellRecipe(villager, recipeList, random, Item.itemsList[ent.id], ent.chance, ent.min, ent.max);
             }
         }
     }
 
-    public void addTrade(TradeEntry entry) {
+    public void addTrade(TradeEntry entry)
+    {
         trades.add(entry);
     }
 }

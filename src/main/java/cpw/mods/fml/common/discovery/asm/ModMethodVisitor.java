@@ -21,7 +21,8 @@ import org.objectweb.asm.Opcodes;
 
 import java.util.LinkedList;
 
-public class ModMethodVisitor extends MethodVisitor {
+public class ModMethodVisitor extends MethodVisitor
+{
 
     private ASMModParser discoverer;
     private boolean inCode;
@@ -29,38 +30,44 @@ public class ModMethodVisitor extends MethodVisitor {
     private String foundProperties;
     private boolean validProperties;
 
-    public ModMethodVisitor(String name, ASMModParser discoverer) {
+    public ModMethodVisitor(String name, ASMModParser discoverer)
+    {
         super(Opcodes.ASM4);
         this.discoverer = discoverer;
     }
-
     @Override
-    public void visitCode() {
+    public void visitCode()
+    {
         labels.clear();
     }
-
+    
     @Override
-    public void visitLdcInsn(Object cst) {
-        if (cst instanceof String && labels.size() == 1) {
+    public void visitLdcInsn(Object cst)
+    {
+        if (cst instanceof String && labels.size() == 1)
+        {
             foundProperties = (String) cst;
         }
     }
-
     @Override
-    public void visitInsn(int opcode) {
-        if (Opcodes.ARETURN == opcode && labels.size() == 1 && foundProperties != null) {
+    public void visitInsn(int opcode)
+    {
+        if (Opcodes.ARETURN == opcode && labels.size() == 1 && foundProperties != null)
+        {
             validProperties = true;
         }
     }
-
     @Override
-    public void visitLabel(Label label) {
+    public void visitLabel(Label label)
+    {
         labels.push(label);
     }
-
+    
     @Override
-    public void visitEnd() {
-        if (validProperties) {
+    public void visitEnd()
+    {
+        if (validProperties)
+        {
             discoverer.setBaseModProperties(foundProperties);
         }
     }

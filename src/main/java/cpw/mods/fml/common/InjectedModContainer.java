@@ -23,105 +23,130 @@ import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Set;
 
-public class InjectedModContainer implements ModContainer {
+public class InjectedModContainer implements ModContainer
+{
     private File source;
     private ModContainer wrappedContainer;
 
-    public InjectedModContainer(ModContainer mc, File source) {
+    public InjectedModContainer(ModContainer mc, File source)
+    {
         this.source = source;
         this.wrappedContainer = mc;
     }
 
-    public String getModId() {
+    public String getModId()
+    {
         return wrappedContainer.getModId();
     }
 
-    public String getName() {
+    public String getName()
+    {
         return wrappedContainer.getName();
     }
 
-    public String getVersion() {
+    public String getVersion()
+    {
         return wrappedContainer.getVersion();
     }
 
-    public File getSource() {
+    public File getSource()
+    {
         return source;
     }
 
-    public ModMetadata getMetadata() {
+    public ModMetadata getMetadata()
+    {
         return wrappedContainer.getMetadata();
     }
 
-    public void bindMetadata(MetadataCollection mc) {
+    public void bindMetadata(MetadataCollection mc)
+    {
         wrappedContainer.bindMetadata(mc);
     }
 
-    public void setEnabledState(boolean enabled) {
+    public void setEnabledState(boolean enabled)
+    {
         wrappedContainer.setEnabledState(enabled);
     }
 
-    public Set<ArtifactVersion> getRequirements() {
+    public Set<ArtifactVersion> getRequirements()
+    {
         return wrappedContainer.getRequirements();
     }
 
-    public List<ArtifactVersion> getDependencies() {
+    public List<ArtifactVersion> getDependencies()
+    {
         return wrappedContainer.getDependencies();
     }
 
-    public List<ArtifactVersion> getDependants() {
+    public List<ArtifactVersion> getDependants()
+    {
         return wrappedContainer.getDependants();
     }
 
-    public String getSortingRules() {
+    public String getSortingRules()
+    {
         return wrappedContainer.getSortingRules();
     }
 
-    public boolean registerBus(EventBus bus, LoadController controller) {
+    public boolean registerBus(EventBus bus, LoadController controller)
+    {
         return wrappedContainer.registerBus(bus, controller);
     }
 
-    public boolean matches(Object mod) {
+    public boolean matches(Object mod)
+    {
         return wrappedContainer.matches(mod);
     }
 
-    public Object getMod() {
+    public Object getMod()
+    {
         return wrappedContainer.getMod();
     }
 
-    public ArtifactVersion getProcessedVersion() {
+    public ArtifactVersion getProcessedVersion()
+    {
         return wrappedContainer.getProcessedVersion();
     }
 
     @Override
-    public boolean isNetworkMod() {
+    public boolean isNetworkMod()
+    {
         return wrappedContainer.isNetworkMod();
     }
-
     @Override
-    public boolean isImmutable() {
+    public boolean isImmutable()
+    {
         return true;
     }
 
     @Override
-    public String getDisplayVersion() {
+    public String getDisplayVersion()
+    {
         return wrappedContainer.getDisplayVersion();
     }
 
     @Override
-    public VersionRange acceptableMinecraftVersionRange() {
+    public VersionRange acceptableMinecraftVersionRange()
+    {
         return wrappedContainer.acceptableMinecraftVersionRange();
     }
 
-    public WorldAccessContainer getWrappedWorldAccessContainer() {
-        if (wrappedContainer instanceof WorldAccessContainer) {
+    public WorldAccessContainer getWrappedWorldAccessContainer()
+    {
+        if (wrappedContainer instanceof WorldAccessContainer)
+        {
             return (WorldAccessContainer) wrappedContainer;
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
 
     @Override
-    public Certificate getSigningCertificate() {
+    public Certificate getSigningCertificate()
+    {
         return wrappedContainer.getSigningCertificate();
     }
 }

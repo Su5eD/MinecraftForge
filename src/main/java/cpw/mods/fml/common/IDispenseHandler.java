@@ -24,9 +24,11 @@ import java.util.Random;
  * Deprecated without replacement, use vanilla DispenserRegistry code
  *
  * @author cpw
+ *
  */
 @Deprecated
-public interface IDispenseHandler {
+public interface IDispenseHandler
+{
     /**
      * Return -1 if you don't want to dispense anything. the other values seem to have specific meanings
      * to blockdispenser.

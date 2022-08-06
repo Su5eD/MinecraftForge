@@ -20,10 +20,10 @@ import java.io.File;
 
 public class DuplicateModsFoundException extends LoaderException {
 
-    public SetMultimap<ModContainer, File> dupes;
+	public SetMultimap<ModContainer,File> dupes;
 
-    public DuplicateModsFoundException(SetMultimap<ModContainer, File> dupes) {
-        this.dupes = dupes;
-    }
+	public DuplicateModsFoundException(SetMultimap<ModContainer, File> dupes) {
+		this.dupes = dupes;
+	}
 
 }

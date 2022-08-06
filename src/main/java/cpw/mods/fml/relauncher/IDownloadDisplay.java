@@ -14,7 +14,8 @@
 
 package cpw.mods.fml.relauncher;
 
-public interface IDownloadDisplay {
+public interface IDownloadDisplay
+{
 
     void resetProgress(int sizeGuess);
 
@@ -24,7 +25,7 @@ public interface IDownloadDisplay {
 
     boolean shouldStopIt();
 
-    void updateProgressString(String string, Object... data);
+    void updateProgressString(String string, Object ... data);
 
     Object makeDialog();
 

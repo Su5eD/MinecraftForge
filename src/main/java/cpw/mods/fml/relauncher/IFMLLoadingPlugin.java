@@ -25,18 +25,18 @@ import java.util.Map;
  * enhance the classloading lifecycle for mods in FML
  *
  * @author cpw
+ *
  */
-public interface IFMLLoadingPlugin {
+public interface IFMLLoadingPlugin
+{
     /**
      * Return a list of classes that implement the ILibrarySet interface
      *
      * @return a list of classes that implement the ILibrarySet interface
      */
     String[] getLibraryRequestClass();
-
     /**
      * Return a list of classes that implements the IClassTransformer interface
-     *
      * @return a list of classes that implements the IClassTransformer interface
      */
     String[] getASMTransformerClass();
@@ -75,16 +75,18 @@ public interface IFMLLoadingPlugin {
     /**
      * Annotate your load plugin with a list of package prefixes that will *not* be
      * processed by the ASM transformation stack.
-     * <p>
+     *
      * Your plugin, and any transformers should *definitely* be in this list, because
      * otherwise you can face problems with the classloader trying to transform classes
      * with your transformer, whilst it is *loading* your transformer. Not pretty.
      *
      * @author cpw
+     *
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
-    @interface TransformerExclusions {
-        String[] value() default "";
+    public @interface TransformerExclusions
+    {
+        public String[] value() default "";
     }
 }

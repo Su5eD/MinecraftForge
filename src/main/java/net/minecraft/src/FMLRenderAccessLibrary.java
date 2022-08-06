@@ -30,57 +30,71 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ *
  * A static hook library for optifine and other basemod editing code to access FML functions
  *
  * @author cpw
+ *
  */
-public class FMLRenderAccessLibrary {
-    public static Logger getLogger() {
+public class FMLRenderAccessLibrary
+{
+    public static Logger getLogger()
+    {
         Logger l = Logger.getLogger("FMLRenderAccessLibrary");
         l.setParent(FMLLog.getLogger());
         return l;
     }
 
-    public static void log(Level level, String message) {
+    public static void log(Level level, String message)
+    {
         FMLLog.log("FMLRenderAccessLibrary", level, message);
     }
 
-    public static void log(Level level, String message, Throwable throwable) {
+    public static void log(Level level, String message, Throwable throwable)
+    {
         FMLLog.log(level, throwable, message);
     }
 
-    public static void setTextureDimensions(int textureId, int width, int height, List<TextureFX> textureFXList) {
+    public static void setTextureDimensions(int textureId, int width, int height, List<TextureFX> textureFXList)
+    {
         TextureFXManager.instance().setTextureDimensions(textureId, width, height, textureFXList);
     }
 
-    public static void preRegisterEffect(TextureFX textureFX) {
+    public static void preRegisterEffect(TextureFX textureFX)
+    {
         TextureFXManager.instance().onPreRegisterEffect(textureFX);
     }
 
-    public static boolean onUpdateTextureEffect(TextureFX textureFX) {
+    public static boolean onUpdateTextureEffect(TextureFX textureFX)
+    {
         return TextureFXManager.instance().onUpdateTextureEffect(textureFX);
     }
 
-    public static Dimension getTextureDimensions(TextureFX textureFX) {
+    public static Dimension getTextureDimensions(TextureFX textureFX)
+    {
         return TextureFXManager.instance().getTextureDimensions(textureFX);
     }
 
-    public static void onTexturePackChange(RenderEngine engine, ITexturePack texturePack, List<TextureFX> textureFXList) {
+    public static void onTexturePackChange(RenderEngine engine, ITexturePack texturePack, List<TextureFX> textureFXList)
+    {
         TextureFXManager.instance().onTexturePackChange(engine, texturePack, textureFXList);
     }
 
     @SuppressWarnings("deprecation")
-    public static boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId) {
+    public static boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId)
+    {
         return RenderingRegistry.instance().renderWorldBlock(renderer, world, x, y, z, block, modelId);
     }
 
     @SuppressWarnings("deprecation")
-    public static void renderInventoryBlock(RenderBlocks renderer, Block block, int metadata, int modelID) {
+    public static void renderInventoryBlock(RenderBlocks renderer, Block block, int metadata, int modelID)
+    {
         RenderingRegistry.instance().renderInventoryBlock(renderer, block, metadata, modelID);
     }
 
     @SuppressWarnings("deprecation")
-    public static boolean renderItemAsFull3DBlock(int modelId) {
+    public static boolean renderItemAsFull3DBlock(int modelId)
+    {
         return RenderingRegistry.instance().renderItemAsFull3DBlock(modelId);
     }
 }

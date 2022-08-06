@@ -19,43 +19,51 @@ import java.util.Map;
 
 /**
  * @author cpw
+ *
  */
-public class ModProperty {
+public class ModProperty
+{
     private String info;
     private double min;
     private double max;
     private String name;
     private Field field;
 
-    public ModProperty(Field f, String info, Double min, Double max, String name) {
+    public ModProperty(Field f, String info, Double min, Double max, String name)
+    {
         this.field = f;
         this.info = info;
         this.min = min != null ? min : Double.MIN_VALUE;
         this.max = max != null ? max : Double.MAX_VALUE;
         this.name = name;
     }
-
-    public ModProperty(Field field, Map<String, Object> annotationInfo) {
-        this(field, (String) annotationInfo.get("info"), (Double) annotationInfo.get("min"), (Double) annotationInfo.get("max"), (String) annotationInfo.get("name"));
+    public ModProperty(Field field, Map<String, Object> annotationInfo)
+    {
+        this(field, (String)annotationInfo.get("info"), (Double)annotationInfo.get("min"), (Double)annotationInfo.get("max"), (String)annotationInfo.get("name"));
     }
 
-    public String name() {
+    public String name()
+    {
         return name;
     }
 
-    public double min() {
+    public double min()
+    {
         return min;
     }
 
-    public double max() {
+    public double max()
+    {
         return max;
     }
 
-    public String info() {
+    public String info()
+    {
         return info;
     }
 
-    public Field field() {
+    public Field field()
+    {
         return field;
     }
 }

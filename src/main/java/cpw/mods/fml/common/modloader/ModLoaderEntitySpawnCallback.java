@@ -19,19 +19,22 @@ import cpw.mods.fml.common.network.EntitySpawnPacket;
 import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
 import net.minecraft.entity.Entity;
 
-public class ModLoaderEntitySpawnCallback implements Function<EntitySpawnPacket, Entity> {
+public class ModLoaderEntitySpawnCallback implements Function<EntitySpawnPacket, Entity>
+{
 
     private BaseModProxy mod;
     private EntityRegistration registration;
     private boolean isAnimal;
 
-    public ModLoaderEntitySpawnCallback(BaseModProxy mod, EntityRegistration er) {
+    public ModLoaderEntitySpawnCallback(BaseModProxy mod, EntityRegistration er)
+    {
         this.mod = mod;
         this.registration = er;
     }
 
     @Override
-    public Entity apply(EntitySpawnPacket input) {
+    public Entity apply(EntitySpawnPacket input)
+    {
         return ModLoaderHelper.sidedHelper.spawnEntity(mod, input, registration);
     }
 }

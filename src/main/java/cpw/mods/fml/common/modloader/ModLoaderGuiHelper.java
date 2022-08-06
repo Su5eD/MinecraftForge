@@ -22,38 +22,45 @@ import net.minecraft.world.World;
 
 import java.util.Set;
 
-public class ModLoaderGuiHelper implements IGuiHandler {
+public class ModLoaderGuiHelper implements IGuiHandler
+{
 
     private BaseModProxy mod;
     private Set<Integer> ids;
     private Container container;
     private int currentID;
 
-    ModLoaderGuiHelper(BaseModProxy mod) {
+    ModLoaderGuiHelper(BaseModProxy mod)
+    {
         this.mod = mod;
         this.ids = Sets.newHashSet();
     }
 
     @Override
-    public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+    public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+    {
         return container;
     }
 
     @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+    {
         return ModLoaderHelper.getClientSideGui(mod, player, ID, x, y, z);
     }
 
-    public void injectContainerAndID(Container container, int ID) {
+    public void injectContainerAndID(Container container, int ID)
+    {
         this.container = container;
         this.currentID = ID;
     }
 
-    public Object getMod() {
+    public Object getMod()
+    {
         return mod;
     }
 
-    public void associateId(int additionalID) {
+    public void associateId(int additionalID)
+    {
         this.ids.add(additionalID);
     }
 

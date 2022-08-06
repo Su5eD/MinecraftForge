@@ -20,10 +20,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author cpw
+ * 
  */
 @Retention(value = RUNTIME)
 @Target(value = FIELD)
-public @interface MLProp {
+public @interface MLProp
+{
     /**
      * Adds additional help to top of configuration file.
      */

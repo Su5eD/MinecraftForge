@@ -21,17 +21,19 @@ public class FMLServerAboutToStartEvent extends FMLStateEvent {
 
     private MinecraftServer server;
 
-    public FMLServerAboutToStartEvent(Object... data) {
+    public FMLServerAboutToStartEvent(Object... data)
+    {
         super(data);
         this.server = (MinecraftServer) data[0];
     }
-
     @Override
-    public ModState getModState() {
+    public ModState getModState()
+    {
         return ModState.AVAILABLE;
     }
 
-    public MinecraftServer getServer() {
+    public MinecraftServer getServer()
+    {
         return server;
     }
 }

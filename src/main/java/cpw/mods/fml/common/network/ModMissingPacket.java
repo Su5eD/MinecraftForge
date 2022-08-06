@@ -31,30 +31,35 @@ import net.minecraft.network.packet.NetHandler;
 
 import java.util.List;
 
-public class ModMissingPacket extends FMLPacket {
+public class ModMissingPacket extends FMLPacket
+{
 
     private List<ModData> missing;
     private List<ModData> badVersion;
 
-    public ModMissingPacket() {
+    public ModMissingPacket()
+    {
         super(Type.MOD_MISSING);
     }
 
     @Override
-    public byte[] generatePacket(Object... data) {
+    public byte[] generatePacket(Object... data)
+    {
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
 
         List<String> missing = (List<String>) data[0];
         List<String> badVersion = (List<String>) data[1];
 
         dat.writeInt(missing.size());
-        for (String missed : missing) {
+        for (String missed : missing)
+        {
             ModContainer mc = Loader.instance().getIndexedModList().get(missed);
             dat.writeUTF(missed);
             dat.writeUTF(mc.getVersion());
         }
         dat.writeInt(badVersion.size());
-        for (String bad : badVersion) {
+        for (String bad : badVersion)
+        {
             ModContainer mc = Loader.instance().getIndexedModList().get(bad);
             dat.writeUTF(bad);
             dat.writeUTF(mc.getVersion());
@@ -62,17 +67,19 @@ public class ModMissingPacket extends FMLPacket {
         return dat.toByteArray();
     }
 
-    private static class ModData {
+    private static class ModData
+    {
         String modId;
         String modVersion;
     }
-
     @Override
-    public FMLPacket consumePacket(byte[] data) {
+    public FMLPacket consumePacket(byte[] data)
+    {
         ByteArrayDataInput dat = ByteStreams.newDataInput(data);
         int missingLen = dat.readInt();
         missing = Lists.newArrayListWithCapacity(missingLen);
-        for (int i = 0; i < missingLen; i++) {
+        for (int i = 0; i < missingLen; i++)
+        {
             ModData md = new ModData();
             md.modId = dat.readUTF();
             md.modVersion = dat.readUTF();
@@ -80,7 +87,8 @@ public class ModMissingPacket extends FMLPacket {
         }
         int badVerLength = dat.readInt();
         badVersion = Lists.newArrayListWithCapacity(badVerLength);
-        for (int i = 0; i < badVerLength; i++) {
+        for (int i = 0; i < badVerLength; i++)
+        {
             ModData md = new ModData();
             md.modId = dat.readUTF();
             md.modVersion = dat.readUTF();
@@ -90,16 +98,20 @@ public class ModMissingPacket extends FMLPacket {
     }
 
     @Override
-    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName) {
+    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName)
+    {
         FMLCommonHandler.instance().getSidedDelegate().displayMissingMods(this);
     }
 
-    public List<ArtifactVersion> getModList() {
-        Builder<ArtifactVersion> builder = ImmutableList.builder();
-        for (ModData md : missing) {
+    public List<ArtifactVersion> getModList()
+    {
+        Builder<ArtifactVersion> builder = ImmutableList.<ArtifactVersion>builder();
+        for (ModData md : missing)
+        {
             builder.add(new DefaultArtifactVersion(md.modId, VersionRange.createFromVersion(md.modVersion, null)));
         }
-        for (ModData md : badVersion) {
+        for (ModData md : badVersion)
+        {
             builder.add(new DefaultArtifactVersion(md.modId, VersionRange.createFromVersion(md.modVersion, null)));
         }
         return builder.build();

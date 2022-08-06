@@ -23,13 +23,14 @@ import java.util.concurrent.Callable;
  * safe environment for further loading of FML.
  *
  * @author cpw
+ *
  */
-public interface IFMLCallHook extends Callable<Void> {
+public interface IFMLCallHook extends Callable<Void>
+{
     /**
      * Injected with data from the FML environment:
      * "classLoader" : The FML Class Loader
-     *
      * @param data
      */
-    void injectData(Map<String, Object> data);
+    void injectData(Map<String,Object> data);
 }

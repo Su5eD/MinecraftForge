@@ -34,17 +34,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class MCPMerger {
-    private static Hashtable<String, ClassInfo> clients = new Hashtable<>();
-    private static Hashtable<String, ClassInfo> shared = new Hashtable<>();
-    private static Hashtable<String, ClassInfo> servers = new Hashtable<>();
-    private static HashSet<String> copyToServer = new HashSet<>();
-    private static HashSet<String> copyToClient = new HashSet<>();
-    private static HashSet<String> dontAnnotate = new HashSet<>();
+public class MCPMerger
+{
+    private static Hashtable<String, ClassInfo> clients = new Hashtable<String, ClassInfo>();
+    private static Hashtable<String, ClassInfo> shared  = new Hashtable<String, ClassInfo>();
+    private static Hashtable<String, ClassInfo> servers = new Hashtable<String, ClassInfo>();
+    private static HashSet<String> copyToServer = new HashSet<String>();
+    private static HashSet<String> copyToClient = new HashSet<String>();
+    private static HashSet<String> dontAnnotate = new HashSet<String>();
     private static final boolean DEBUG = false;
 
-    public static void main(String[] args) {
-        if (args.length != 3) {
+    public static void main(String[] args)
+    {
+        if (args.length != 3)
+        {
             System.out.println("Usage: MCPMerger <MapFile> <minecraft.jar> <minecraft_server.jar>");
             System.exit(1);
         }
@@ -56,123 +59,149 @@ public class MCPMerger {
         File server_jar_tmp = new File(args[2] + ".MergeBack");
 
 
-        if (client_jar_tmp.exists() && !client_jar_tmp.delete()) {
+        if (client_jar_tmp.exists() && !client_jar_tmp.delete())
+        {
             System.out.println("Could not delete temp file: " + client_jar_tmp);
         }
 
-        if (server_jar_tmp.exists() && !server_jar_tmp.delete()) {
+        if (server_jar_tmp.exists() && !server_jar_tmp.delete())
+        {
             System.out.println("Could not delete temp file: " + server_jar_tmp);
         }
 
-        if (!client_jar.exists()) {
+        if (!client_jar.exists())
+        {
             System.out.println("Could not find minecraft.jar: " + client_jar);
             System.exit(1);
         }
 
-        if (!server_jar.exists()) {
+        if (!server_jar.exists())
+        {
             System.out.println("Could not find minecraft_server.jar: " + server_jar);
             System.exit(1);
         }
 
-        if (!client_jar.renameTo(client_jar_tmp)) {
+        if (!client_jar.renameTo(client_jar_tmp))
+        {
             System.out.println("Could not rename file: " + client_jar + " -> " + client_jar_tmp);
             System.exit(1);
         }
 
-        if (!server_jar.renameTo(server_jar_tmp)) {
+        if (!server_jar.renameTo(server_jar_tmp))
+        {
             System.out.println("Could not rename file: " + server_jar + " -> " + server_jar_tmp);
             System.exit(1);
         }
 
-        if (!readMapFile(map_file)) {
+        if (!readMapFile(map_file))
+        {
             System.out.println("Could not read map file: " + map_file);
             System.exit(1);
         }
 
-        try {
+        try
+        {
             processJar(client_jar_tmp, server_jar_tmp, client_jar, server_jar);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             System.exit(1);
         }
 
-        if (!client_jar_tmp.delete()) {
+        if (!client_jar_tmp.delete())
+        {
             System.out.println("Could not delete temp file: " + client_jar_tmp);
         }
 
-        if (!server_jar_tmp.delete()) {
+        if (!server_jar_tmp.delete())
+        {
             System.out.println("Could not delete temp file: " + server_jar_tmp);
         }
     }
 
-    private static boolean readMapFile(File mapFile) {
-        try {
+    private static boolean readMapFile(File mapFile)
+    {
+        try
+        {
             FileInputStream fstream = new FileInputStream(mapFile);
             DataInputStream in = new DataInputStream(fstream);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null)
+            {
                 line = line.split("#")[0];
                 char cmd = line.charAt(0);
                 line = line.substring(1).trim();
-
-                switch (cmd) {
-                    case '!':
-                        dontAnnotate.add(line);
-                        break;
-                    case '<':
-                        copyToClient.add(line);
-                        break;
-                    case '>':
-                        copyToServer.add(line);
-                        break;
+                
+                switch (cmd)
+                {
+                    case '!': dontAnnotate.add(line); break;
+                    case '<': copyToClient.add(line); break;
+                    case '>': copyToServer.add(line); break; 
                 }
             }
 
             in.close();
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.err.println("Error: " + e.getMessage());
             return false;
         }
     }
 
-    public static void processJar(File clientInFile, File serverInFile, File clientOutFile, File serverOutFile) throws IOException {
+    public static void processJar(File clientInFile, File serverInFile, File clientOutFile, File serverOutFile) throws IOException
+    {
         ZipFile cInJar = null;
         ZipFile sInJar = null;
         ZipOutputStream cOutJar = null;
         ZipOutputStream sOutJar = null;
 
-        try {
-            try {
+        try
+        {
+            try
+            {
                 cInJar = new ZipFile(clientInFile);
                 sInJar = new ZipFile(serverInFile);
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 throw new FileNotFoundException("Could not open input file: " + e.getMessage());
             }
-            try {
+            try
+            {
                 cOutJar = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(clientOutFile)));
                 sOutJar = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(serverOutFile)));
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 throw new FileNotFoundException("Could not open output file: " + e.getMessage());
             }
             Hashtable<String, ZipEntry> cClasses = getClassEntries(cInJar, cOutJar);
             Hashtable<String, ZipEntry> sClasses = getClassEntries(sInJar, sOutJar);
-            HashSet<String> cAdded = new HashSet<>();
-            HashSet<String> sAdded = new HashSet<>();
+            HashSet<String> cAdded = new HashSet<String>();
+            HashSet<String> sAdded = new HashSet<String>();
 
-            for (Entry<String, ZipEntry> entry : cClasses.entrySet()) {
+            for (Entry<String, ZipEntry> entry : cClasses.entrySet())
+            {
                 String name = entry.getKey();
                 ZipEntry cEntry = entry.getValue();
                 ZipEntry sEntry = sClasses.get(name);
 
-                if (sEntry == null) {
-                    if (!copyToServer.contains(name)) {
+                if (sEntry == null)
+                {
+                    if (!copyToServer.contains(name))
+                    {
                         copyClass(cInJar, cEntry, cOutJar, null, true);
                         cAdded.add(name);
-                    } else {
-                        if (DEBUG) {
+                    }
+                    else
+                    {
+                        if (DEBUG)
+                        {
                             System.out.println("Copy class c->s : " + name);
                         }
                         copyClass(cInJar, cEntry, cOutJar, sOutJar, true);
@@ -199,65 +228,66 @@ public class MCPMerger {
                 sAdded.add(name);
             }
 
-            for (Entry<String, ZipEntry> entry : sClasses.entrySet()) {
-                if (DEBUG) {
+            for (Entry<String, ZipEntry> entry : sClasses.entrySet())
+            {
+                if (DEBUG)
+                {
                     System.out.println("Copy class s->c : " + entry.getKey());
                 }
                 copyClass(sInJar, entry.getValue(), cOutJar, sOutJar, false);
             }
 
-            for (String name : new String[]{SideOnly.class.getName(), Side.class.getName()}) {
+            for (String name : new String[]{SideOnly.class.getName(), Side.class.getName()})
+            {
                 String eName = name.replace(".", "/");
                 byte[] data = getClassBytes(name);
                 ZipEntry newEntry = new ZipEntry(name.replace(".", "/").concat(".class"));
-                if (!cAdded.contains(eName)) {
+                if (!cAdded.contains(eName))
+                {
                     cOutJar.putNextEntry(newEntry);
                     cOutJar.write(data);
                 }
-                if (!sAdded.contains(eName)) {
+                if (!sAdded.contains(eName))
+                {
                     sOutJar.putNextEntry(newEntry);
                     sOutJar.write(data);
                 }
             }
 
-        } finally {
-            if (cInJar != null) {
-                try {
-                    cInJar.close();
-                } catch (IOException e) {
-                }
+        }
+        finally
+        {
+            if (cInJar != null)
+            {
+                try { cInJar.close(); } catch (IOException e){}
             }
 
-            if (sInJar != null) {
-                try {
-                    sInJar.close();
-                } catch (IOException e) {
-                }
+            if (sInJar != null)
+            {
+                try { sInJar.close(); } catch (IOException e) {}
             }
-            if (cOutJar != null) {
-                try {
-                    cOutJar.close();
-                } catch (IOException e) {
-                }
+            if (cOutJar != null)
+            {
+                try { cOutJar.close(); } catch (IOException e){}
             }
 
-            if (sOutJar != null) {
-                try {
-                    sOutJar.close();
-                } catch (IOException e) {
-                }
+            if (sOutJar != null)
+            {
+                try { sOutJar.close(); } catch (IOException e) {}
             }
         }
     }
 
-    private static void copyClass(ZipFile inJar, ZipEntry entry, ZipOutputStream outJar, ZipOutputStream outJar2, boolean isClientOnly) throws IOException {
+    private static void copyClass(ZipFile inJar, ZipEntry entry, ZipOutputStream outJar, ZipOutputStream outJar2, boolean isClientOnly) throws IOException
+    {
         ClassReader reader = new ClassReader(readEntry(inJar, entry));
         ClassNode classNode = new ClassNode();
 
         reader.accept(classNode, 0);
 
-        if (!dontAnnotate.contains(classNode.name)) {
-            if (classNode.visibleAnnotations == null) classNode.visibleAnnotations = new ArrayList<>();
+        if (!dontAnnotate.contains(classNode.name))
+        {
+            if (classNode.visibleAnnotations == null) classNode.visibleAnnotations = new ArrayList<AnnotationNode>();
             classNode.visibleAnnotations.add(getSideAnn(isClientOnly));
         }
 
@@ -266,79 +296,85 @@ public class MCPMerger {
         byte[] data = writer.toByteArray();
 
         ZipEntry newEntry = new ZipEntry(entry.getName());
-        if (outJar != null) {
+        if (outJar != null)
+        {
             outJar.putNextEntry(newEntry);
             outJar.write(data);
         }
-        if (outJar2 != null) {
+        if (outJar2 != null)
+        {
             outJar2.putNextEntry(newEntry);
             outJar2.write(data);
         }
     }
 
-    private static AnnotationNode getSideAnn(boolean isClientOnly) {
+    private static AnnotationNode getSideAnn(boolean isClientOnly)
+    {
         AnnotationNode ann = new AnnotationNode(Type.getDescriptor(SideOnly.class));
-        ann.values = new ArrayList<>();
+        ann.values = new ArrayList<Object>();
         ann.values.add("value");
-        ann.values.add(new String[]{Type.getDescriptor(Side.class), (isClientOnly ? "CLIENT" : "SERVER")});
+        ann.values.add(new String[]{ Type.getDescriptor(Side.class), (isClientOnly ? "CLIENT" : "SERVER")});
         return ann;
     }
 
     @SuppressWarnings("unchecked")
-    private static Hashtable<String, ZipEntry> getClassEntries(ZipFile inFile, ZipOutputStream outFile) throws IOException {
-        Hashtable<String, ZipEntry> ret = new Hashtable<>();
-        for (ZipEntry entry : Collections.list((Enumeration<ZipEntry>) inFile.entries())) {
-            if (entry.isDirectory()) {
+    private static Hashtable<String, ZipEntry> getClassEntries(ZipFile inFile, ZipOutputStream outFile) throws IOException
+    {
+        Hashtable<String, ZipEntry> ret = new Hashtable<String, ZipEntry>();
+        for (ZipEntry entry : Collections.list((Enumeration<ZipEntry>)inFile.entries()))
+        {
+            if (entry.isDirectory())
+            {
                 outFile.putNextEntry(entry);
                 continue;
             }
             String entryName = entry.getName();
-            if (!entryName.endsWith(".class") || entryName.startsWith(".")) {
+            if (!entryName.endsWith(".class") || entryName.startsWith("."))
+            {
                 ZipEntry newEntry = new ZipEntry(entry.getName());
                 outFile.putNextEntry(newEntry);
                 outFile.write(readEntry(inFile, entry));
-            } else {
+            }
+            else
+            {
                 ret.put(entryName.replace(".class", ""), entry);
             }
         }
         return ret;
     }
-
-    private static byte[] readEntry(ZipFile inFile, ZipEntry entry) throws IOException {
+    private static byte[] readEntry(ZipFile inFile, ZipEntry entry) throws IOException
+    {
         return readFully(inFile.getInputStream(entry));
     }
-
-    private static byte[] readFully(InputStream stream) throws IOException {
+    private static byte[] readFully(InputStream stream) throws IOException
+    {
         byte[] data = new byte[4096];
         ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
         int len;
-        do {
+        do
+        {
             len = stream.read(data);
-            if (len > 0) {
+            if (len > 0)
+            {
                 entryBuffer.write(data, 0, len);
             }
         } while (len != -1);
 
         return entryBuffer.toByteArray();
     }
-
-    private static class ClassInfo {
+    private static class ClassInfo
+    {
         public String name;
-        public ArrayList<FieldNode> cField = new ArrayList<>();
-        public ArrayList<FieldNode> sField = new ArrayList<>();
-        public ArrayList<MethodNode> cMethods = new ArrayList<>();
-        public ArrayList<MethodNode> sMethods = new ArrayList<>();
-
-        public ClassInfo(String name) {
-            this.name = name;
-        }
-
-        public boolean isSame() {
-            return (cField.size() == 0 && sField.size() == 0 && cMethods.size() == 0 && sMethods.size() == 0);
-        }
+        public ArrayList<FieldNode> cField = new ArrayList<FieldNode>();
+        public ArrayList<FieldNode> sField = new ArrayList<FieldNode>();
+        public ArrayList<MethodNode> cMethods = new ArrayList<MethodNode>();
+        public ArrayList<MethodNode> sMethods = new ArrayList<MethodNode>();
+        public ClassInfo(String name){ this.name = name; }
+        public boolean isSame() { return (cField.size() == 0 && sField.size() == 0 && cMethods.size() == 0 && sMethods.size() == 0); }
     }
 
-    public static byte[] processClass(byte[] cIn, byte[] sIn, ClassInfo info) {
+    public static byte[] processClass(byte[] cIn, byte[] sIn, ClassInfo info)
+    {
         ClassNode cClassNode = getClassNode(cIn);
         ClassNode sClassNode = getClassNode(sIn);
 
@@ -350,63 +386,81 @@ public class MCPMerger {
         return writer.toByteArray();
     }
 
-    private static ClassNode getClassNode(byte[] data) {
+    private static ClassNode getClassNode(byte[] data)
+    {
         ClassReader reader = new ClassReader(data);
         ClassNode classNode = new ClassNode();
         reader.accept(classNode, 0);
         return classNode;
     }
 
-    private static void processFields(ClassNode cClass, ClassNode sClass, ClassInfo info) {
+    @SuppressWarnings("unchecked")
+    private static void processFields(ClassNode cClass, ClassNode sClass, ClassInfo info)
+    {
         List<FieldNode> cFields = cClass.fields;
         List<FieldNode> sFields = sClass.fields;
 
         int sI = 0;
-        for (int x = 0; x < cFields.size(); x++) {
+        for (int x = 0; x < cFields.size(); x++)
+        {
             FieldNode cF = cFields.get(x);
-            if (sI < sFields.size()) {
-                if (!cF.name.equals(sFields.get(sI).name)) {
+            if (sI < sFields.size())
+            {
+                if (!cF.name.equals(sFields.get(sI).name))
+                {
                     boolean serverHas = false;
-                    for (int y = sI + 1; y < sFields.size(); y++) {
-                        if (cF.name.equals(sFields.get(y).name)) {
+                    for (int y = sI + 1; y < sFields.size(); y++)
+                    {
+                        if (cF.name.equals(sFields.get(y).name))
+                        {
                             serverHas = true;
                             break;
                         }
                     }
-                    if (serverHas) {
+                    if (serverHas)
+                    {
                         boolean clientHas = false;
                         FieldNode sF = sFields.get(sI);
-                        for (int y = x + 1; y < cFields.size(); y++) {
-                            if (sF.name.equals(cFields.get(y).name)) {
+                        for (int y = x + 1; y < cFields.size(); y++)
+                        {
+                            if (sF.name.equals(cFields.get(y).name))
+                            {
                                 clientHas = true;
                                 break;
                             }
                         }
-                        if (!clientHas) {
-                            if (sF.visibleAnnotations == null) sF.visibleAnnotations = new ArrayList<>();
+                        if (!clientHas)
+                        {
+                            if  (sF.visibleAnnotations == null) sF.visibleAnnotations = new ArrayList<AnnotationNode>();
                             sF.visibleAnnotations.add(getSideAnn(false));
                             cFields.add(x++, sF);
                             info.sField.add(sF);
                         }
-                    } else {
-                        if (cF.visibleAnnotations == null) cF.visibleAnnotations = new ArrayList<>();
+                    }
+                    else
+                    {
+                        if  (cF.visibleAnnotations == null) cF.visibleAnnotations = new ArrayList<AnnotationNode>();
                         cF.visibleAnnotations.add(getSideAnn(true));
                         sFields.add(sI, cF);
                         info.cField.add(cF);
                     }
                 }
-            } else {
-                if (cF.visibleAnnotations == null) cF.visibleAnnotations = new ArrayList<>();
+            }
+            else
+            {
+                if  (cF.visibleAnnotations == null) cF.visibleAnnotations = new ArrayList<AnnotationNode>();
                 cF.visibleAnnotations.add(getSideAnn(true));
                 sFields.add(sI, cF);
                 info.cField.add(cF);
             }
             sI++;
         }
-        if (sFields.size() != cFields.size()) {
-            for (int x = cFields.size(); x < sFields.size(); x++) {
+        if (sFields.size() != cFields.size())
+        {
+            for (int x = cFields.size(); x < sFields.size(); x++)
+            {
                 FieldNode sF = sFields.get(x);
-                if (sF.visibleAnnotations == null) sF.visibleAnnotations = new ArrayList<>();
+                if  (sF.visibleAnnotations == null) sF.visibleAnnotations = new ArrayList<AnnotationNode>();
                 sF.visibleAnnotations.add(getSideAnn(true));
                 cFields.add(x++, sF);
                 info.sField.add(sF);
@@ -414,26 +468,29 @@ public class MCPMerger {
         }
     }
 
-    private static class MethodWrapper {
+    private static class MethodWrapper
+    {
         private MethodNode node;
         public boolean client;
         public boolean server;
-
-        public MethodWrapper(MethodNode node) {
+        public MethodWrapper(MethodNode node)
+        {
             this.node = node;
         }
-
         @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof MethodWrapper)) return false;
+        public boolean equals(Object obj)
+        {
+            if (obj == null || !(obj instanceof MethodWrapper)) return false;
             MethodWrapper mw = (MethodWrapper) obj;
             boolean eq = Objects.equal(node.name, mw.node.name) && Objects.equal(node.desc, mw.node.desc);
-            if (eq) {
+            if (eq)
+            {
                 mw.client = this.client | mw.client;
                 mw.server = this.server | mw.server;
                 this.client = this.client | mw.client;
                 this.server = this.server | mw.server;
-                if (DEBUG) {
+                if (DEBUG)
+                {
                     System.out.printf(" eq: %s %s\n", this, mw);
                 }
             }
@@ -441,19 +498,21 @@ public class MCPMerger {
         }
 
         @Override
-        public int hashCode() {
+        public int hashCode()
+        {
             return Objects.hashCode(node.name, node.desc);
         }
-
         @Override
-        public String toString() {
-            return Objects.toStringHelper(this).add("name", node.name).add("desc", node.desc).add("server", server).add("client", client).toString();
+        public String toString()
+        {
+            return Objects.toStringHelper(this).add("name", node.name).add("desc",node.desc).add("server",server).add("client",client).toString();
         }
     }
-
-    private static void processMethods(ClassNode cClass, ClassNode sClass, ClassInfo info) {
-        List<MethodNode> cMethods = cClass.methods;
-        List<MethodNode> sMethods = sClass.methods;
+    @SuppressWarnings("unchecked")
+    private static void processMethods(ClassNode cClass, ClassNode sClass, ClassInfo info)
+    {
+        List<MethodNode> cMethods = (List<MethodNode>)cClass.methods;
+        List<MethodNode> sMethods = (List<MethodNode>)sClass.methods;
         LinkedHashSet<MethodWrapper> allMethods = Sets.newLinkedHashSet();
 
         int cPos = 0;
@@ -463,15 +522,20 @@ public class MCPMerger {
         String clientName = "";
         String lastName = clientName;
         String serverName = "";
-        while (cPos < cLen || sPos < sLen) {
-            do {
-                if (sPos >= sLen) {
+        while (cPos < cLen || sPos < sLen)
+        {
+            do
+            {
+                if (sPos>=sLen)
+                {
                     break;
                 }
                 MethodNode sM = sMethods.get(sPos);
                 serverName = sM.name;
-                if (!serverName.equals(lastName) && cPos != cLen) {
-                    if (DEBUG) {
+                if (!serverName.equals(lastName) && cPos != cLen)
+                {
+                    if (DEBUG)
+                    {
                         System.out.printf("Server -skip : %s %s %d (%s %d) %d [%s]\n", sClass.name, clientName, cLen - cPos, serverName, sLen - sPos, allMethods.size(), lastName);
                     }
                     break;
@@ -479,21 +543,26 @@ public class MCPMerger {
                 MethodWrapper mw = new MethodWrapper(sM);
                 mw.server = true;
                 allMethods.add(mw);
-                if (DEBUG) {
+                if (DEBUG)
+                {
                     System.out.printf("Server *add* : %s %s %d (%s %d) %d [%s]\n", sClass.name, clientName, cLen - cPos, serverName, sLen - sPos, allMethods.size(), lastName);
                 }
                 sPos++;
             }
             while (sPos < sLen);
-            do {
-                if (cPos >= cLen) {
+            do
+            {
+                if (cPos>=cLen)
+                {
                     break;
                 }
                 MethodNode cM = cMethods.get(cPos);
                 lastName = clientName;
                 clientName = cM.name;
-                if (!clientName.equals(lastName) && sPos != sLen) {
-                    if (DEBUG) {
+                if (!clientName.equals(lastName) && sPos != sLen)
+                {
+                    if (DEBUG)
+                    {
                         System.out.printf("Client -skip : %s %s %d (%s %d) %d [%s]\n", cClass.name, clientName, cLen - cPos, serverName, sLen - sPos, allMethods.size(), lastName);
                     }
                     break;
@@ -501,7 +570,8 @@ public class MCPMerger {
                 MethodWrapper mw = new MethodWrapper(cM);
                 mw.client = true;
                 allMethods.add(mw);
-                if (DEBUG) {
+                if (DEBUG)
+                {
                     System.out.printf("Client *add* : %s %s %d (%s %d) %d [%s]\n", cClass.name, clientName, cLen - cPos, serverName, sLen - sPos, allMethods.size(), lastName);
                 }
                 cPos++;
@@ -512,30 +582,52 @@ public class MCPMerger {
         cMethods.clear();
         sMethods.clear();
 
-        for (MethodWrapper mw : allMethods) {
-            if (DEBUG) {
+        for (MethodWrapper mw : allMethods)
+        {
+            if (DEBUG)
+            {
                 System.out.println(mw);
             }
             cMethods.add(mw.node);
             sMethods.add(mw.node);
-            if (mw.server && mw.client) {
+            if (mw.server && mw.client)
+            {
                 // no op
-            } else {
-                if (mw.node.visibleAnnotations == null)
-                    mw.node.visibleAnnotations = Lists.newArrayListWithExpectedSize(1);
+            }
+            else
+            {
+                if (mw.node.visibleAnnotations == null) mw.node.visibleAnnotations = Lists.newArrayListWithExpectedSize(1);
                 mw.node.visibleAnnotations.add(getSideAnn(mw.client));
-                if (mw.client) {
+                if (mw.client)
+                {
                     info.sMethods.add(mw.node);
-                } else {
+                }
+                else
+                {
                     info.cMethods.add(mw.node);
                 }
             }
         }
     }
 
-    public static byte[] getClassBytes(String name) throws IOException {
-        try (InputStream classStream = MCPMerger.class.getResourceAsStream("/" + name.replace('.', '/').concat(".class"))) {
+    public static byte[] getClassBytes(String name) throws IOException
+    {
+        InputStream classStream = null;
+        try
+        {
+            classStream = MCPMerger.class.getResourceAsStream("/" + name.replace('.', '/').concat(".class"));
             return readFully(classStream);
+        }
+        finally
+        {
+            if (classStream != null)
+            {
+                try
+                {
+                    classStream.close();
+                }
+                catch (IOException e){}
+            }
         }
     }
 }

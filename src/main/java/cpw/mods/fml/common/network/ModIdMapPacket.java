@@ -38,36 +38,45 @@ import static cpw.mods.fml.common.network.FMLPacket.Type.MOD_IDMAP;
 public class ModIdMapPacket extends FMLPacket {
     private byte[][] partials;
 
-    public ModIdMapPacket() {
+    public ModIdMapPacket()
+    {
         super(MOD_IDMAP);
     }
 
     @Override
-    public byte[] generatePacket(Object... data) {
+    public byte[] generatePacket(Object... data)
+    {
         NBTTagList completeList = (NBTTagList) data[0];
         NBTTagCompound wrap = new NBTTagCompound();
         wrap.setTag("List", completeList);
-        try {
+        try
+        {
             return CompressedStreamTools.compress(wrap);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             FMLLog.log(Level.SEVERE, e, "A critical error writing the id map");
             throw new FMLNetworkException(e);
         }
     }
 
     @Override
-    public FMLPacket consumePacket(byte[] data) {
+    public FMLPacket consumePacket(byte[] data)
+    {
         ByteArrayDataInput bdi = ByteStreams.newDataInput(data);
         int chunkIdx = UnsignedBytes.toInt(bdi.readByte());
         int chunkTotal = UnsignedBytes.toInt(bdi.readByte());
         int chunkLength = bdi.readInt();
-        if (partials == null) {
+        if (partials == null)
+        {
             partials = new byte[chunkTotal][];
         }
         partials[chunkIdx] = new byte[chunkLength];
         bdi.readFully(partials[chunkIdx]);
-        for (byte[] partial : partials) {
-            if (partial == null) {
+        for (int i = 0; i < partials.length; i++)
+        {
+            if (partials[i] == null)
+            {
                 return null;
             }
         }
@@ -75,20 +84,25 @@ public class ModIdMapPacket extends FMLPacket {
     }
 
     @Override
-    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName) {
+    public void execute(INetworkManager network, FMLNetworkHandler handler, NetHandler netHandler, String userName)
+    {
         byte[] allData = Bytes.concat(partials);
         GameData.initializeServerGate(1);
-        try {
+        try
+        {
             NBTTagCompound serverList = CompressedStreamTools.decompress(allData);
             NBTTagList list = serverList.getTagList("List");
             Set<ItemData> itemData = GameData.buildWorldItemData(list);
             GameData.validateWorldSave(itemData);
             MapDifference<Integer, ItemData> serverDifference = GameData.gateWorldLoadingForValidation();
-            if (serverDifference != null) {
+            if (serverDifference!=null)
+            {
                 FMLCommonHandler.instance().disconnectIDMismatch(serverDifference, netHandler, network);
 
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
         }
     }
 

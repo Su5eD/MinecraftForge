@@ -19,12 +19,13 @@ import net.minecraft.client.texturepacks.ITexturePack;
 
 import java.awt.*;
 
-public interface ITextureFX {
-    void onTexturePackChanged(RenderEngine engine, ITexturePack texturepack, Dimension dimensions);
+public interface ITextureFX
+{
+    public void onTexturePackChanged(RenderEngine engine, ITexturePack texturepack, Dimension dimensions);
 
-    void onTextureDimensionsUpdate(int width, int height);
-
-    void setErrored(boolean errored);
-
-    boolean getErrored();
+    public void onTextureDimensionsUpdate(int width, int height);
+    
+    public void setErrored(boolean errored);
+    
+    public boolean getErrored();
 }

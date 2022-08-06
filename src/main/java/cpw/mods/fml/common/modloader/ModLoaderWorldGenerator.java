@@ -22,18 +22,24 @@ import net.minecraft.world.gen.ChunkProviderHell;
 
 import java.util.Random;
 
-public class ModLoaderWorldGenerator implements IWorldGenerator {
+public class ModLoaderWorldGenerator implements IWorldGenerator
+{
     private BaseModProxy mod;
 
-    public ModLoaderWorldGenerator(BaseModProxy mod) {
+    public ModLoaderWorldGenerator(BaseModProxy mod)
+    {
         this.mod = mod;
     }
 
     @Override
-    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
-        if (chunkGenerator instanceof ChunkProviderGenerate) {
+    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
+    {
+        if (chunkGenerator instanceof ChunkProviderGenerate)
+        {
             mod.generateSurface(world, random, chunkX << 4, chunkZ << 4);
-        } else if (chunkGenerator instanceof ChunkProviderHell) {
+        }
+        else if (chunkGenerator instanceof ChunkProviderHell)
+        {
             mod.generateNether(world, random, chunkX << 4, chunkZ << 4);
         }
     }

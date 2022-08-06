@@ -50,17 +50,19 @@ import java.util.logging.Logger;
 
 /**
  * The main class for non-obfuscated hook handling code
- * <p>
+ *
  * Anything that doesn't require obfuscated or client/server specific code should
  * go in this handler
- * <p>
+ *
  * It also contains a reference to the sided handler instance that is valid
  * allowing for common code to access specific properties from the obfuscated world
  * without a direct dependency
  *
  * @author cpw
+ *
  */
-public class FMLCommonHandler {
+public class FMLCommonHandler
+{
     /**
      * The singleton
      */
@@ -79,7 +81,9 @@ public class FMLCommonHandler {
     private Set<SaveHandler> handlerSet = Sets.newSetFromMap(new MapMaker().weakKeys().<SaveHandler,Boolean>makeMap());
 
 
-    public void beginLoading(IFMLSidedHandler handler) {
+
+    public void beginLoading(IFMLSidedHandler handler)
+    {
         sidedDelegate = handler;
         FMLLog.log("MinecraftForge", Level.INFO, "Attempting early MinecraftForge initialization");
         callForgeMethod("initialize");
@@ -87,35 +91,43 @@ public class FMLCommonHandler {
         FMLLog.log("MinecraftForge", Level.INFO, "Completed early MinecraftForge initialization");
     }
 
-    public void rescheduleTicks(Side side) {
+    public void rescheduleTicks(Side side)
+    {
         TickRegistry.updateTickQueue(side.isClient() ? scheduledClientTicks : scheduledServerTicks, side);
     }
-
-    public void tickStart(EnumSet<TickType> ticks, Side side, Object... data) {
+    public void tickStart(EnumSet<TickType> ticks, Side side, Object ... data)
+    {
         List<IScheduledTickHandler> scheduledTicks = side.isClient() ? scheduledClientTicks : scheduledServerTicks;
 
-        if (scheduledTicks.size() == 0) {
+        if (scheduledTicks.size()==0)
+        {
             return;
         }
-        for (IScheduledTickHandler ticker : scheduledTicks) {
+        for (IScheduledTickHandler ticker : scheduledTicks)
+        {
             EnumSet<TickType> ticksToRun = EnumSet.copyOf(Objects.firstNonNull(ticker.ticks(), EnumSet.noneOf(TickType.class)));
             ticksToRun.removeAll(EnumSet.complementOf(ticks));
-            if (!ticksToRun.isEmpty()) {
+            if (!ticksToRun.isEmpty())
+            {
                 ticker.tickStart(ticksToRun, data);
             }
         }
     }
 
-    public void tickEnd(EnumSet<TickType> ticks, Side side, Object... data) {
+    public void tickEnd(EnumSet<TickType> ticks, Side side, Object ... data)
+    {
         List<IScheduledTickHandler> scheduledTicks = side.isClient() ? scheduledClientTicks : scheduledServerTicks;
 
-        if (scheduledTicks.size() == 0) {
+        if (scheduledTicks.size()==0)
+        {
             return;
         }
-        for (IScheduledTickHandler ticker : scheduledTicks) {
+        for (IScheduledTickHandler ticker : scheduledTicks)
+        {
             EnumSet<TickType> ticksToRun = EnumSet.copyOf(Objects.firstNonNull(ticker.ticks(), EnumSet.noneOf(TickType.class)));
             ticksToRun.removeAll(EnumSet.complementOf(ticks));
-            if (!ticksToRun.isEmpty()) {
+            if (!ticksToRun.isEmpty())
+            {
                 ticker.tickEnd(ticksToRun, data);
             }
         }
@@ -124,29 +136,29 @@ public class FMLCommonHandler {
     /**
      * @return the instance
      */
-    public static FMLCommonHandler instance() {
+    public static FMLCommonHandler instance()
+    {
         return INSTANCE;
     }
-
     /**
      * Find the container that associates with the supplied mod object
-     *
      * @param mod
      */
-    public ModContainer findContainerFor(Object mod) {
+    public ModContainer findContainerFor(Object mod)
+    {
         return Loader.instance().getReversedModObjectList().get(mod);
     }
-
     /**
      * Get the forge mod loader logging instance (goes to the forgemodloader log file)
-     *
      * @return The log instance for the FML log file
      */
-    public Logger getFMLLogger() {
+    public Logger getFMLLogger()
+    {
         return FMLLog.getLogger();
     }
 
-    public Side getSide() {
+    public Side getSide()
+    {
         return sidedDelegate.getSide();
     }
 
@@ -155,28 +167,33 @@ public class FMLCommonHandler {
      * on thread analysis to try and determine whether the code is running in the
      * server or not. Use at your own risk
      */
-    public Side getEffectiveSide() {
+    public Side getEffectiveSide()
+    {
         Thread thr = Thread.currentThread();
-        if ((thr instanceof ThreadMinecraftServer) || (thr instanceof ServerListenThread)) {
+        if ((thr instanceof ThreadMinecraftServer) || (thr instanceof ServerListenThread))
+        {
             return Side.SERVER;
         }
 
         return Side.CLIENT;
     }
-
     /**
      * Raise an exception
      */
-    public void raiseException(Throwable exception, String message, boolean stopGame) {
+    public void raiseException(Throwable exception, String message, boolean stopGame)
+    {
         FMLLog.log(Level.SEVERE, exception, "Something raised an exception. The message was '%s'. 'stopGame' is %b", message, stopGame);
-        if (stopGame) {
-            getSidedDelegate().haltGame(message, exception);
+        if (stopGame)
+        {
+            getSidedDelegate().haltGame(message,exception);
         }
     }
 
 
-    private Class<?> findMinecraftForge() {
-        if (forge == null && !noForge) {
+    private Class<?> findMinecraftForge()
+    {
+        if (forge==null && !noForge)
+        {
             try {
                 forge = Class.forName("net.minecraftforge.common.MinecraftForge");
             } catch (Exception ex) {
@@ -186,32 +203,40 @@ public class FMLCommonHandler {
         return forge;
     }
 
-    private Object callForgeMethod(String method) {
+    private Object callForgeMethod(String method)
+    {
         if (noForge)
             return null;
-        try {
+        try
+        {
             return findMinecraftForge().getMethod(method).invoke(null);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // No Forge installation
             return null;
         }
     }
 
-    public void computeBranding() {
-        if (brandings == null) {
+    public void computeBranding()
+    {
+        if (brandings == null)
+        {
             Builder brd = ImmutableList.<String>builder();
             brd.add(Loader.instance().getMCVersionString());
             brd.add(Loader.instance().getMCPVersionString());
-            brd.add("FML v" + Loader.instance().getFMLVersionString());
+            brd.add("FML v"+Loader.instance().getFMLVersionString());
             String forgeBranding = (String) callForgeMethod("getBrandingVersion");
-            if (!Strings.isNullOrEmpty(forgeBranding)) {
+            if (!Strings.isNullOrEmpty(forgeBranding))
+            {
                 brd.add(forgeBranding);
             }
-            if (sidedDelegate != null) {
-                brd.addAll(sidedDelegate.getAdditionalBrandingInformation());
+            if (sidedDelegate!=null)
+            {
+            	brd.addAll(sidedDelegate.getAdditionalBrandingInformation());
             }
             try {
-                Properties props = new Properties();
+                Properties props=new Properties();
                 props.load(getClass().getClassLoader().getResourceAsStream("fmlbranding.properties"));
                 brd.add(props.getProperty("fmlbranding"));
             } catch (Exception ex) {
@@ -219,139 +244,171 @@ public class FMLCommonHandler {
             }
             int tModCount = Loader.instance().getModList().size();
             int aModCount = Loader.instance().getActiveModList().size();
-            brd.add(String.format("%d mod%s loaded, %d mod%s active", tModCount, tModCount != 1 ? "s" : "", aModCount, aModCount != 1 ? "s" : ""));
+            brd.add(String.format("%d mod%s loaded, %d mod%s active", tModCount, tModCount!=1 ? "s" :"", aModCount, aModCount!=1 ? "s" :"" ));
             brandings = brd.build();
         }
     }
-
-    public List<String> getBrandings() {
-        if (brandings == null) {
+    public List<String> getBrandings()
+    {
+        if (brandings == null)
+        {
             computeBranding();
         }
         return ImmutableList.copyOf(brandings);
     }
 
-    public IFMLSidedHandler getSidedDelegate() {
+    public IFMLSidedHandler getSidedDelegate()
+    {
         return sidedDelegate;
     }
 
-    public void onPostServerTick() {
+    public void onPostServerTick()
+    {
         tickEnd(EnumSet.of(TickType.SERVER), Side.SERVER);
     }
 
     /**
      * Every tick just after world and other ticks occur
      */
-    public void onPostWorldTick(Object world) {
+    public void onPostWorldTick(Object world)
+    {
         tickEnd(EnumSet.of(TickType.WORLD), Side.SERVER, world);
     }
 
-    public void onPreServerTick() {
+    public void onPreServerTick()
+    {
         tickStart(EnumSet.of(TickType.SERVER), Side.SERVER);
     }
 
     /**
      * Every tick just before world and other ticks occur
      */
-    public void onPreWorldTick(Object world) {
+    public void onPreWorldTick(Object world)
+    {
         tickStart(EnumSet.of(TickType.WORLD), Side.SERVER, world);
     }
 
-    public void onWorldLoadTick(World[] worlds) {
+    public void onWorldLoadTick(World[] worlds)
+    {
         rescheduleTicks(Side.SERVER);
-        for (World w : worlds) {
+        for (World w : worlds)
+        {
             tickStart(EnumSet.of(TickType.WORLDLOAD), Side.SERVER, w);
         }
     }
 
-    public boolean handleServerAboutToStart(MinecraftServer server) {
+    public boolean handleServerAboutToStart(MinecraftServer server)
+    {
         return Loader.instance().serverAboutToStart(server);
     }
 
-    public boolean handleServerStarting(MinecraftServer server) {
+    public boolean handleServerStarting(MinecraftServer server)
+    {
         return Loader.instance().serverStarting(server);
     }
 
-    public void handleServerStarted() {
+    public void handleServerStarted()
+    {
         Loader.instance().serverStarted();
     }
 
-    public void handleServerStopping() {
+    public void handleServerStopping()
+    {
         Loader.instance().serverStopping();
     }
 
-    public MinecraftServer getMinecraftServerInstance() {
+    public MinecraftServer getMinecraftServerInstance()
+    {
         return sidedDelegate.getServer();
     }
 
-    public void showGuiScreen(Object clientGuiElement) {
+    public void showGuiScreen(Object clientGuiElement)
+    {
         sidedDelegate.showGuiScreen(clientGuiElement);
     }
 
-    public Entity spawnEntityIntoClientWorld(EntityRegistration registration, EntitySpawnPacket entitySpawnPacket) {
+    public Entity spawnEntityIntoClientWorld(EntityRegistration registration, EntitySpawnPacket entitySpawnPacket)
+    {
         return sidedDelegate.spawnEntityIntoClientWorld(registration, entitySpawnPacket);
     }
 
-    public void adjustEntityLocationOnClient(EntitySpawnAdjustmentPacket entitySpawnAdjustmentPacket) {
+    public void adjustEntityLocationOnClient(EntitySpawnAdjustmentPacket entitySpawnAdjustmentPacket)
+    {
         sidedDelegate.adjustEntityLocationOnClient(entitySpawnAdjustmentPacket);
     }
 
-    public void onServerStart(DedicatedServer dedicatedServer) {
+    public void onServerStart(DedicatedServer dedicatedServer)
+    {
         FMLServerHandler.instance();
         sidedDelegate.beginServerLoading(dedicatedServer);
     }
 
-    public void onServerStarted() {
+    public void onServerStarted()
+    {
         sidedDelegate.finishServerLoading();
     }
 
 
-    public void onPreClientTick() {
+    public void onPreClientTick()
+    {
         tickStart(EnumSet.of(TickType.CLIENT), Side.CLIENT);
 
     }
 
-    public void onPostClientTick() {
+    public void onPostClientTick()
+    {
         tickEnd(EnumSet.of(TickType.CLIENT), Side.CLIENT);
     }
 
-    public void onRenderTickStart(float timer) {
+    public void onRenderTickStart(float timer)
+    {
         tickStart(EnumSet.of(TickType.RENDER), Side.CLIENT, timer);
     }
 
-    public void onRenderTickEnd(float timer) {
+    public void onRenderTickEnd(float timer)
+    {
         tickEnd(EnumSet.of(TickType.RENDER), Side.CLIENT, timer);
     }
 
-    public void onPlayerPreTick(EntityPlayer player) {
+    public void onPlayerPreTick(EntityPlayer player)
+    {
         Side side = player instanceof EntityPlayerMP ? Side.SERVER : Side.CLIENT;
         tickStart(EnumSet.of(TickType.PLAYER), side, player);
     }
 
-    public void onPlayerPostTick(EntityPlayer player) {
+    public void onPlayerPostTick(EntityPlayer player)
+    {
         Side side = player instanceof EntityPlayerMP ? Side.SERVER : Side.CLIENT;
         tickEnd(EnumSet.of(TickType.PLAYER), side, player);
     }
 
-    public void registerCrashCallable(ICrashCallable callable) {
+    public void registerCrashCallable(ICrashCallable callable)
+    {
         crashCallables.add(callable);
     }
 
-    public void enhanceCrashReport(CrashReport crashReport, CrashReportCategory category) {
-        for (ICrashCallable call : crashCallables) {
+    public void enhanceCrashReport(CrashReport crashReport, CrashReportCategory category)
+    {
+        for (ICrashCallable call: crashCallables)
+        {
             category.addCrashSectionCallable(call.getLabel(), call);
         }
     }
 
-    public void handleTinyPacket(NetHandler handler, Packet131MapData mapData) {
+    public void handleTinyPacket(NetHandler handler, Packet131MapData mapData)
+    {
         sidedDelegate.handleTinyPacket(handler, mapData);
     }
 
-    public void handleWorldDataSave(SaveHandler handler, WorldInfo worldInfo, NBTTagCompound tagCompound) {
-        for (ModContainer mc : Loader.instance().getModList()) {
-            if (mc instanceof InjectedModContainer) {
-                WorldAccessContainer wac = ((InjectedModContainer) mc).getWrappedWorldAccessContainer();
-                if (wac != null) {
+    public void handleWorldDataSave(SaveHandler handler, WorldInfo worldInfo, NBTTagCompound tagCompound)
+    {
+        for (ModContainer mc : Loader.instance().getModList())
+        {
+            if (mc instanceof InjectedModContainer)
+            {
+                WorldAccessContainer wac = ((InjectedModContainer)mc).getWrappedWorldAccessContainer();
+                if (wac != null)
+                {
                     NBTTagCompound dataForWriting = wac.getDataForWriting(handler, worldInfo);
                     tagCompound.setCompoundTag(mc.getModId(), dataForWriting);
                 }
@@ -359,38 +416,48 @@ public class FMLCommonHandler {
         }
     }
 
-    public void handleWorldDataLoad(SaveHandler handler, WorldInfo worldInfo, NBTTagCompound tagCompound) {
-        if (getEffectiveSide() != Side.SERVER) {
+    public void handleWorldDataLoad(SaveHandler handler, WorldInfo worldInfo, NBTTagCompound tagCompound)
+    {
+        if (getEffectiveSide()!=Side.SERVER)
+        {
             return;
         }
-        if (handlerSet.contains(handler)) {
+        if (handlerSet.contains(handler))
+        {
             return;
         }
         handlerSet.add(handler);
-        Map<String, NBTBase> additionalProperties = Maps.newHashMap();
+        Map<String,NBTBase> additionalProperties = Maps.newHashMap();
         worldInfo.setAdditionalProperties(additionalProperties);
-        for (ModContainer mc : Loader.instance().getModList()) {
-            if (mc instanceof InjectedModContainer) {
-                WorldAccessContainer wac = ((InjectedModContainer) mc).getWrappedWorldAccessContainer();
-                if (wac != null) {
+        for (ModContainer mc : Loader.instance().getModList())
+        {
+            if (mc instanceof InjectedModContainer)
+            {
+                WorldAccessContainer wac = ((InjectedModContainer)mc).getWrappedWorldAccessContainer();
+                if (wac != null)
+                {
                     wac.readData(handler, worldInfo, additionalProperties, tagCompound.getCompoundTag(mc.getModId()));
                 }
             }
         }
     }
 
-    public boolean shouldServerBeKilledQuietly() {
-        if (sidedDelegate == null) {
+    public boolean shouldServerBeKilledQuietly()
+    {
+        if (sidedDelegate == null)
+        {
             return false;
         }
         return sidedDelegate.shouldServerShouldBeKilledQuietly();
     }
 
-    public void disconnectIDMismatch(MapDifference<Integer, ItemData> serverDifference, NetHandler toKill, INetworkManager network) {
+    public void disconnectIDMismatch(MapDifference<Integer, ItemData> serverDifference, NetHandler toKill, INetworkManager network)
+    {
         sidedDelegate.disconnectIDMismatch(serverDifference, toKill, network);
     }
 
-    public void handleServerStopped() {
+    public void handleServerStopped()
+    {
         Loader.instance().serverStopped();
     }
 }

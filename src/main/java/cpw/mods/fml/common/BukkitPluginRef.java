@@ -26,16 +26,17 @@ import java.lang.annotation.Target;
  * plugin to load.
  *
  * @author cpw
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface BukkitPluginRef {
+public @interface BukkitPluginRef
+{
     /**
      * A reference (possibly version specific) to a Bukkit Plugin by name, using the name@versionbound
      * specification. If this is a bukkit enabled environment the field annotated by this
      * will be populated with a {@link BukkitProxy} instance if possible. This proxy will be gotten by
      * reflectively calling the "getModProxy" method on the bukkit plugin instance.
-     *
      * @return The name of the plugin which we will inject into this field
      */
     String value();

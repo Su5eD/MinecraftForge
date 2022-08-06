@@ -145,10 +145,15 @@ val manifests = mutableMapOf(
     )
 )
 
+val versionRaw = project.version.toString().split("-", limit = 2)[1]
+val versionParts = versionRaw.split(".")
 val tokenMap = mapOf(
     "tokens" to mapOf(
         "FORGE_VERSION" to project.version,
-        "FORGE_VERSION_RAW" to project.version.toString().split("-", limit = 2)[1],
+        "FORGE_MAJOR_NUMBER" to versionParts[0],
+        "FORGE_MINOR_NUMBER" to versionParts[1],
+        "FORGE_REVISION_NUMBER" to versionParts[2],
+        "FORGE_BUILD_NUMBER" to versionParts[3],
         "FORGE_GROUP" to project.group,
         "FORGE_NAME" to project.name,
         "MC_VERSION" to minecraftVersion,
@@ -183,7 +188,7 @@ repositories {
 dependencies {
     installer("org.ow2.asm:asm-all:4.1")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
-    installer("com.google.guava:guava:14.0")
+    installer("com.google.guava:guava:12.0.1")
     installer("com.google.code.gson:gson:2.3")
     installer("net.sourceforge.argo:argo:2.25")
 
@@ -251,10 +256,6 @@ tasks {
     universalJar {
         from(extraTxts)
 
-        filesMatching("*.properties") {
-            filter(ReplaceTokens::class, tokenMap)
-        }
-
         doFirst {
             val classpath = StringBuilder()
             val artifacts = getArtifacts(installer, false)
@@ -292,7 +293,7 @@ tasks {
             add("If you MUST automate this, please consider supporting the project through https://www.patreon.com/LexManos/")
         }
 
-        extra.apply {
+        ext {
             set("comment", comment)
             set("id", id)
         }

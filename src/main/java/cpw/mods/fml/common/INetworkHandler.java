@@ -15,13 +15,14 @@
 package cpw.mods.fml.common;
 
 
+
 /**
  * @author cpw
+ *
  */
-public interface INetworkHandler {
+public interface INetworkHandler
+{
     boolean onChat(Object... data);
-
     void onPacket250Packet(Object... data);
-
     void onServerLogin(Object handler);
 }

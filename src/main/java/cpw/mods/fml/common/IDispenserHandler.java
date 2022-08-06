@@ -20,15 +20,17 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 /**
+ *
  * Deprecated without replacement. Use vanilla DispenserRegistry code.
  *
  * @author cpw
+ *
  */
 @Deprecated
-public interface IDispenserHandler {
+public interface IDispenserHandler
+{
     /**
      * Called to dispense an entity
-     *
      * @param x
      * @param y
      * @param z

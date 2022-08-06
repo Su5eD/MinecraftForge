@@ -41,7 +41,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class GameRegistry {
+public class GameRegistry
+{
     private static Multimap<ModContainer, BlockProxy> blockRegistry = ArrayListMultimap.create();
     private static Set<IWorldGenerator> worldGenerators = Sets.newHashSet();
     private static List<IFuelHandler> fuelHandlers = Lists.newArrayList();
@@ -54,7 +55,8 @@ public class GameRegistry {
      *
      * @param generator
      */
-    public static void registerWorldGenerator(IWorldGenerator generator) {
+    public static void registerWorldGenerator(IWorldGenerator generator)
+    {
         worldGenerators.add(generator);
     }
 
@@ -68,14 +70,16 @@ public class GameRegistry {
      * @param chunkGenerator
      * @param chunkProvider
      */
-    public static void generateWorld(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
+    public static void generateWorld(int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
+    {
         long worldSeed = world.getSeed();
         Random fmlRandom = new Random(worldSeed);
         long xSeed = fmlRandom.nextLong() >> 2 + 1L;
         long zSeed = fmlRandom.nextLong() >> 2 + 1L;
         fmlRandom.setSeed((xSeed * chunkX + zSeed * chunkZ) ^ worldSeed);
 
-        for (IWorldGenerator generator : worldGenerators) {
+        for (IWorldGenerator generator : worldGenerators)
+        {
             generator.generate(fmlRandom, chunkX, chunkZ, world, chunkGenerator, chunkProvider);
         }
     }
@@ -86,20 +90,22 @@ public class GameRegistry {
      * @param handler
      */
     @Deprecated
-    public static void registerDispenserHandler(IDispenserHandler handler) {
+    public static void registerDispenserHandler(IDispenserHandler handler)
+    {
     }
-
     /**
      * Deprecated without replacement. Use vanilla DispenserRegistry code
      *
      * @param handler
      */
     @Deprecated
-    public static void registerDispenserHandler(final IDispenseHandler handler) {
+    public static void registerDispenserHandler(final IDispenseHandler handler)
+    {
     }
 
 
     /**
+     *
      * Deprecated without replacement, use vanilla DispenserRegistry code
      *
      * @param world
@@ -111,19 +117,19 @@ public class GameRegistry {
      * @param item
      */
     @Deprecated
-    public static int tryDispense(World world, int x, int y, int z, int xVelocity, int zVelocity, ItemStack item, Random random, double entX, double entY, double entZ) {
+    public static int tryDispense(World world, int x, int y, int z, int xVelocity, int zVelocity, ItemStack item, Random random, double entX, double entY, double entZ)
+    {
         return -1;
     }
-
     /**
      * Internal method for creating an @Block instance
-     *
      * @param container
      * @param type
      * @param annotation
      * @throws Exception
      */
-    public static Object buildBlock(ModContainer container, Class<?> type, Block annotation) throws Exception {
+    public static Object buildBlock(ModContainer container, Class<?> type, Block annotation) throws Exception
+    {
         Object o = type.getConstructor(int.class).newInstance(findSpareBlockId());
         registerBlock((net.minecraft.block.Block) o);
         return o;
@@ -134,7 +140,8 @@ public class GameRegistry {
      *
      * @return a block id
      */
-    private static int findSpareBlockId() {
+    private static int findSpareBlockId()
+    {
         return BlockTracker.nextBlockId();
     }
 
@@ -144,111 +151,123 @@ public class GameRegistry {
      * @param item The item to register
      * @param name The mod-unique name of the item
      */
-    public static void registerItem(Item item, String name) {
+    public static void registerItem(net.minecraft.item.Item item, String name)
+    {
         registerItem(item, name, null);
     }
 
     /**
      * Register the specified Item with a mod specific name : overrides the standard type based name
-     *
-     * @param item  The item to register
-     * @param name  The mod-unique name to register it as - null will remove a custom name
+     * @param item The item to register
+     * @param name The mod-unique name to register it as - null will remove a custom name
      * @param modId An optional modId that will "own" this block - generally used by multi-mod systems
-     *              where one mod should "own" all the blocks of all the mods, null defaults to the active mod
+     * where one mod should "own" all the blocks of all the mods, null defaults to the active mod
      */
-    public static void registerItem(Item item, String name, String modId) {
+    public static void registerItem(net.minecraft.item.Item item, String name, String modId)
+    {
         GameData.setName(item, name, modId);
     }
 
     /**
      * Register a block with the world
+     *
      */
     @Deprecated
-    public static void registerBlock(net.minecraft.block.Block block) {
+    public static void registerBlock(net.minecraft.block.Block block)
+    {
         registerBlock(block, ItemBlock.class);
     }
 
 
     /**
      * Register a block with the specified mod specific name : overrides the standard type based name
-     *
      * @param block The block to register
-     * @param name  The mod-unique name to register it as
+     * @param name The mod-unique name to register it as
      */
-    public static void registerBlock(net.minecraft.block.Block block, String name) {
+    public static void registerBlock(net.minecraft.block.Block block, String name)
+    {
         registerBlock(block, ItemBlock.class, name);
     }
 
     /**
      * Register a block with the world, with the specified item class
-     * <p>
+     *
      * Deprecated in favour of named versions
      *
-     * @param block     The block to register
+     * @param block The block to register
      * @param itemclass The item type to register with it
      */
     @Deprecated
-    public static void registerBlock(net.minecraft.block.Block block, Class<? extends ItemBlock> itemclass) {
+    public static void registerBlock(net.minecraft.block.Block block, Class<? extends ItemBlock> itemclass)
+    {
         registerBlock(block, itemclass, null);
     }
-
     /**
      * Register a block with the world, with the specified item class and block name
-     *
-     * @param block     The block to register
+     * @param block The block to register
      * @param itemclass The item type to register with it
-     * @param name      The mod-unique name to register it with
+     * @param name The mod-unique name to register it with
      */
-    public static void registerBlock(net.minecraft.block.Block block, Class<? extends ItemBlock> itemclass, String name) {
+    public static void registerBlock(net.minecraft.block.Block block, Class<? extends ItemBlock> itemclass, String name)
+    {
         registerBlock(block, itemclass, name, null);
     }
-
     /**
      * Register a block with the world, with the specified item class, block name and owning modId
-     *
-     * @param block     The block to register
+     * @param block The block to register
      * @param itemclass The iterm type to register with it
-     * @param name      The mod-unique name to register it with
-     * @param modId     The modId that will own the block name. null defaults to the active modId
+     * @param name The mod-unique name to register it with
+     * @param modId The modId that will own the block name. null defaults to the active modId
      */
-    public static void registerBlock(net.minecraft.block.Block block, Class<? extends ItemBlock> itemclass, String name, String modId) {
-        if (Loader.instance().isInState(LoaderState.CONSTRUCTING)) {
+    public static void registerBlock(net.minecraft.block.Block block, Class<? extends ItemBlock> itemclass, String name, String modId)
+    {
+        if (Loader.instance().isInState(LoaderState.CONSTRUCTING))
+        {
             FMLLog.warning("The mod %s is attempting to register a block whilst it it being constructed. This is bad modding practice - please use a proper mod lifecycle event.", Loader.instance().activeModContainer());
         }
-        try {
+        try
+        {
             assert block != null : "registerBlock: block cannot be null";
             assert itemclass != null : "registerBlock: itemclass cannot be null";
             int blockItemId = block.blockID - 256;
             Item i = itemclass.getConstructor(int.class).newInstance(blockItemId);
-            GameRegistry.registerItem(i, name, modId);
-        } catch (Exception e) {
+            GameRegistry.registerItem(i,name, modId);
+        }
+        catch (Exception e)
+        {
             FMLLog.log(Level.SEVERE, e, "Caught an exception during block registration");
             throw new LoaderException(e);
         }
         blockRegistry.put(Loader.instance().activeModContainer(), (BlockProxy) block);
     }
 
-    public static void addRecipe(ItemStack output, Object... params) {
+    public static void addRecipe(ItemStack output, Object... params)
+    {
         addShapedRecipe(output, params);
     }
 
-    public static IRecipe addShapedRecipe(ItemStack output, Object... params) {
+    public static IRecipe addShapedRecipe(ItemStack output, Object... params)
+    {
         return CraftingManager.getInstance().addRecipe(output, params);
     }
 
-    public static void addShapelessRecipe(ItemStack output, Object... params) {
+    public static void addShapelessRecipe(ItemStack output, Object... params)
+    {
         CraftingManager.getInstance().addShapelessRecipe(output, params);
     }
 
-    public static void addRecipe(IRecipe recipe) {
+    public static void addRecipe(IRecipe recipe)
+    {
         CraftingManager.getInstance().getRecipeList().add(recipe);
     }
 
-    public static void addSmelting(int input, ItemStack output, float xp) {
+    public static void addSmelting(int input, ItemStack output, float xp)
+    {
         FurnaceRecipes.smelting().addSmelting(input, output, xp);
     }
 
-    public static void registerTileEntity(Class<? extends TileEntity> tileEntityClass, String id) {
+    public static void registerTileEntity(Class<? extends TileEntity> tileEntityClass, String id)
+    {
         TileEntity.addMapping(tileEntityClass, id);
     }
 
@@ -257,87 +276,107 @@ public class GameRegistry {
      * This method allows for you to "rename" the 'id' of the tile entity.
      *
      * @param tileEntityClass The tileEntity class to register
-     * @param id              The primary ID, this will be the ID that the tileentity saves as
-     * @param alternatives    A list of alternative IDs that will also map to this class. These will never save, but they will load
+     * @param id The primary ID, this will be the ID that the tileentity saves as
+     * @param alternatives A list of alternative IDs that will also map to this class. These will never save, but they will load
      */
-    public static void registerTileEntityWithAlternatives(Class<? extends TileEntity> tileEntityClass, String id, String... alternatives) {
+    public static void registerTileEntityWithAlternatives(Class<? extends TileEntity> tileEntityClass, String id, String... alternatives)
+    {
         TileEntity.addMapping(tileEntityClass, id);
-        Map<String, Class> teMappings = ObfuscationReflectionHelper.getPrivateValue(TileEntity.class, null, "nameToClassMap", "a");
-        for (String s : alternatives) {
-            if (!teMappings.containsKey(s)) {
+        Map<String,Class> teMappings = ObfuscationReflectionHelper.getPrivateValue(TileEntity.class, null, "field_70326_a", "a");
+        for (String s: alternatives)
+        {
+            if (!teMappings.containsKey(s))
+            {
                 teMappings.put(s, tileEntityClass);
             }
         }
     }
 
-    public static void addBiome(BiomeGenBase biome) {
+    public static void addBiome(BiomeGenBase biome)
+    {
         WorldType.DEFAULT.addNewBiome(biome);
     }
 
-    public static void removeBiome(BiomeGenBase biome) {
+    public static void removeBiome(BiomeGenBase biome)
+    {
         WorldType.DEFAULT.removeBiome(biome);
     }
 
-    public static void registerFuelHandler(IFuelHandler handler) {
+    public static void registerFuelHandler(IFuelHandler handler)
+    {
         fuelHandlers.add(handler);
     }
-
-    public static int getFuelValue(ItemStack itemStack) {
+    public static int getFuelValue(ItemStack itemStack)
+    {
         int fuelValue = 0;
-        for (IFuelHandler handler : fuelHandlers) {
+        for (IFuelHandler handler : fuelHandlers)
+        {
             fuelValue = Math.max(fuelValue, handler.getBurnTime(itemStack));
         }
         return fuelValue;
     }
 
-    public static void registerCraftingHandler(ICraftingHandler handler) {
+    public static void registerCraftingHandler(ICraftingHandler handler)
+    {
         craftingHandlers.add(handler);
     }
 
-    public static void onItemCrafted(EntityPlayer player, ItemStack item, IInventory craftMatrix) {
-        for (ICraftingHandler handler : craftingHandlers) {
+    public static void onItemCrafted(EntityPlayer player, ItemStack item, IInventory craftMatrix)
+    {
+        for (ICraftingHandler handler : craftingHandlers)
+        {
             handler.onCrafting(player, item, craftMatrix);
         }
     }
 
-    public static void onItemSmelted(EntityPlayer player, ItemStack item) {
-        for (ICraftingHandler handler : craftingHandlers) {
+    public static void onItemSmelted(EntityPlayer player, ItemStack item)
+    {
+        for (ICraftingHandler handler : craftingHandlers)
+        {
             handler.onSmelting(player, item);
         }
     }
 
-    public static void registerPickupHandler(IPickupNotifier handler) {
+    public static void registerPickupHandler(IPickupNotifier handler)
+    {
         pickupHandlers.add(handler);
     }
 
-    public static void onPickupNotification(EntityPlayer player, EntityItem item) {
-        for (IPickupNotifier notify : pickupHandlers) {
+    public static void onPickupNotification(EntityPlayer player, EntityItem item)
+    {
+        for (IPickupNotifier notify : pickupHandlers)
+        {
             notify.notifyPickup(item, player);
         }
     }
 
-    public static void registerPlayerTracker(IPlayerTracker tracker) {
-        playerTrackers.add(tracker);
-    }
+    public static void registerPlayerTracker(IPlayerTracker tracker)
+	{
+		playerTrackers.add(tracker);
+	}
 
-    public static void onPlayerLogin(EntityPlayer player) {
-        for (IPlayerTracker tracker : playerTrackers)
-            tracker.onPlayerLogin(player);
-    }
+	public static void onPlayerLogin(EntityPlayer player)
+	{
+		for(IPlayerTracker tracker : playerTrackers)
+			tracker.onPlayerLogin(player);
+	}
 
-    public static void onPlayerLogout(EntityPlayer player) {
-        for (IPlayerTracker tracker : playerTrackers)
-            tracker.onPlayerLogout(player);
-    }
+	public static void onPlayerLogout(EntityPlayer player)
+	{
+		for(IPlayerTracker tracker : playerTrackers)
+			tracker.onPlayerLogout(player);
+	}
 
-    public static void onPlayerChangedDimension(EntityPlayer player) {
-        for (IPlayerTracker tracker : playerTrackers)
-            tracker.onPlayerChangedDimension(player);
-    }
+	public static void onPlayerChangedDimension(EntityPlayer player)
+	{
+		for(IPlayerTracker tracker : playerTrackers)
+			tracker.onPlayerChangedDimension(player);
+	}
 
-    public static void onPlayerRespawn(EntityPlayer player) {
-        for (IPlayerTracker tracker : playerTrackers)
-            tracker.onPlayerRespawn(player);
-    }
+	public static void onPlayerRespawn(EntityPlayer player)
+	{
+		for(IPlayerTracker tracker : playerTrackers)
+			tracker.onPlayerRespawn(player);
+	}
 
 }

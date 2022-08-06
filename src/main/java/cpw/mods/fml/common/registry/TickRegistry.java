@@ -24,33 +24,37 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class TickRegistry {
+public class TickRegistry
+{
 
     /**
      * We register our delegate here
-     *
      * @param handler
      */
 
-    public static class TickQueueElement implements Comparable<TickQueueElement> {
-        public TickQueueElement(IScheduledTickHandler ticker, long tickCounter) {
+    public static class TickQueueElement implements Comparable<TickQueueElement>
+    {
+        public TickQueueElement(IScheduledTickHandler ticker, long tickCounter)
+        {
             this.ticker = ticker;
             update(tickCounter);
         }
-
         @Override
-        public int compareTo(TickQueueElement o) {
-            return (int) (next - o.next);
+        public int compareTo(TickQueueElement o)
+        {
+            return (int)(next - o.next);
         }
 
-        public void update(long tickCounter) {
-            next = tickCounter + Math.max(ticker.nextTickSpacing(), 1);
+        public void update(long tickCounter)
+        {
+            next = tickCounter + Math.max(ticker.nextTickSpacing(),1);
         }
 
         private long next;
         public IScheduledTickHandler ticker;
 
-        public boolean scheduledNow(long tickCounter) {
+        public boolean scheduledNow(long tickCounter)
+        {
             return tickCounter >= next;
         }
     }
@@ -61,7 +65,8 @@ public class TickRegistry {
     private static AtomicLong clientTickCounter = new AtomicLong();
     private static AtomicLong serverTickCounter = new AtomicLong();
 
-    public static void registerScheduledTickHandler(IScheduledTickHandler handler, Side side) {
+    public static void registerScheduledTickHandler(IScheduledTickHandler handler, Side side)
+    {
         getQueue(side).add(new TickQueueElement(handler, getCounter(side).get()));
     }
 
@@ -69,26 +74,35 @@ public class TickRegistry {
      * @param side the side to get the tick queue for
      * @return the queue for the effective side
      */
-    private static PriorityQueue<TickQueueElement> getQueue(Side side) {
+    private static PriorityQueue<TickQueueElement> getQueue(Side side)
+    {
         return side.isClient() ? clientTickHandlers : serverTickHandlers;
     }
 
-    private static AtomicLong getCounter(Side side) {
+    private static AtomicLong getCounter(Side side)
+    {
         return side.isClient() ? clientTickCounter : serverTickCounter;
     }
-
-    public static void registerTickHandler(ITickHandler handler, Side side) {
+    public static void registerTickHandler(ITickHandler handler, Side side)
+    {
         registerScheduledTickHandler(new SingleIntervalHandler(handler), side);
     }
 
-    public static void updateTickQueue(List<IScheduledTickHandler> ticks, Side side) {
-        synchronized (ticks) {
+    public static void updateTickQueue(List<IScheduledTickHandler> ticks, Side side)
+    {
+        synchronized (ticks)
+        {
             ticks.clear();
             long tick = getCounter(side).incrementAndGet();
             PriorityQueue<TickQueueElement> tickHandlers = getQueue(side);
 
-            while (tickHandlers.size() != 0 && tickHandlers.peek().scheduledNow(tick)) {
-                TickQueueElement tickQueueElement = tickHandlers.poll();
+            while (true)
+            {
+                if (tickHandlers.size()==0 || !tickHandlers.peek().scheduledNow(tick))
+                {
+                    break;
+                }
+                TickRegistry.TickQueueElement tickQueueElement  = tickHandlers.poll();
                 tickQueueElement.update(tick);
                 tickHandlers.offer(tickQueueElement);
                 ticks.add(tickQueueElement.ticker);

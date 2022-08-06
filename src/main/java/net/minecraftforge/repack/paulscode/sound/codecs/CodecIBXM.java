@@ -1,4 +1,4 @@
-package paulscode.sound.codecs;
+package net.minecraftforge.repack.paulscode.sound.codecs;
 
 import ibxm.*;
 import paulscode.sound.ICodec;

@@ -30,7 +30,8 @@ import net.minecraft.server.MinecraftServer;
 
 import java.util.List;
 
-public interface IFMLSidedHandler {
+public interface IFMLSidedHandler
+{
     List<String> getAdditionalBrandingInformation();
 
     Side getSide();

@@ -15,7 +15,6 @@
 package cpw.mods.fml.common.asm.transformers;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
@@ -40,10 +39,11 @@ import java.util.zip.ZipOutputStream;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class AccessTransformer implements IClassTransformer {
+public class AccessTransformer implements IClassTransformer
+{
     private static final boolean DEBUG = false;
-
-    private static class Modifier {
+    private class Modifier
+    {
         public String name = "";
         public String desc = "";
         public int oldAccess = 0;
@@ -53,15 +53,19 @@ public class AccessTransformer implements IClassTransformer {
         public boolean markFinal = false;
         protected boolean modifyClassVisibility;
 
-        private void setTargetAccess(String name) {
+        private void setTargetAccess(String name)
+        {
             if (name.startsWith("public")) targetAccess = ACC_PUBLIC;
             else if (name.startsWith("private")) targetAccess = ACC_PRIVATE;
             else if (name.startsWith("protected")) targetAccess = ACC_PROTECTED;
 
-            if (name.endsWith("-f")) {
+            if (name.endsWith("-f"))
+            {
                 changeFinal = true;
                 markFinal = false;
-            } else if (name.endsWith("+f")) {
+            }
+            else if (name.endsWith("+f"))
+            {
                 changeFinal = true;
                 markFinal = true;
             }
@@ -70,50 +74,66 @@ public class AccessTransformer implements IClassTransformer {
 
     private Multimap<String, Modifier> modifiers = ArrayListMultimap.create();
 
-    public AccessTransformer() throws IOException {
+    public AccessTransformer() throws IOException
+    {
         this("fml_at.cfg");
     }
-
-    protected AccessTransformer(String rulesFile) throws IOException {
+    protected AccessTransformer(String rulesFile) throws IOException
+    {
         readMapFile(rulesFile);
     }
 
-    private void readMapFile(String rulesFile) throws IOException {
+    private void readMapFile(String rulesFile) throws IOException
+    {
         File file = new File(rulesFile);
         URL rulesResource;
-        if (file.exists()) {
+        if (file.exists())
+        {
             rulesResource = file.toURI().toURL();
-        } else {
-            rulesResource = getResource(rulesFile);
         }
-        Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>() {
+        else
+        {
+            rulesResource = Resources.getResource(rulesFile);
+        }
+        Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>()
+        {
             @Override
-            public Void getResult() {
+            public Void getResult()
+            {
                 return null;
             }
 
             @Override
-            public boolean processLine(String input) {
+            public boolean processLine(String input) throws IOException
+            {
                 String line = Iterables.getFirst(Splitter.on('#').limit(2).split(input), "").trim();
-                if (line.length() == 0) {
+                if (line.length()==0)
+                {
                     return true;
                 }
                 List<String> parts = Lists.newArrayList(Splitter.on(" ").trimResults().split(line));
-                if (parts.size() > 2) {
-                    throw new RuntimeException("Invalid config file line " + input);
+                if (parts.size()>2)
+                {
+                    throw new RuntimeException("Invalid config file line "+ input);
                 }
                 Modifier m = new Modifier();
                 m.setTargetAccess(parts.get(0));
                 List<String> descriptor = Lists.newArrayList(Splitter.on(".").trimResults().split(parts.get(1)));
-                if (descriptor.size() == 1) {
+                if (descriptor.size() == 1)
+                {
                     m.modifyClassVisibility = true;
-                } else {
+                }
+                else
+                {
                     String nameReference = descriptor.get(1);
                     int parenIdx = nameReference.indexOf('(');
-                    if (parenIdx > 0) {
+                    if (parenIdx>0)
+                    {
                         m.desc = nameReference.substring(parenIdx);
-                        m.name = nameReference.substring(0, parenIdx);
-                    } else {
+                        m.name = nameReference.substring(0,parenIdx);
+                    }
+                    else
+                    {
                         m.name = nameReference;
                     }
                 }
@@ -123,50 +143,62 @@ public class AccessTransformer implements IClassTransformer {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public byte[] transform(String name, byte[] bytes) {
-        if (bytes == null) {
-            return null;
-        }
-        if (!modifiers.containsKey(name)) {
-            return bytes;
-        }
+    public byte[] transform(String name, byte[] bytes)
+    {
+    	if (bytes == null) { return null; }
+        if (!modifiers.containsKey(name)) { return bytes; }
 
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, 0);
 
         Collection<Modifier> mods = modifiers.get(name);
-        for (Modifier m : mods) {
-            if (m.modifyClassVisibility) {
+        for (Modifier m : mods)
+        {
+            if (m.modifyClassVisibility)
+            {
                 classNode.access = getFixedAccess(classNode.access, m);
-                if (DEBUG) {
-                    System.out.printf("Class: %s %s -> %s%n", name, toBinary(m.oldAccess), toBinary(m.newAccess));
+                if (DEBUG)
+                {
+                    System.out.println(String.format("Class: %s %s -> %s", name, toBinary(m.oldAccess), toBinary(m.newAccess)));
                 }
                 continue;
             }
-            if (m.desc.isEmpty()) {
-                for (FieldNode n : (List<FieldNode>) classNode.fields) {
-                    if (n.name.equals(m.name) || m.name.equals("*")) {
+            if (m.desc.isEmpty())
+            {
+                for (FieldNode n : (List<FieldNode>) classNode.fields)
+                {
+                    if (n.name.equals(m.name) || m.name.equals("*"))
+                    {
                         n.access = getFixedAccess(n.access, m);
-                        if (DEBUG) {
-                            System.out.printf("Field: %s.%s %s -> %s%n", name, n.name, toBinary(m.oldAccess), toBinary(m.newAccess));
+                        if (DEBUG)
+                        {
+                            System.out.println(String.format("Field: %s.%s %s -> %s", name, n.name, toBinary(m.oldAccess), toBinary(m.newAccess)));
                         }
 
-                        if (!m.name.equals("*")) {
+                        if (!m.name.equals("*"))
+                        {
                             break;
                         }
                     }
                 }
-            } else {
-                for (MethodNode n : (List<MethodNode>) classNode.methods) {
-                    if ((n.name.equals(m.name) && n.desc.equals(m.desc)) || m.name.equals("*")) {
+            }
+            else
+            {
+                for (MethodNode n : (List<MethodNode>) classNode.methods)
+                {
+                    if ((n.name.equals(m.name) && n.desc.equals(m.desc)) || m.name.equals("*"))
+                    {
                         n.access = getFixedAccess(n.access, m);
-                        if (DEBUG) {
-                            System.out.printf("Method: %s.%s%s %s -> %s%n", name, n.name, n.desc, toBinary(m.oldAccess), toBinary(m.newAccess));
+                        if (DEBUG)
+                        {
+                            System.out.println(String.format("Method: %s.%s%s %s -> %s", name, n.name, n.desc, toBinary(m.oldAccess), toBinary(m.newAccess)));
                         }
 
-                        if (!m.name.equals("*")) {
+                        if (!m.name.equals("*"))
+                        {
                             break;
                         }
                     }
@@ -179,37 +211,44 @@ public class AccessTransformer implements IClassTransformer {
         return writer.toByteArray();
     }
 
-    private String toBinary(int num) {
+    private String toBinary(int num)
+    {
         return String.format("%16s", Integer.toBinaryString(num)).replace(' ', '0');
     }
 
-    private int getFixedAccess(int access, Modifier target) {
+    private int getFixedAccess(int access, Modifier target)
+    {
         target.oldAccess = access;
         int t = target.targetAccess;
         int ret = (access & ~7);
 
-        switch (access & 7) {
-            case ACC_PRIVATE:
-                ret |= t;
-                break;
-            case 0: // default
-                ret |= (t != ACC_PRIVATE ? t : 0 /* default */);
-                break;
-            case ACC_PROTECTED:
-                ret |= (t != ACC_PRIVATE && t != 0 /* default */ ? t : ACC_PROTECTED);
-                break;
-            case ACC_PUBLIC:
-                ret |= (t != ACC_PRIVATE && t != 0 /* default */ && t != ACC_PROTECTED ? t : ACC_PUBLIC);
-                break;
-            default:
-                throw new RuntimeException("The fuck?");
+        switch (access & 7)
+        {
+        case ACC_PRIVATE:
+            ret |= t;
+            break;
+        case 0: // default
+            ret |= (t != ACC_PRIVATE ? t : 0 /* default */);
+            break;
+        case ACC_PROTECTED:
+            ret |= (t != ACC_PRIVATE && t != 0 /* default */? t : ACC_PROTECTED);
+            break;
+        case ACC_PUBLIC:
+            ret |= (t != ACC_PRIVATE && t != 0 /* default */&& t != ACC_PROTECTED ? t : ACC_PUBLIC);
+            break;
+        default:
+            throw new RuntimeException("The fuck?");
         }
 
         // Clear the "final" marker on fields only if specified in control field
-        if (target.changeFinal && target.desc.equals("")) {
-            if (target.markFinal) {
+        if (target.changeFinal && target.desc == "")
+        {
+            if (target.markFinal)
+            {
                 ret |= ACC_FINAL;
-            } else {
+            }
+            else
+            {
                 ret &= ~ACC_FINAL;
             }
         }
@@ -217,73 +256,96 @@ public class AccessTransformer implements IClassTransformer {
         return ret;
     }
 
-    public static void main(String[] args) {
-        if (args.length < 2) {
+    public static void main(String[] args)
+    {
+        if (args.length < 2)
+        {
             System.out.println("Usage: AccessTransformer <JarPath> <MapFile> [MapFile2]... ");
             System.exit(1);
         }
 
         boolean hasTransformer = false;
         AccessTransformer[] trans = new AccessTransformer[args.length - 1];
-        for (int x = 1; x < args.length; x++) {
-            try {
+        for (int x = 1; x < args.length; x++)
+        {
+            try
+            {
                 trans[x - 1] = new AccessTransformer(args[x]);
                 hasTransformer = true;
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 System.out.println("Could not read Transformer Map: " + args[x]);
                 e.printStackTrace();
             }
         }
 
-        if (!hasTransformer) {
+        if (!hasTransformer)
+        {
             System.out.println("Culd not find a valid transformer to perform");
             System.exit(1);
         }
 
         File orig = new File(args[0]);
         File temp = new File(args[0] + ".ATBack");
-        if (!orig.exists() && !temp.exists()) {
+        if (!orig.exists() && !temp.exists())
+        {
             System.out.println("Could not find target jar: " + orig);
             System.exit(1);
         }
 
-        if (!orig.renameTo(temp)) {
+        if (!orig.renameTo(temp))
+        {
             System.out.println("Could not rename file: " + orig + " -> " + temp);
             System.exit(1);
         }
 
-        try {
+        try
+        {
             processJar(temp, orig, trans);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             System.exit(1);
         }
 
-        if (!temp.delete()) {
+        if (!temp.delete())
+        {
             System.out.println("Could not delete temp file: " + temp);
         }
     }
 
-    private static void processJar(File inFile, File outFile, AccessTransformer[] transformers) throws IOException {
+    private static void processJar(File inFile, File outFile, AccessTransformer[] transformers) throws IOException
+    {
         ZipInputStream inJar = null;
         ZipOutputStream outJar = null;
 
-        try {
-            try {
+        try
+        {
+            try
+            {
                 inJar = new ZipInputStream(new BufferedInputStream(new FileInputStream(inFile)));
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 throw new FileNotFoundException("Could not open input file: " + e.getMessage());
             }
 
-            try {
+            try
+            {
                 outJar = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 throw new FileNotFoundException("Could not open output file: " + e.getMessage());
             }
 
             ZipEntry entry;
-            while ((entry = inJar.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
+            while ((entry = inJar.getNextEntry()) != null)
+            {
+                if (entry.isDirectory())
+                {
                     outJar.putNextEntry(entry);
                     continue;
                 }
@@ -292,9 +354,11 @@ public class AccessTransformer implements IClassTransformer {
                 ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
 
                 int len;
-                do {
+                do
+                {
                     len = inJar.read(data);
-                    if (len > 0) {
+                    if (len > 0)
+                    {
                         entryBuffer.write(data, 0, len);
                     }
                 }
@@ -304,13 +368,15 @@ public class AccessTransformer implements IClassTransformer {
 
                 String entryName = entry.getName();
 
-                if (entryName.endsWith(".class") && !entryName.startsWith(".")) {
+                if (entryName.endsWith(".class") && !entryName.startsWith("."))
+                {
                     ClassNode cls = new ClassNode();
                     ClassReader rdr = new ClassReader(entryData);
                     rdr.accept(cls, 0);
                     String name = cls.name.replace('/', '.').replace('\\', '.');
 
-                    for (AccessTransformer trans : transformers) {
+                    for (AccessTransformer trans : transformers)
+                    {
                         entryData = trans.transform(name, entryData);
                     }
                 }
@@ -319,33 +385,37 @@ public class AccessTransformer implements IClassTransformer {
                 outJar.putNextEntry(newEntry);
                 outJar.write(entryData);
             }
-        } finally {
-            if (outJar != null) {
-                try {
+        }
+        finally
+        {
+            if (outJar != null)
+            {
+                try
+                {
                     outJar.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                 }
             }
 
-            if (inJar != null) {
-                try {
+            if (inJar != null)
+            {
+                try
+                {
                     inJar.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                 }
             }
         }
     }
-
-    public void ensurePublicAccessFor(String modClazzName) {
+    public void ensurePublicAccessFor(String modClazzName)
+    {
         Modifier m = new Modifier();
         m.setTargetAccess("public");
         m.modifyClassVisibility = true;
         modifiers.put(modClazzName, m);
-    }
-
-    public URL getResource(String resourceName) {
-        URL url = getClass().getClassLoader().getResource(resourceName);
-        Preconditions.checkArgument(url != null, "resource %s not found.", resourceName);
-        return url;
     }
 }

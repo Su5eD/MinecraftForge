@@ -17,17 +17,20 @@ package net.minecraft.src;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 
-public class EntityRendererProxy extends EntityRenderer {
+public class EntityRendererProxy extends EntityRenderer
+{
     public static final String fmlMarker = "This is an FML marker";
     private Minecraft game;
 
-    public EntityRendererProxy(Minecraft minecraft) {
+    public EntityRendererProxy(Minecraft minecraft)
+    {
         super(minecraft);
         game = minecraft;
     }
 
     @Override
-    public void updateCameraAndRender(float tick) {
+    public void updateCameraAndRender(float tick)
+    {
         super.updateCameraAndRender(tick);
         //This is where ModLoader does all of it's ticking
     }

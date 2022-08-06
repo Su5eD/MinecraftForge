@@ -19,20 +19,24 @@ import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 
-public class ClientRegistry {
+public class ClientRegistry
+{
     /**
+     * 
      * Utility method for registering a tile entity and it's renderer at once - generally you should register them separately
-     *
+     * 
      * @param tileEntityClass
      * @param id
      * @param specialRenderer
      */
-    public static void registerTileEntity(Class<? extends TileEntity> tileEntityClass, String id, TileEntitySpecialRenderer specialRenderer) {
+    public static void registerTileEntity(Class <? extends TileEntity > tileEntityClass, String id, TileEntitySpecialRenderer specialRenderer)
+    {
         GameRegistry.registerTileEntity(tileEntityClass, id);
         bindTileEntitySpecialRenderer(tileEntityClass, specialRenderer);
     }
-
-    public static void bindTileEntitySpecialRenderer(Class<? extends TileEntity> tileEntityClass, TileEntitySpecialRenderer specialRenderer) {
+    
+    public static void bindTileEntitySpecialRenderer(Class <? extends TileEntity> tileEntityClass, TileEntitySpecialRenderer specialRenderer)
+    {
         TileEntityRenderer.instance.specialRendererMap.put(tileEntityClass, specialRenderer);
         specialRenderer.setTileEntityRenderer(TileEntityRenderer.instance);
     }

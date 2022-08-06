@@ -28,9 +28,10 @@ import net.minecraft.nbt.NBTTagCompound;
  * from other mods
  *
  * @author cpw
+ *
  */
 public class FMLInterModComms {
-    private static final ImmutableList<IMCMessage> emptyIMCList = ImmutableList.of();
+    private static final ImmutableList<IMCMessage> emptyIMCList = ImmutableList.<IMCMessage>of();
     private static ArrayListMultimap<String, IMCMessage> modMessages = ArrayListMultimap.create();
 
     /**
@@ -38,20 +39,24 @@ public class FMLInterModComms {
      * {@link Init} and {@link PostInit})
      *
      * @author cpw
+     *
      */
     public static class IMCEvent extends FMLEvent {
         private ModContainer activeContainer;
 
         @Override
-        public void applyModContainer(ModContainer activeContainer) {
+        public void applyModContainer(ModContainer activeContainer)
+        {
             this.activeContainer = activeContainer;
             FMLLog.finest("Attempting to deliver %d IMC messages to mod %s", modMessages.get(activeContainer.getModId()).size(), activeContainer.getModId());
         }
 
         private ImmutableList<IMCMessage> currentList;
 
-        public ImmutableList<IMCMessage> getMessages() {
-            if (currentList == null) {
+        public ImmutableList<IMCMessage> getMessages()
+        {
+            if (currentList == null)
+            {
                 currentList = ImmutableList.copyOf(modMessages.removeAll(activeContainer.getModId()));
             }
             return currentList;
@@ -62,6 +67,7 @@ public class FMLInterModComms {
      * You will receive an instance of this for each message sent
      *
      * @author cpw
+     *
      */
     public static final class IMCMessage {
         /**
@@ -77,94 +83,114 @@ public class FMLInterModComms {
          */
         private Object value;
 
-        private IMCMessage(String key, Object value) {
+        private IMCMessage(String key, Object value)
+        {
             this.key = key;
             this.value = value;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return sender;
         }
 
-        public String getSender() {
+        public String getSender()
+        {
             return this.sender;
         }
 
-        void setSender(ModContainer activeModContainer) {
+        void setSender(ModContainer activeModContainer)
+        {
             this.sender = activeModContainer.getModId();
         }
 
-        public String getStringValue() {
+        public String getStringValue()
+        {
             return (String) value;
         }
 
-        public NBTTagCompound getNBTValue() {
+        public NBTTagCompound getNBTValue()
+        {
             return (NBTTagCompound) value;
         }
 
-        public ItemStack getItemStackValue() {
+        public ItemStack getItemStackValue()
+        {
             return (ItemStack) value;
         }
 
-        public Class<?> getMessageType() {
+        public Class<?> getMessageType()
+        {
             return value.getClass();
         }
 
-        public boolean isStringMessage() {
+        public boolean isStringMessage()
+        {
             return String.class.isAssignableFrom(getMessageType());
         }
 
-        public boolean isItemStackMessage() {
+        public boolean isItemStackMessage()
+        {
             return ItemStack.class.isAssignableFrom(getMessageType());
         }
 
-        public boolean isNBTMessage() {
+        public boolean isNBTMessage()
+        {
             return NBTTagCompound.class.isAssignableFrom(getMessageType());
         }
     }
 
-    public static boolean sendMessage(String modId, String key, NBTTagCompound value) {
+    public static boolean sendMessage(String modId, String key, NBTTagCompound value)
+    {
+        return enqueueStartupMessage(modId, new IMCMessage(key, value));
+    }
+    public static boolean sendMessage(String modId, String key, ItemStack value)
+    {
+        return enqueueStartupMessage(modId, new IMCMessage(key, value));
+    }
+    public static boolean sendMessage(String modId, String key, String value)
+    {
         return enqueueStartupMessage(modId, new IMCMessage(key, value));
     }
 
-    public static boolean sendMessage(String modId, String key, ItemStack value) {
-        return enqueueStartupMessage(modId, new IMCMessage(key, value));
-    }
-
-    public static boolean sendMessage(String modId, String key, String value) {
-        return enqueueStartupMessage(modId, new IMCMessage(key, value));
-    }
-
-    public static void sendRuntimeMessage(Object sourceMod, String modId, String key, NBTTagCompound value) {
+    public static void sendRuntimeMessage(Object sourceMod, String modId, String key, NBTTagCompound value)
+    {
         enqueueMessage(sourceMod, modId, new IMCMessage(key, value));
     }
 
-    public static void sendRuntimeMessage(Object sourceMod, String modId, String key, ItemStack value) {
+    public static void sendRuntimeMessage(Object sourceMod, String modId, String key, ItemStack value)
+    {
         enqueueMessage(sourceMod, modId, new IMCMessage(key, value));
     }
 
-    public static void sendRuntimeMessage(Object sourceMod, String modId, String key, String value) {
+    public static void sendRuntimeMessage(Object sourceMod, String modId, String key, String value)
+    {
         enqueueMessage(sourceMod, modId, new IMCMessage(key, value));
     }
 
-    private static boolean enqueueStartupMessage(String modTarget, IMCMessage message) {
-        if (Loader.instance().activeModContainer() == null) {
+    private static boolean enqueueStartupMessage(String modTarget, IMCMessage message)
+    {
+        if (Loader.instance().activeModContainer() == null)
+        {
             return false;
         }
         enqueueMessage(Loader.instance().activeModContainer(), modTarget, message);
         return Loader.isModLoaded(modTarget) && !Loader.instance().hasReachedState(LoaderState.POSTINITIALIZATION);
 
     }
-
-    private static void enqueueMessage(Object sourceMod, String modTarget, IMCMessage message) {
+    private static void enqueueMessage(Object sourceMod, String modTarget, IMCMessage message)
+    {
         ModContainer mc;
         if (sourceMod instanceof ModContainer) {
             mc = (ModContainer) sourceMod;
-        } else {
+        }
+        else
+        {
             mc = FMLCommonHandler.instance().findContainerFor(sourceMod);
         }
-        if (mc != null && Loader.isModLoaded(modTarget)) {
+        if (mc != null && Loader.isModLoaded(modTarget))
+        {
             message.setSender(mc);
             modMessages.put(modTarget, message);
         }
@@ -172,15 +198,18 @@ public class FMLInterModComms {
 
     /**
      * Retrieve any pending runtime messages for the mod
-     *
      * @param forMod The {@link Instance} of the Mod to fetch messages for
      * @return any messages - the collection will never be null
      */
-    public static ImmutableList<IMCMessage> fetchRuntimeMessages(Object forMod) {
+    public static ImmutableList<IMCMessage> fetchRuntimeMessages(Object forMod)
+    {
         ModContainer mc = FMLCommonHandler.instance().findContainerFor(forMod);
-        if (mc != null) {
+        if (mc != null)
+        {
             return ImmutableList.copyOf(modMessages.removeAll(mc.getModId()));
-        } else {
+        }
+        else
+        {
             return emptyIMCList;
         }
     }

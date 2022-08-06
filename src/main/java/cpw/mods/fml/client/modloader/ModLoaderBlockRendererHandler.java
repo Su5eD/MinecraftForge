@@ -22,28 +22,34 @@ import net.minecraft.world.IBlockAccess;
 
 /**
  * @author cpw
+ *
  */
-public class ModLoaderBlockRendererHandler implements ISimpleBlockRenderingHandler {
+public class ModLoaderBlockRendererHandler implements ISimpleBlockRenderingHandler
+{
     private int renderId;
     private boolean render3dInInventory;
     private BaseMod mod;
 
     /**
      * @param mod
+     *
      */
-    public ModLoaderBlockRendererHandler(int renderId, boolean render3dInInventory, BaseMod mod) {
-        this.renderId = renderId;
-        this.render3dInInventory = render3dInInventory;
-        this.mod = mod;
+    public ModLoaderBlockRendererHandler(int renderId, boolean render3dInInventory, BaseMod mod)
+    {
+        this.renderId=renderId;
+        this.render3dInInventory=render3dInInventory;
+        this.mod=mod;
     }
 
     @Override
-    public int getRenderId() {
+    public int getRenderId()
+    {
         return renderId;
     }
 
     @Override
-    public boolean shouldRender3DInInventory() {
+    public boolean shouldRender3DInInventory()
+    {
         return render3dInInventory;
     }
 
@@ -57,7 +63,8 @@ public class ModLoaderBlockRendererHandler implements ISimpleBlockRenderingHandl
      * @param renderer
      */
     @Override
-    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
+    {
         return mod.renderWorldBlock(renderer, world, x, y, z, block, modelId);
     }
 
@@ -68,7 +75,8 @@ public class ModLoaderBlockRendererHandler implements ISimpleBlockRenderingHandl
      * @param renderer
      */
     @Override
-    public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer) {
+    public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer)
+    {
         mod.renderInvBlock(renderer, block, metadata, modelID);
     }
 

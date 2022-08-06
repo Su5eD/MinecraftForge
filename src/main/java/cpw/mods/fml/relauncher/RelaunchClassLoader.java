@@ -14,6 +14,8 @@
 
 package cpw.mods.fml.relauncher;
 
+import cpw.mods.fml.common.FMLLog;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,26 +33,36 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 
-public class RelaunchClassLoader extends URLClassLoader {
-    private static final String[] RESERVED = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
-    private static final boolean DEBUG_CLASSLOADING = Boolean.parseBoolean(System.getProperty("fml.debugClassLoading", "false"));
-    private final List<URL> sources;
-    private final URLClassLoader parent;
-    private final List<IClassTransformer> transformers;
+public class RelaunchClassLoader extends URLClassLoader
+{
+    private List<URL> sources;
+    private ClassLoader parent;
+
+    private List<IClassTransformer> transformers;
     private IClassNameMapper nameTransformer;
-    private final Map<String, Class<?>> cachedClasses;
-    private final Set<String> invalidClasses;
-    private final Set<String> classLoaderExceptions = new HashSet<>();
-    private final Set<String> transformerExceptions = new HashSet<>();
+    private Map<String, Class> cachedClasses;
+    private Set<String> invalidClasses;
+
+    private Set<String> classLoaderExceptions = new HashSet<String>();
+    private Set<String> transformerExceptions = new HashSet<String>();
+    private Map<Package,Manifest> packageManifests = new HashMap<Package,Manifest>();
     private URLClassLoader childClassLoader;
 
-    public RelaunchClassLoader(URL[] sources) {
+    private static Manifest EMPTY = new Manifest();
+
+    private static final String[] RESERVED = {"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
+
+    private static final boolean DEBUG_CLASSLOADING = Boolean.parseBoolean(System.getProperty("fml.debugClassLoading", "false"));
+
+    public RelaunchClassLoader(URL[] sources)
+    {
         super(sources, null);
-        this.sources = new ArrayList<>(Arrays.asList(sources));
-        this.parent = (URLClassLoader) getClass().getClassLoader();
-        this.cachedClasses = new HashMap<>(1000);
-        this.invalidClasses = new HashSet<>(1000);
-        this.transformers = new ArrayList<>(2);
+        this.sources = new ArrayList<URL>(Arrays.asList(sources));
+        this.parent = getClass().getClassLoader();
+        this.cachedClasses = new HashMap<String,Class>(1000);
+        this.invalidClasses = new HashSet<String>(1000);
+        this.transformers = new ArrayList<IClassTransformer>(2);
+//        ReflectionHelper.setPrivateValue(ClassLoader.class, null, this, "scl");
         Thread.currentThread().setContextClassLoader(this);
 
         // standard classloader exclusions
@@ -58,6 +70,7 @@ public class RelaunchClassLoader extends URLClassLoader {
         addClassLoaderExclusion("sun.");
         addClassLoaderExclusion("org.lwjgl.");
         addClassLoaderExclusion("cpw.mods.fml.relauncher.");
+        addClassLoaderExclusion("net.minecraftforge.classloading.");
 
         // standard transformer exclusions
         addTransformerExclusion("javax.");
@@ -66,56 +79,78 @@ public class RelaunchClassLoader extends URLClassLoader {
         addTransformerExclusion("cpw.mods.fml.common.asm.transformers.");
     }
 
-    public void registerTransformer(String transformerClassName) {
-        try {
+    public void registerTransformer(String transformerClassName)
+    {
+        try
+        {
             IClassTransformer transformer = (IClassTransformer) loadClass(transformerClassName).newInstance();
             transformers.add(transformer);
-            if (transformer instanceof IClassNameMapper && nameTransformer == null) {
+            if (transformer instanceof IClassNameMapper && nameTransformer == null)
+            {
                 nameTransformer = (IClassNameMapper) transformer;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             FMLRelaunchLog.log(Level.SEVERE, e, "A critical problem occured registering the ASM transformer class %s", transformerClassName);
         }
     }
     
-    private String unmapClassName(final String name) {
+    private String unmapClassName(final String name)
+    {
         return nameTransformer != null ? nameTransformer.unmapClassName(name) : name; 
     }
     
-    private String mapClassName(final String name) {
+    private String mapClassName(final String name)
+    {
         return nameTransformer != null ? nameTransformer.mapClassName(name) : name;
     }
     
-    public void setChildClassLoader(URLClassLoader ucl) {
+    public void setChildClassLoader(URLClassLoader ucl)
+    {
         childClassLoader = ucl;
     }
 
     @Override
-    public Class<?> findClass(String name) throws ClassNotFoundException {
-        if (invalidClasses.contains(name)) throw new ClassNotFoundException(name);
-        
-        for (String str : classLoaderExceptions) {
-            if (name.startsWith(str)) {
+    public Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        if (invalidClasses.contains(name))
+        {
+            throw new ClassNotFoundException(name);
+        }
+        for (String st : classLoaderExceptions)
+        {
+            if (name.startsWith(st))
+            {
                 return parent.loadClass(name);
             }
         }
 
-        if (cachedClasses.containsKey(name)) return cachedClasses.get(name);
+        if (cachedClasses.containsKey(name))
+        {
+            return cachedClasses.get(name);
+        }
 
-        for (String str : transformerExceptions) {
-            if (name.startsWith(str)) {
-                try {
+        for (String st : transformerExceptions)
+        {
+            if (name.startsWith(st))
+            {
+                try
+                {
                     Class<?> cl = super.findClass(name);
                     cachedClasses.put(name, cl);
                     return cl;
-                } catch (ClassNotFoundException e) {
+                }
+                catch (ClassNotFoundException e)
+                {
                     invalidClasses.add(name);
                     throw e;
                 }
             }
         }
 
-        try {
+        try
+        {
             final String mappedName = mapClassName(name);
             if (cachedClasses.containsKey(mappedName)) return cachedClasses.get(mappedName);
             
@@ -125,51 +160,69 @@ public class RelaunchClassLoader extends URLClassLoader {
             int lastDot = unmappedName.lastIndexOf('.');
             String pkgname = lastDot == -1 ? "" : unmappedName.substring(0, lastDot);
             String fName = unmappedName.replace('.', '/').concat(".class");
+            String pkgPath = pkgname.replace('.', '/');
             URLConnection urlConnection = findCodeSourceConnectionFor(fName);
-            
-            if (urlConnection instanceof JarURLConnection && lastDot > -1) {
-                JarURLConnection jarUrlConn = (JarURLConnection) urlConnection;
+            if (urlConnection instanceof JarURLConnection && lastDot > -1)
+            {
+                JarURLConnection jarUrlConn = (JarURLConnection)urlConnection;
                 JarFile jf = jarUrlConn.getJarFile();
-                if (jf != null && jf.getManifest() != null) {
+                if (jf != null && jf.getManifest() != null)
+                {
                     Manifest mf = jf.getManifest();
                     JarEntry ent = jf.getJarEntry(fName);
                     Package pkg = getPackage(pkgname);
                     getClassBytes(unmappedName);
                     signers = ent.getCodeSigners();
-                    if (pkg == null) {
-                        definePackage(pkgname, mf, jarUrlConn.getJarFileURL());
-                    } else {
-                        if (pkg.isSealed() && !pkg.isSealed(jarUrlConn.getJarFileURL())) {
-                            FMLRelaunchLog.severe("The jar file %s is trying to seal already secured path %s", jf.getName(), pkgname);
-                        } else if (isSealed(pkgname, mf)) {
-                            FMLRelaunchLog.severe("The jar file %s has a security seal for path %s, but that path is defined and not secure", jf.getName(), pkgname);
+                    if (pkg == null)
+                    {
+                        pkg = definePackage(pkgname, mf, jarUrlConn.getJarFileURL());
+                        packageManifests.put(pkg, mf);
+                    }
+                    else
+                    {
+                        if (pkg.isSealed() && !pkg.isSealed(jarUrlConn.getJarFileURL()))
+                        {
+                            FMLLog.severe("The jar file %s is trying to seal already secured path %s", jf.getName(), pkgname);
+                        }
+                        else if (isSealed(pkgname, mf))
+                        {
+                            FMLLog.severe("The jar file %s has a security seal for path %s, but that path is defined and not secure", jf.getName(), pkgname);
                         }
                     }
                 }
-            } else if (lastDot > -1) {
+            }
+            else if (lastDot > -1)
+            {
                 Package pkg = getPackage(pkgname);
-                if (pkg == null) {
-                    definePackage(pkgname, null, null, null, null, null, null, null);
-                } else if (pkg.isSealed()) {
-                    FMLRelaunchLog.severe("The URL %s is defining elements for sealed path %s", urlConnection.getURL(), pkgname);
+                if (pkg == null)
+                {
+                    pkg = definePackage(pkgname, null, null, null, null, null, null, null);
+                    packageManifests.put(pkg, EMPTY);
+                }
+                else if (pkg.isSealed())
+                {
+                    FMLLog.severe("The URL %s is defining elements for sealed path %s", urlConnection.getURL(), pkgname);
                 }
             }
-            
-            byte[] transformedClass = runTransformers(unmappedName, getClassBytes(unmappedName));
-            CodeSource codeSource = urlConnection == null ? null : new CodeSource(urlConnection.getURL(), signers);
-            Class<?> cl = defineClass(mappedName, transformedClass, 0, transformedClass.length, codeSource);
+            byte[] basicClass = getClassBytes(unmappedName);
+            byte[] transformedClass = runTransformers(unmappedName, basicClass);
+            Class<?> cl = defineClass(mappedName, transformedClass, 0, transformedClass.length, new CodeSource(urlConnection.getURL(), signers));
             cachedClasses.put(mappedName, cl);
             return cl;
-        } catch (Throwable e) {
+        }
+        catch (Throwable e)
+        {
             invalidClasses.add(name);
-            if (DEBUG_CLASSLOADING) {
-                FMLRelaunchLog.log(Level.FINEST, e, "Exception encountered attempting classloading of %s", name);
+            if (DEBUG_CLASSLOADING)
+            {
+                FMLLog.log(Level.FINEST, e, "Exception encountered attempting classloading of %s", name);
             }
             throw new ClassNotFoundException(name, e);
         }
     }
 
-    private boolean isSealed(String path, Manifest man) {
+    private boolean isSealed(String path, Manifest man)
+    {
         Attributes attr = man.getAttributes(path);
         String sealed = null;
         if (attr != null) {
@@ -184,82 +237,109 @@ public class RelaunchClassLoader extends URLClassLoader {
     }
 
     @Override
-    public URL findResource(String name) {
+    public URL findResource(String name)
+    {
         URL childResource = childClassLoader != null ? childClassLoader.findResource(name) : null;
         return childResource != null ? childResource : super.findResource(name);
     }
 
     @Override
-    public URL getResource(String name) {
+    public URL getResource(String name)
+    {
         URL childResource = childClassLoader != null ? childClassLoader.getResource(name) : null;
         return childResource != null ? childResource : super.getResource(name);
     }
 
-    private URLConnection findCodeSourceConnectionFor(String name) {
+    private URLConnection findCodeSourceConnectionFor(String name)
+    {
         URL res = findResource(name);
-        if (res != null) {
-            try {
+        if (res != null)
+        {
+            try
+            {
                 return res.openConnection();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 throw new RuntimeException(e);
             }
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
 
-    private byte[] runTransformers(String name, byte[] basicClass) {
-        for (IClassTransformer transformer : transformers) {
+    private byte[] runTransformers(String name, byte[] basicClass)
+    {
+        for (IClassTransformer transformer : transformers)
+        {
             basicClass = transformer.transform(name, basicClass);
         }
         return basicClass;
     }
 
     @Override
-    public void addURL(URL url) {
+    public void addURL(URL url)
+    {
         super.addURL(url);
         sources.add(url);
     }
 
-    public List<URL> getSources() {
+    public List<URL> getSources()
+    {
         List<URL> urls = new ArrayList<>(sources);
         if (childClassLoader != null) urls.addAll(Arrays.asList(childClassLoader.getURLs()));
         return urls;
     }
 
-    private byte[] readFully(InputStream stream) {
-        try {
+
+    private byte[] readFully(InputStream stream)
+    {
+        try
+        {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(stream.available());
             int r;
-            while ((r = stream.read()) != -1) {
+            while ((r = stream.read()) != -1)
+            {
                 bos.write(r);
             }
 
             return bos.toByteArray();
-        } catch (Throwable t) {
-            FMLRelaunchLog.log(Level.WARNING, t, "Problem loading class");
+        }
+        catch (Throwable t)
+        {
+            FMLLog.log(Level.WARNING, t, "Problem loading class");
             return new byte[0];
         }
     }
 
-    public List<IClassTransformer> getTransformers() {
+    public List<IClassTransformer> getTransformers()
+    {
         return Collections.unmodifiableList(transformers);
     }
 
-    private void addClassLoaderExclusion(String toExclude) {
+    private void addClassLoaderExclusion(String toExclude)
+    {
         classLoaderExceptions.add(toExclude);
     }
 
-    void addTransformerExclusion(String toExclude) {
+    void addTransformerExclusion(String toExclude)
+    {
         transformerExceptions.add(toExclude);
     }
 
-    public byte[] getClassBytes(String name) throws IOException {
-        if (name.indexOf('.') == -1) {
-            for (String res : RESERVED) {
-                if (name.toUpperCase(Locale.ENGLISH).startsWith(res)) {
+    public byte[] getClassBytes(String name) throws IOException
+    {
+        if (name.indexOf('.') == -1)
+        {
+            for (String res : RESERVED)
+            {
+                if (name.toUpperCase(Locale.ENGLISH).startsWith(res))
+                {
                     byte[] data = getClassBytes("_" + name);
-                    if (data != null) {
+                    if (data != null)
+                    {
                         return data;
                     }
                 }
@@ -267,24 +347,34 @@ public class RelaunchClassLoader extends URLClassLoader {
         }
 
         InputStream classStream = null;
-        try {
+        try
+        {
             URL classResource = findResource(name.replace('.', '/').concat(".class"));
-            if (classResource == null) {
-                if (DEBUG_CLASSLOADING) {
-                    FMLRelaunchLog.finest("Failed to find class resource %s", name.replace('.', '/').concat(".class"));
+            if (classResource == null)
+            {
+                if (DEBUG_CLASSLOADING)
+                {
+                    FMLLog.finest("Failed to find class resource %s", name.replace('.', '/').concat(".class"));
                 }
                 return null;
             }
             classStream = classResource.openStream();
-            if (DEBUG_CLASSLOADING) {
-                FMLRelaunchLog.finest("Loading class %s from resource %s", name, classResource.toString());
+            if (DEBUG_CLASSLOADING)
+            {
+                FMLLog.finest("Loading class %s from resource %s", name, classResource.toString());
             }
             return readFully(classStream);
-        } finally {
-            if (classStream != null) {
-                try {
+        }
+        finally
+        {
+            if (classStream != null)
+            {
+                try
+                {
                     classStream.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     // Swallow the close exception
                 }
             }

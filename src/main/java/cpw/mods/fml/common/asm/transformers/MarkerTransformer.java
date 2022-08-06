@@ -34,43 +34,55 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class MarkerTransformer implements IClassTransformer {
+public class MarkerTransformer implements IClassTransformer
+{
     private ListMultimap<String, String> markers = ArrayListMultimap.create();
 
-    public MarkerTransformer() throws IOException {
+    public MarkerTransformer() throws IOException
+    {
         this("fml_marker.cfg");
     }
-
-    protected MarkerTransformer(String rulesFile) throws IOException {
+    protected MarkerTransformer(String rulesFile) throws IOException
+    {
         readMapFile(rulesFile);
     }
 
-    private void readMapFile(String rulesFile) throws IOException {
+    private void readMapFile(String rulesFile) throws IOException
+    {
         File file = new File(rulesFile);
         URL rulesResource;
-        if (file.exists()) {
+        if (file.exists())
+        {
             rulesResource = file.toURI().toURL();
-        } else {
+        }
+        else
+        {
             rulesResource = Resources.getResource(rulesFile);
         }
-        Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>() {
+        Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>()
+        {
             @Override
-            public Void getResult() {
+            public Void getResult()
+            {
                 return null;
             }
 
             @Override
-            public boolean processLine(String input) {
+            public boolean processLine(String input) throws IOException
+            {
                 String line = Iterables.getFirst(Splitter.on('#').limit(2).split(input), "").trim();
-                if (line.length() == 0) {
+                if (line.length()==0)
+                {
                     return true;
                 }
                 List<String> parts = Lists.newArrayList(Splitter.on(" ").trimResults().split(line));
-                if (parts.size() != 2) {
-                    throw new RuntimeException("Invalid config file line " + input);
+                if (parts.size()!=2)
+                {
+                    throw new RuntimeException("Invalid config file line "+ input);
                 }
                 List<String> markerInterfaces = Lists.newArrayList(Splitter.on(",").trimResults().split(parts.get(1)));
-                for (String marker : markerInterfaces) {
+                for (String marker : markerInterfaces)
+                {
                     markers.put(parts.get(0), marker);
                 }
                 return true;
@@ -78,52 +90,61 @@ public class MarkerTransformer implements IClassTransformer {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public byte[] transform(String name, byte[] bytes) {
-        if (bytes == null) {
-            return null;
-        }
-        if (!markers.containsKey(name)) {
-            return bytes;
-        }
+    public byte[] transform(String name, byte[] bytes)
+    {
+    	if (bytes == null) { return null; }
+        if (!markers.containsKey(name)) { return bytes; }
 
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, 0);
 
-        classNode.interfaces.addAll(markers.get(name));
+        for (String marker : markers.get(name))
+        {
+            classNode.interfaces.add(marker);
+        }
 
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         classNode.accept(writer);
         return writer.toByteArray();
     }
 
-    public static void main(String[] args) {
-        if (args.length < 2) {
+    public static void main(String[] args)
+    {
+        if (args.length < 2)
+        {
             System.out.println("Usage: MarkerTransformer <JarPath> <MapFile> [MapFile2]... ");
             return;
         }
 
         boolean hasTransformer = false;
         MarkerTransformer[] trans = new MarkerTransformer[args.length - 1];
-        for (int x = 1; x < args.length; x++) {
-            try {
+        for (int x = 1; x < args.length; x++)
+        {
+            try
+            {
                 trans[x - 1] = new MarkerTransformer(args[x]);
                 hasTransformer = true;
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 System.out.println("Could not read Transformer Map: " + args[x]);
                 e.printStackTrace();
             }
         }
 
-        if (!hasTransformer) {
+        if (!hasTransformer)
+        {
             System.out.println("Culd not find a valid transformer to perform");
             return;
         }
 
         File orig = new File(args[0]);
         File temp = new File(args[0] + ".ATBack");
-        if (!orig.exists() && !temp.exists()) {
+        if (!orig.exists() && !temp.exists())
+        {
             System.out.println("Could not find target jar: " + orig);
             return;
         }
@@ -142,42 +163,57 @@ public class MarkerTransformer implements IClassTransformer {
             }
         }
 */
-        if (!orig.renameTo(temp)) {
+        if (!orig.renameTo(temp))
+        {
             System.out.println("Could not rename file: " + orig + " -> " + temp);
             return;
         }
 
-        try {
+        try
+        {
             processJar(temp, orig, trans);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
 
-        if (!temp.delete()) {
+        if (!temp.delete())
+        {
             System.out.println("Could not delete temp file: " + temp);
         }
     }
 
-    private static void processJar(File inFile, File outFile, MarkerTransformer[] transformers) throws IOException {
+    private static void processJar(File inFile, File outFile, MarkerTransformer[] transformers) throws IOException
+    {
         ZipInputStream inJar = null;
         ZipOutputStream outJar = null;
 
-        try {
-            try {
+        try
+        {
+            try
+            {
                 inJar = new ZipInputStream(new BufferedInputStream(new FileInputStream(inFile)));
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 throw new FileNotFoundException("Could not open input file: " + e.getMessage());
             }
 
-            try {
+            try
+            {
                 outJar = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 throw new FileNotFoundException("Could not open output file: " + e.getMessage());
             }
 
             ZipEntry entry;
-            while ((entry = inJar.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
+            while ((entry = inJar.getNextEntry()) != null)
+            {
+                if (entry.isDirectory())
+                {
                     outJar.putNextEntry(entry);
                     continue;
                 }
@@ -186,9 +222,11 @@ public class MarkerTransformer implements IClassTransformer {
                 ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
 
                 int len;
-                do {
+                do
+                {
                     len = inJar.read(data);
-                    if (len > 0) {
+                    if (len > 0)
+                    {
                         entryBuffer.write(data, 0, len);
                     }
                 }
@@ -198,13 +236,15 @@ public class MarkerTransformer implements IClassTransformer {
 
                 String entryName = entry.getName();
 
-                if (entryName.endsWith(".class") && !entryName.startsWith(".")) {
+                if (entryName.endsWith(".class") && !entryName.startsWith("."))
+                {
                     ClassNode cls = new ClassNode();
                     ClassReader rdr = new ClassReader(entryData);
                     rdr.accept(cls, 0);
                     String name = cls.name.replace('/', '.').replace('\\', '.');
 
-                    for (MarkerTransformer trans : transformers) {
+                    for (MarkerTransformer trans : transformers)
+                    {
                         entryData = trans.transform(name, entryData);
                     }
                 }
@@ -213,18 +253,28 @@ public class MarkerTransformer implements IClassTransformer {
                 outJar.putNextEntry(newEntry);
                 outJar.write(entryData);
             }
-        } finally {
-            if (outJar != null) {
-                try {
+        }
+        finally
+        {
+            if (outJar != null)
+            {
+                try
+                {
                     outJar.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                 }
             }
 
-            if (inJar != null) {
-                try {
+            if (inJar != null)
+            {
+                try
+                {
                     inJar.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                 }
             }
         }

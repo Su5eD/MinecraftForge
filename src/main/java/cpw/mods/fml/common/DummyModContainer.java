@@ -25,114 +25,137 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class DummyModContainer implements ModContainer {
+public class DummyModContainer implements ModContainer
+{
     private ModMetadata md;
     private ArtifactVersion processedVersion;
 
-    public DummyModContainer(ModMetadata md) {
+    public DummyModContainer(ModMetadata md)
+    {
         this.md = md;
     }
 
-    public DummyModContainer() {
+    public DummyModContainer()
+    {
     }
 
     @Override
-    public void bindMetadata(MetadataCollection mc) {
+    public void bindMetadata(MetadataCollection mc)
+    {
     }
 
     @Override
-    public List<ArtifactVersion> getDependants() {
+    public List<ArtifactVersion> getDependants()
+    {
         return Collections.emptyList();
     }
 
     @Override
-    public List<ArtifactVersion> getDependencies() {
+    public List<ArtifactVersion> getDependencies()
+    {
         return Collections.emptyList();
     }
 
     @Override
-    public Set<ArtifactVersion> getRequirements() {
+    public Set<ArtifactVersion> getRequirements()
+    {
         return Collections.emptySet();
     }
 
     @Override
-    public ModMetadata getMetadata() {
+    public ModMetadata getMetadata()
+    {
         return md;
     }
 
     @Override
-    public Object getMod() {
+    public Object getMod()
+    {
         return null;
     }
 
     @Override
-    public String getModId() {
+    public String getModId()
+    {
         return md.modId;
     }
 
     @Override
-    public String getName() {
+    public String getName()
+    {
         return md.name;
     }
 
     @Override
-    public String getSortingRules() {
+    public String getSortingRules()
+    {
         return "";
     }
 
     @Override
-    public File getSource() {
+    public File getSource()
+    {
         return null;
     }
 
     @Override
-    public String getVersion() {
+    public String getVersion()
+    {
         return md.version;
     }
 
-    public boolean matches(Object mod) {
+    public boolean matches(Object mod)
+    {
         return false;
     }
 
     @Override
-    public void setEnabledState(boolean enabled) {
+    public void setEnabledState(boolean enabled)
+    {
     }
 
     @Override
-    public boolean registerBus(EventBus bus, LoadController controller) {
+    public boolean registerBus(EventBus bus, LoadController controller)
+    {
         return false;
     }
 
     @Override
-    public ArtifactVersion getProcessedVersion() {
-        if (processedVersion == null) {
+    public ArtifactVersion getProcessedVersion()
+    {
+        if (processedVersion == null)
+        {
             processedVersion = new DefaultArtifactVersion(getModId(), getVersion());
         }
         return processedVersion;
     }
 
     @Override
-    public boolean isImmutable() {
+    public boolean isImmutable()
+    {
         return false;
     }
 
     @Override
-    public boolean isNetworkMod() {
+    public boolean isNetworkMod()
+    {
         return false;
     }
 
     @Override
-    public String getDisplayVersion() {
+    public String getDisplayVersion()
+    {
         return md.version;
     }
-
     @Override
-    public VersionRange acceptableMinecraftVersionRange() {
+    public VersionRange acceptableMinecraftVersionRange()
+    {
         return Loader.instance().getMinecraftModContainer().getStaticVersionRange();
     }
 
     @Override
-    public Certificate getSigningCertificate() {
+    public Certificate getSigningCertificate()
+    {
         return null;
     }
 }

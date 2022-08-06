@@ -41,25 +41,28 @@ import java.util.Random;
 
 import static cpw.mods.fml.relauncher.Side.CLIENT;
 
-public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModProxy {
+public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModProxy
+{
     // CALLBACK MECHANISMS
 
-    public final boolean doTickInGame(TickType tick, boolean tickEnd, Object... data) {
+    public final boolean doTickInGame(TickType tick, boolean tickEnd, Object... data)
+    {
         Minecraft mc = FMLClientHandler.instance().getClient();
         boolean hasWorld = mc.theWorld != null;
         // World and render ticks
-        if (tickEnd && (tick == TickType.RENDER || tick == TickType.CLIENT) && hasWorld) {
+        if (tickEnd && ( tick==TickType.RENDER || tick==TickType.CLIENT ) && hasWorld) {
             return onTickInGame((Float) data[0], mc);
         }
         return true;
     }
 
-    public final boolean doTickInGUI(TickType tick, boolean tickEnd, Object... data) {
+    public final boolean doTickInGUI(TickType tick, boolean tickEnd, Object... data)
+    {
         Minecraft mc = FMLClientHandler.instance().getClient();
 
         boolean hasWorld = mc.theWorld != null;
 
-        if (tickEnd && (tick == TickType.RENDER || (tick == TickType.CLIENT && hasWorld))) {
+        if (tickEnd && ( tick==TickType.RENDER || ( tick==TickType.CLIENT && hasWorld))) {
             return onTickInGUI((Float) data[0], mc, mc.currentScreen);
         }
         return true;
@@ -97,7 +100,7 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
     @Override
     public final boolean onChat(Object... data)
     {
-        receiveChatPacket(((Packet3Chat)data[0]).message);
+        receiveChatPacket(((Packet3Chat)data[0]).field_73476_b);
         return true;
     }
 
@@ -167,19 +170,20 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
 
     */
     // BASEMOD API
-
     /**
      * Override if you wish to provide a fuel item for the furnace and return the fuel value of the item
      *
      * @param id
      * @param metadata
      */
-    public int addFuel(int id, int metadata) {
+    public int addFuel(int id, int metadata)
+    {
         return 0;
     }
 
     @SideOnly(CLIENT)
-    public void addRenderer(Map<Class<? extends Entity>, Render> renderers) {
+    public void addRenderer(Map<Class<? extends Entity>, Render> renderers)
+    {
     }
 
     /**
@@ -190,7 +194,8 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param chunkX
      * @param chunkZ
      */
-    public void generateNether(World world, Random random, int chunkX, int chunkZ) {
+    public void generateNether(World world, Random random, int chunkX, int chunkZ)
+    {
     }
 
     /**
@@ -201,12 +206,12 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param chunkX
      * @param chunkZ
      */
-    public void generateSurface(World world, Random random, int chunkX, int chunkZ) {
+    public void generateSurface(World world, Random random, int chunkX, int chunkZ)
+    {
     }
 
     /**
      * Callback to return a gui screen to display
-     *
      * @param player
      * @param containerID
      * @param x
@@ -214,21 +219,24 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param z
      */
     @SideOnly(CLIENT)
-    public GuiContainer getContainerGUI(EntityClientPlayerMP player, int containerID, int x, int y, int z) {
+    public GuiContainer getContainerGUI(EntityClientPlayerMP player, int containerID, int x, int y, int z)
+    {
         return null;
     }
 
     /**
      * Return the name of your mod. Defaults to the class name
      */
-    public String getName() {
+    public String getName()
+    {
         return getClass().getSimpleName();
     }
 
     /**
      * Get your mod priorities
      */
-    public String getPriorities() {
+    public String getPriorities()
+    {
         return "";
     }
 
@@ -238,7 +246,8 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
     public abstract String getVersion();
 
     @SideOnly(CLIENT)
-    public void keyboardEvent(KeyBinding event) {
+    public void keyboardEvent(KeyBinding event)
+    {
 
     }
 
@@ -250,7 +259,8 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
     /**
      * Finish loading your mod
      */
-    public void modsLoaded() {
+    public void modsLoaded()
+    {
     }
 
     /**
@@ -259,27 +269,31 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param player
      * @param item
      */
-    public void onItemPickup(EntityPlayer player, ItemStack item) {
+    public void onItemPickup(EntityPlayer player, ItemStack item)
+    {
     }
 
     /**
      * Ticked every game tick if you have subscribed to tick events through {@link ModLoader#setInGameHook(BaseMod, boolean, boolean)}
      *
-     * @param time              the rendering subtick time (0.0-1.0)
+     * @param time the rendering subtick time (0.0-1.0)
      * @param minecraftInstance the client
      * @return true to continue receiving ticks
      */
     @SideOnly(CLIENT)
-    public boolean onTickInGame(float time, Minecraft minecraftInstance) {
+    public boolean onTickInGame(float time, Minecraft minecraftInstance)
+    {
         return false;
     }
 
-    public boolean onTickInGame(MinecraftServer minecraftServer) {
+    public boolean onTickInGame(MinecraftServer minecraftServer)
+    {
         return false;
     }
 
     @SideOnly(CLIENT)
-    public boolean onTickInGUI(float tick, Minecraft game, GuiScreen gui) {
+    public boolean onTickInGUI(float tick, Minecraft game, GuiScreen gui)
+    {
         return false;
     }
 
@@ -290,50 +304,54 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param text
      */
     @Override
-    public void clientChat(String text) {
+    public void clientChat(String text)
+    {
     }
 
     /**
      * Called when a client connects
-     *
      * @param handler
      */
     @SideOnly(CLIENT)
-    public void clientConnect(NetClientHandler handler) {
+    public void clientConnect(NetClientHandler handler)
+    {
 
     }
 
     /**
      * Called when the client disconnects
-     *
      * @param handler
      */
     @SideOnly(CLIENT)
-    public void clientDisconnect(NetClientHandler handler) {
+    public void clientDisconnect(NetClientHandler handler)
+    {
 
     }
-
     /**
      * Called client side to receive a custom payload for this mod
      *
      * @param packet
      */
     @Override
-    public void receiveCustomPacket(Packet250CustomPayload packet) {
+    public void receiveCustomPacket(Packet250CustomPayload packet)
+    {
     }
 
     @SideOnly(CLIENT)
-    public void registerAnimation(Minecraft game) {
+    public void registerAnimation(Minecraft game)
+    {
 
     }
 
     @SideOnly(CLIENT)
-    public void renderInvBlock(RenderBlocks renderer, Block block, int metadata, int modelID) {
+    public void renderInvBlock(RenderBlocks renderer, Block block, int metadata, int modelID)
+    {
 
     }
 
     @SideOnly(CLIENT)
-    public boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelID) {
+    public boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelID)
+    {
         return false;
 
     }
@@ -344,7 +362,8 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
     }
 
     @Override
-    public void serverCustomPayload(NetServerHandler handler, Packet250CustomPayload packet) {
+    public void serverCustomPayload(NetServerHandler handler, Packet250CustomPayload packet)
+    {
 
     }
 
@@ -352,7 +371,6 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
     public void serverDisconnect() {
 
     }
-
     /**
      * Called when someone crafts an item from a crafting table
      *
@@ -360,7 +378,8 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param item
      * @param matrix
      */
-    public void takenFromCrafting(EntityPlayer player, ItemStack item, IInventory matrix) {
+    public void takenFromCrafting(EntityPlayer player, ItemStack item, IInventory matrix)
+    {
     }
 
     /**
@@ -369,14 +388,16 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * @param player
      * @param item
      */
-    public void takenFromFurnace(EntityPlayer player, ItemStack item) {
+    public void takenFromFurnace(EntityPlayer player, ItemStack item)
+    {
     }
 
     /**
      * The identifier string for the mod- used in client<->server negotiation
      */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return getName() + " " + getVersion();
     }
 
@@ -384,23 +405,25 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * Called when a chat message is received. Return true to stop further processing
      */
     @Override
-    public void serverChat(NetServerHandler source, String message) {
+    public void serverChat(NetServerHandler source, String message)
+    {
     }
-
     /**
      * Called when a new client logs in.
      *
      * @param player
      */
     @Override
-    public void onClientLogin(EntityPlayer player) {
+    public void onClientLogin(EntityPlayer player)
+    {
     }
 
     /**
      * Called when a client logs out of the server.
      */
     @Override
-    public void onClientLogout(INetworkManager mgr) {
+    public void onClientLogout(INetworkManager mgr)
+    {
 
     }
 
@@ -408,11 +431,13 @@ public abstract class BaseMod implements cpw.mods.fml.common.modloader.BaseModPr
      * Spawn the entity of the supplied type, if it is your mod's
      */
     @SideOnly(CLIENT)
-    public Entity spawnEntity(int entityId, World world, double scaledX, double scaledY, double scaledZ) {
+    public Entity spawnEntity(int entityId, World world, double scaledX, double scaledY, double scaledZ)
+    {
         return null;
     }
 
-    public void clientCustomPayload(NetClientHandler handler, Packet250CustomPayload packet) {
+    public void clientCustomPayload(NetClientHandler handler, Packet250CustomPayload packet)
+    {
 
     }
 

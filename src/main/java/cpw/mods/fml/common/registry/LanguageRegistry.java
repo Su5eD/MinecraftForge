@@ -32,20 +32,24 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 
-public class LanguageRegistry {
+public class LanguageRegistry
+{
     private static final LanguageRegistry INSTANCE = new LanguageRegistry();
 
-    private Map<String, Properties> modLanguageData = new HashMap<>();
+    private Map<String,Properties> modLanguageData=new HashMap<String,Properties>();
 
-    public static LanguageRegistry instance() {
+    public static LanguageRegistry instance()
+    {
         return INSTANCE;
     }
 
-    public String getStringLocalization(String key) {
+    public String getStringLocalization(String key)
+    {
         return getStringLocalization(key, StringTranslate.getInstance().getCurrentLanguage());
     }
 
-    public String getStringLocalization(String key, String lang) {
+    public String getStringLocalization(String key, String lang)
+    {
         String localizedString = "";
         Properties langPack = modLanguageData.get(lang);
 
@@ -58,17 +62,18 @@ public class LanguageRegistry {
         return localizedString;
     }
 
-    public void addStringLocalization(String key, String value) {
+    public void addStringLocalization(String key, String value)
+    {
         addStringLocalization(key, "en_US", value);
     }
-
-    public void addStringLocalization(String key, String lang, String value) {
-        Properties langPack = modLanguageData.get(lang);
-        if (langPack == null) {
-            langPack = new Properties();
+    public void addStringLocalization(String key, String lang, String value)
+    {
+        Properties langPack=modLanguageData.get(lang);
+        if (langPack==null) {
+            langPack=new Properties();
             modLanguageData.put(lang, langPack);
         }
-        langPack.put(key, value);
+        langPack.put(key,value);
     }
 
     public void addStringLocalization(Properties langPackAdditions) {
@@ -86,7 +91,8 @@ public class LanguageRegistry {
         }
     }
 
-    public static void reloadLanguageTable() {
+    public static void reloadLanguageTable()
+    {
         // reload language table by forcing lang to null and reloading the properties file
         String lang = StringTranslate.getInstance().getCurrentLanguage();
         StringTranslate.getInstance().currentLanguage = null;
@@ -94,65 +100,90 @@ public class LanguageRegistry {
     }
 
 
-    public void addNameForObject(Object objectToName, String lang, String name) {
+    public void addNameForObject(Object objectToName, String lang, String name)
+    {
         String objectName;
         if (objectToName instanceof Item) {
-            objectName = ((Item) objectToName).getItemName();
+            objectName=((Item)objectToName).getItemName();
         } else if (objectToName instanceof Block) {
-            objectName = ((Block) objectToName).getBlockName();
+            objectName=((Block)objectToName).getBlockName();
         } else if (objectToName instanceof ItemStack) {
-            objectName = ((ItemStack) objectToName).getItem().getItemNameIS((ItemStack) objectToName);
+            objectName=((ItemStack)objectToName).getItem().getItemNameIS((ItemStack)objectToName);
         } else {
-            throw new IllegalArgumentException(String.format("Illegal object for naming %s", objectToName));
+            throw new IllegalArgumentException(String.format("Illegal object for naming %s",objectToName));
         }
-        objectName += ".name";
+        objectName+=".name";
         addStringLocalization(objectName, lang, name);
     }
 
-    public static void addName(Object objectToName, String name) {
+    public static void addName(Object objectToName, String name)
+    {
         instance().addNameForObject(objectToName, "en_US", name);
     }
 
-    public void loadLanguageTable(Properties languagePack, String lang) {
-        Properties usPack = modLanguageData.get("en_US");
-        if (usPack != null) {
+    public void loadLanguageTable(Properties languagePack, String lang)
+    {
+        Properties usPack=modLanguageData.get("en_US");
+        if (usPack!=null) {
             languagePack.putAll(usPack);
         }
-        Properties langPack = modLanguageData.get(lang);
-        if (langPack == null) {
+        Properties langPack=modLanguageData.get(lang);
+        if (langPack==null) {
             return;
         }
         languagePack.putAll(langPack);
     }
 
-    public void loadLocalization(String localizationFile, String lang, boolean isXML) {
+    public void loadLocalization(String localizationFile, String lang, boolean isXML)
+    {
         URL urlResource = this.getClass().getResource(localizationFile);
-        if (urlResource != null) {
+        if (urlResource != null)
+        {
             loadLocalization(urlResource, lang, isXML);
-        } else {
+        }
+        else
+        {
             ModContainer activeModContainer = Loader.instance().activeModContainer();
-            if (activeModContainer != null) {
+            if (activeModContainer!=null)
+            {
                 FMLLog.log(activeModContainer.getModId(), Level.SEVERE, "The language resource %s cannot be located on the classpath. This is a programming error.", localizationFile);
-            } else {
+            }
+            else
+            {
                 FMLLog.log(Level.SEVERE, "The language resource %s cannot be located on the classpath. This is a programming error.", localizationFile);
             }
         }
     }
 
-    public void loadLocalization(URL localizationFile, String lang, boolean isXML) {
-
+    public void loadLocalization(URL localizationFile, String lang, boolean isXML)
+    {
+        InputStream langStream = null;
         Properties langPack = new Properties();
-        try (InputStream langStream = localizationFile.openStream()) {
+
+        try    {
+            langStream = localizationFile.openStream();
+
             if (isXML) {
                 langPack.loadFromXML(langStream);
-            } else {
-                langPack.load(new InputStreamReader(langStream, Charsets.UTF_8));
+            }
+            else {
+                langPack.load(new InputStreamReader(langStream,Charsets.UTF_8));
             }
 
             addStringLocalization(langPack, lang);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             FMLLog.log(Level.SEVERE, e, "Unable to load localization from file %s", localizationFile);
         }
-        // HUSH
+        finally    {
+            try    {
+                if (langStream != null)    {
+                    langStream.close();
+                }
+            }
+            catch (IOException ex) {
+                // HUSH
+            }
+        }
     }
 }

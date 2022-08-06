@@ -21,31 +21,35 @@ import net.minecraft.client.gui.GuiErrorScreen;
 import java.io.File;
 import java.util.Map.Entry;
 
-public class GuiDupesFound extends GuiErrorScreen {
+public class GuiDupesFound extends GuiErrorScreen
+{
 
     private DuplicateModsFoundException dupes;
 
-    public GuiDupesFound(DuplicateModsFoundException dupes) {
+    public GuiDupesFound(DuplicateModsFoundException dupes)
+    {
         this.dupes = dupes;
     }
 
     @Override
-    public void initGui() {
+    public void initGui()
+    {
         super.initGui();
     }
-
     @Override
-    public void drawScreen(int par1, int par2, float par3) {
+    public void drawScreen(int p_73863_1_, int p_73863_2_, float p_73863_3_)
+    {
         this.drawDefaultBackground();
         int offset = Math.max(85 - dupes.dupes.size() * 10, 10);
         this.drawCenteredString(this.fontRenderer, "Forge Mod Loader has found a problem with your minecraft installation", this.width / 2, offset, 0xFFFFFF);
-        offset += 10;
+        offset+=10;
         this.drawCenteredString(this.fontRenderer, "You have mod sources that are duplicate within your system", this.width / 2, offset, 0xFFFFFF);
-        offset += 10;
+        offset+=10;
         this.drawCenteredString(this.fontRenderer, "Mod Id : File name", this.width / 2, offset, 0xFFFFFF);
-        offset += 5;
-        for (Entry<ModContainer, File> mc : dupes.dupes.entries()) {
-            offset += 10;
+        offset+=5;
+        for (Entry<ModContainer, File> mc : dupes.dupes.entries())
+        {
+            offset+=10;
             this.drawCenteredString(this.fontRenderer, String.format("%s : %s", mc.getKey().getModId(), mc.getValue().getName()), this.width / 2, offset, 0xEEEEEE);
         }
     }

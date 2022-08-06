@@ -16,7 +16,9 @@ package cpw.mods.fml.common;
 
 /**
  * @author cpw
+ *
  */
-public interface IConsoleHandler {
-    boolean handleCommand(String command, Object... data);
+public interface IConsoleHandler
+{
+    public boolean handleCommand(String command, Object... data);
 }

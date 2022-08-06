@@ -32,8 +32,10 @@ import java.util.*;
  * Registry for villager trading control
  *
  * @author cpw
+ *
  */
-public class VillagerRegistry {
+public class VillagerRegistry
+{
     private static final VillagerRegistry INSTANCE = new VillagerRegistry();
 
     private Multimap<Integer, IVillageTradeHandler> tradeHandlers = ArrayListMultimap.create();
@@ -46,8 +48,10 @@ public class VillagerRegistry {
      * creation so you can insert your own new village pieces
      *
      * @author cpw
+     *
      */
-    public interface IVillageCreationHandler {
+    public interface IVillageCreationHandler
+    {
         /**
          * Called when {@link net.minecraft.world.gen.structure.MapGenVillage} is creating a new village
          *
@@ -64,7 +68,6 @@ public class VillagerRegistry {
 
         /**
          * Build an instance of the village component {@link net.minecraft.world.gen.structure.StructureVillagePieces}
-         *
          * @param villagePiece
          * @param startPiece
          * @param pieces
@@ -76,15 +79,17 @@ public class VillagerRegistry {
          * @param p5
          */
         Object buildComponent(StructureVillagePieceWeight villagePiece, ComponentVillageStartPiece startPiece, List pieces, Random random, int p1,
-                              int p2, int p3, int p4, int p5);
+                int p2, int p3, int p4, int p5);
     }
 
     /**
      * Allow access to the {@link MerchantRecipeList} for a villager type for manipulation
      *
      * @author cpw
+     *
      */
-    public interface IVillageTradeHandler {
+    public interface IVillageTradeHandler
+    {
         /**
          * Called to allow changing the content of the {@link MerchantRecipeList} for the villager
          * supplied during creation
@@ -95,7 +100,8 @@ public class VillagerRegistry {
         void manipulateTradesForVillager(EntityVillager villager, MerchantRecipeList recipeList, Random random);
     }
 
-    public static VillagerRegistry instance() {
+    public static VillagerRegistry instance()
+    {
         return INSTANCE;
     }
 
@@ -105,8 +111,10 @@ public class VillagerRegistry {
      * @param villagerId
      * @param villagerSkin
      */
-    public void registerVillagerType(int villagerId, String villagerSkin) {
-        if (newVillagers.containsKey(villagerId)) {
+    public void registerVillagerType(int villagerId, String villagerSkin)
+    {
+        if (newVillagers.containsKey(villagerId))
+        {
             FMLLog.severe("Attempt to register duplicate villager id %d", villagerId);
             throw new RuntimeException();
         }
@@ -119,7 +127,8 @@ public class VillagerRegistry {
      *
      * @param handler
      */
-    public void registerVillageCreationHandler(IVillageCreationHandler handler) {
+    public void registerVillageCreationHandler(IVillageCreationHandler handler)
+    {
         villageCreationHandlers.put(handler.getComponentClass(), handler);
     }
 
@@ -129,7 +138,8 @@ public class VillagerRegistry {
      * @param villagerId
      * @param handler
      */
-    public void registerVillageTradeHandler(int villagerId, IVillageTradeHandler handler) {
+    public void registerVillageTradeHandler(int villagerId, IVillageTradeHandler handler)
+    {
         tradeHandlers.put(villagerId, handler);
     }
 
@@ -139,8 +149,10 @@ public class VillagerRegistry {
      * @param villagerType
      * @param defaultSkin
      */
-    public static String getVillagerSkin(int villagerType, String defaultSkin) {
-        if (instance().newVillagers.containsKey(villagerType)) {
+    public static String getVillagerSkin(int villagerType, String defaultSkin)
+    {
+        if (instance().newVillagers.containsKey(villagerType))
+        {
             return instance().newVillagers.get(villagerType);
         }
         return defaultSkin;
@@ -151,10 +163,10 @@ public class VillagerRegistry {
      *
      * @return newVillagerIds
      */
-    public static Collection<Integer> getRegisteredVillagers() {
+    public static Collection<Integer> getRegisteredVillagers()
+    {
         return Collections.unmodifiableCollection(instance().newVillagerIds);
     }
-
     /**
      * Callback to handle trade setup for villagers
      *
@@ -163,40 +175,50 @@ public class VillagerRegistry {
      * @param villagerType
      * @param random
      */
-    public static void manageVillagerTrades(MerchantRecipeList recipeList, EntityVillager villager, int villagerType, Random random) {
-        for (IVillageTradeHandler handler : instance().tradeHandlers.get(villagerType)) {
+    public static void manageVillagerTrades(MerchantRecipeList recipeList, EntityVillager villager, int villagerType, Random random)
+    {
+        for (IVillageTradeHandler handler : instance().tradeHandlers.get(villagerType))
+        {
             handler.manipulateTradesForVillager(villager, recipeList, random);
         }
     }
 
-    public static void addExtraVillageComponents(ArrayList components, Random random, int i) {
+    public static void addExtraVillageComponents(ArrayList components, Random random, int i)
+    {
         List<StructureVillagePieceWeight> parts = components;
-        for (IVillageCreationHandler handler : instance().villageCreationHandlers.values()) {
+        for (IVillageCreationHandler handler : instance().villageCreationHandlers.values())
+        {
             parts.add(handler.getVillagePieceWeight(random, i));
         }
     }
 
     public static Object getVillageComponent(StructureVillagePieceWeight villagePiece, ComponentVillageStartPiece startPiece, List pieces, Random random,
-                                             int p1, int p2, int p3, int p4, int p5) {
+            int p1, int p2, int p3, int p4, int p5)
+    {
         return instance().villageCreationHandlers.get(villagePiece.villagePieceClass).buildComponent(villagePiece, startPiece, pieces, random, p1, p2, p3, p4, p5);
     }
 
 
-    public static void addEmeraldBuyRecipe(EntityVillager villager, MerchantRecipeList list, Random random, Item item, float chance, int min, int max) {
-        if (min > 0 && max > 0) {
+    public static void addEmeraldBuyRecipe(EntityVillager villager, MerchantRecipeList list, Random random, Item item, float chance, int min, int max)
+    {
+        if (min > 0 && max > 0)
+        {
             EntityVillager.villagerStockList.put(item.itemID, new Tuple(min, max));
         }
-        EntityVillager.addMerchantItem(list, item.getMaxDamage(), random, chance);
+        villager.addMerchantItem(list, item.getMaxDamage(), random, chance);
     }
 
-    public static void addEmeraldSellRecipe(EntityVillager villager, MerchantRecipeList list, Random random, Item item, float chance, int min, int max) {
-        if (min > 0 && max > 0) {
+    public static void addEmeraldSellRecipe(EntityVillager villager, MerchantRecipeList list, Random random, Item item, float chance, int min, int max)
+    {
+        if (min > 0 && max > 0)
+        {
             EntityVillager.blacksmithSellingList.put(item.itemID, new Tuple(min, max));
         }
-        EntityVillager.addBlacksmithItem(list, item.getMaxDamage(), random, chance);
+        villager.addBlacksmithItem(list, item.getMaxDamage(), random, chance);
     }
 
-    public static void applyRandomTrade(EntityVillager villager, Random rand) {
+    public static void applyRandomTrade(EntityVillager villager, Random rand)
+    {
         int extra = instance().newVillagerIds.size();
         int trade = rand.nextInt(5 + extra);
         villager.setProfession(trade < 5 ? trade : instance().newVillagerIds.get(trade - 5));

@@ -19,21 +19,27 @@ import cpw.mods.fml.common.ModContainer;
 
 import java.util.List;
 
-public enum ContainerType {
+public enum ContainerType
+{
     JAR(JarDiscoverer.class),
     DIR(DirectoryDiscoverer.class);
 
     private ITypeDiscoverer discoverer;
 
-    ContainerType(Class<? extends ITypeDiscoverer> discovererClass) {
-        try {
+    private ContainerType(Class<? extends ITypeDiscoverer> discovererClass)
+    {
+        try
+        {
             this.discoverer = discovererClass.newInstance();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw Throwables.propagate(e);
         }
     }
 
-    public List<ModContainer> findMods(ModCandidate candidate, ASMDataTable table) {
+    public List<ModContainer> findMods(ModCandidate candidate, ASMDataTable table)
+    {
         return discoverer.discover(candidate, table);
     }
 }

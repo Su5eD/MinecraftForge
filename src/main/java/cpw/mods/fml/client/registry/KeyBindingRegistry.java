@@ -26,11 +26,11 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class KeyBindingRegistry {
+public class KeyBindingRegistry
+{
     /**
      * Register a KeyHandler to the game. This handler will be called on certain tick events
      * if any of its key is inactive or has recently changed state
@@ -39,7 +39,8 @@ public class KeyBindingRegistry {
      */
     public static void registerKeyBinding(KeyHandler handler) {
         instance().keyHandlers.add(handler);
-        if (!handler.isDummy) {
+        if (!handler.isDummy)
+        {
             TickRegistry.registerTickHandler(handler, Side.CLIENT);
         }
     }
@@ -50,8 +51,10 @@ public class KeyBindingRegistry {
      * when the key binding is triggered
      *
      * @author cpw
+     *
      */
-    public static abstract class KeyHandler implements ITickHandler {
+    public static abstract class KeyHandler implements ITickHandler
+    {
         protected KeyBinding[] keyBindings;
         protected boolean[] keyDown;
         protected boolean[] repeatings;
@@ -63,7 +66,8 @@ public class KeyBindingRegistry {
          * @param keyBindings
          * @param repeatings
          */
-        public KeyHandler(KeyBinding[] keyBindings, boolean[] repeatings) {
+        public KeyHandler(KeyBinding[] keyBindings, boolean[] repeatings)
+        {
             assert keyBindings.length == repeatings.length : "You need to pass two arrays of identical length";
             this.keyBindings = keyBindings;
             this.repeatings = repeatings;
@@ -77,12 +81,14 @@ public class KeyBindingRegistry {
          *
          * @param keyBindings
          */
-        public KeyHandler(KeyBinding[] keyBindings) {
+        public KeyHandler(KeyBinding[] keyBindings)
+        {
             this.keyBindings = keyBindings;
             this.isDummy = true;
         }
 
-        public KeyBinding[] getKeyBindings() {
+        public KeyBinding[] getKeyBindings()
+        {
             return this.keyBindings;
         }
 
@@ -90,7 +96,8 @@ public class KeyBindingRegistry {
          * Not to be overridden - KeyBindings are tickhandlers under the covers
          */
         @Override
-        public final void tickStart(EnumSet<TickType> type, Object... tickData) {
+        public final void tickStart(EnumSet<TickType> type, Object... tickData)
+        {
             keyTick(type, false);
         }
 
@@ -98,22 +105,30 @@ public class KeyBindingRegistry {
          * Not to be overridden - KeyBindings are tickhandlers under the covers
          */
         @Override
-        public final void tickEnd(EnumSet<TickType> type, Object... tickData) {
+        public final void tickEnd(EnumSet<TickType> type, Object... tickData)
+        {
             keyTick(type, true);
         }
 
-        private void keyTick(EnumSet<TickType> type, boolean tickEnd) {
-            for (int i = 0; i < keyBindings.length; i++) {
+        private void keyTick(EnumSet<TickType> type, boolean tickEnd)
+        {
+            for (int i = 0; i < keyBindings.length; i++)
+            {
                 KeyBinding keyBinding = keyBindings[i];
                 int keyCode = keyBinding.keyCode;
                 boolean state = (keyCode < 0 ? Mouse.isButtonDown(keyCode + 100) : Keyboard.isKeyDown(keyCode));
-                if (state != keyDown[i] || (state && repeatings[i])) {
-                    if (state) {
-                        keyDown(type, keyBinding, tickEnd, state != keyDown[i]);
-                    } else {
+                if (state != keyDown[i] || (state && repeatings[i]))
+                {
+                    if (state)
+                    {
+                        keyDown(type, keyBinding, tickEnd, state!=keyDown[i]);
+                    }
+                    else
+                    {
                         keyUp(type, keyBinding, tickEnd);
                     }
-                    if (tickEnd) {
+                    if (tickEnd)
+                    {
                         keyDown[i] = state;
                     }
                 }
@@ -125,19 +140,20 @@ public class KeyBindingRegistry {
          * Called when the key is first in the down position on any tick from the {@link #ticks()}
          * set. Will be called subsequently with isRepeat set to true
          *
-         * @param types    the type(s) of tick that fired when this key was first down
-         * @param tickEnd  was it an end or start tick which fired the key
-         * @param isRepeat is it a repeat key event
          * @see #keyUp(EnumSet, KeyBinding, boolean)
+         *
+         * @param types the type(s) of tick that fired when this key was first down
+         * @param tickEnd was it an end or start tick which fired the key
+         * @param isRepeat is it a repeat key event
          */
         public abstract void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat);
-
         /**
          * Fired once when the key changes state from down to up
          *
-         * @param types   the type(s) of tick that fired when this key was first down
-         * @param tickEnd was it an end or start tick which fired the key
          * @see #keyDown(EnumSet, KeyBinding, boolean, boolean)
+         *
+         * @param types the type(s) of tick that fired when this key was first down
+         * @param tickEnd was it an end or start tick which fired the key
          */
         public abstract void keyUp(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd);
 
@@ -146,7 +162,7 @@ public class KeyBindingRegistry {
          * This is the list of ticks for which the key binding should trigger. The only
          * valid ticks are client side ticks, obviously.
          *
-         * @see ITickHandler#ticks()
+         * @see cpw.mods.fml.common.ITickHandler#ticks()
          */
         public abstract EnumSet<TickType> ticks();
     }
@@ -156,17 +172,23 @@ public class KeyBindingRegistry {
     private Set<KeyHandler> keyHandlers = Sets.newLinkedHashSet();
 
     @Deprecated
-    public static KeyBindingRegistry instance() {
+    public static KeyBindingRegistry instance()
+    {
         return INSTANCE;
     }
 
 
-    public void uploadKeyBindingsToGame(GameSettings settings) {
+    public void uploadKeyBindingsToGame(GameSettings settings)
+    {
         ArrayList<KeyBinding> harvestedBindings = Lists.newArrayList();
-        for (KeyHandler key : keyHandlers) {
-            Collections.addAll(harvestedBindings, key.keyBindings);
+        for (KeyHandler key : keyHandlers)
+        {
+            for (KeyBinding kb : key.keyBindings)
+            {
+                harvestedBindings.add(kb);
+            }
         }
-        KeyBinding[] modKeyBindings = harvestedBindings.toArray(new KeyBinding[0]);
+        KeyBinding[] modKeyBindings = harvestedBindings.toArray(new KeyBinding[harvestedBindings.size()]);
         KeyBinding[] allKeys = new KeyBinding[settings.keyBindings.length + modKeyBindings.length];
         System.arraycopy(settings.keyBindings, 0, allKeys, 0, settings.keyBindings.length);
         System.arraycopy(modKeyBindings, 0, allKeys, settings.keyBindings.length, modKeyBindings.length);

@@ -38,7 +38,8 @@ package cpw.mods.fml.common.versioning;
  *
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  */
-public class Restriction {
+public class Restriction
+{
     private final ArtifactVersion lowerBound;
 
     private final boolean lowerBoundInclusive;
@@ -47,50 +48,62 @@ public class Restriction {
 
     private final boolean upperBoundInclusive;
 
-    public static final Restriction EVERYTHING = new Restriction(null, false, null, false);
+    public static final Restriction EVERYTHING = new Restriction( null, false, null, false );
 
-    public Restriction(ArtifactVersion lowerBound, boolean lowerBoundInclusive, ArtifactVersion upperBound,
-                       boolean upperBoundInclusive) {
+    public Restriction( ArtifactVersion lowerBound, boolean lowerBoundInclusive, ArtifactVersion upperBound,
+                        boolean upperBoundInclusive )
+    {
         this.lowerBound = lowerBound;
         this.lowerBoundInclusive = lowerBoundInclusive;
         this.upperBound = upperBound;
         this.upperBoundInclusive = upperBoundInclusive;
     }
 
-    public ArtifactVersion getLowerBound() {
+    public ArtifactVersion getLowerBound()
+    {
         return lowerBound;
     }
 
-    public boolean isLowerBoundInclusive() {
+    public boolean isLowerBoundInclusive()
+    {
         return lowerBoundInclusive;
     }
 
-    public ArtifactVersion getUpperBound() {
+    public ArtifactVersion getUpperBound()
+    {
         return upperBound;
     }
 
-    public boolean isUpperBoundInclusive() {
+    public boolean isUpperBoundInclusive()
+    {
         return upperBoundInclusive;
     }
 
-    public boolean containsVersion(ArtifactVersion version) {
-        if (lowerBound != null) {
-            int comparison = lowerBound.compareTo(version);
+    public boolean containsVersion( ArtifactVersion version )
+    {
+        if ( lowerBound != null )
+        {
+            int comparison = lowerBound.compareTo( version );
 
-            if ((comparison == 0) && !lowerBoundInclusive) {
+            if ( ( comparison == 0 ) && !lowerBoundInclusive )
+            {
                 return false;
             }
-            if (comparison > 0) {
+            if ( comparison > 0 )
+            {
                 return false;
             }
         }
-        if (upperBound != null) {
-            int comparison = upperBound.compareTo(version);
+        if ( upperBound != null )
+        {
+            int comparison = upperBound.compareTo( version );
 
-            if ((comparison == 0) && !upperBoundInclusive) {
+            if ( ( comparison == 0 ) && !upperBoundInclusive )
+            {
                 return false;
             }
-            if (comparison < 0) {
+            if ( comparison < 0 )
+            {
                 return false;
             }
         }
@@ -99,20 +112,27 @@ public class Restriction {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result = 13;
 
-        if (lowerBound == null) {
+        if ( lowerBound == null )
+        {
             result += 1;
-        } else {
+        }
+        else
+        {
             result += lowerBound.hashCode();
         }
 
         result *= lowerBoundInclusive ? 1 : 2;
 
-        if (upperBound == null) {
+        if ( upperBound == null )
+        {
             result -= 3;
-        } else {
+        }
+        else
+        {
             result -= upperBound.hashCode();
         }
 
@@ -122,55 +142,71 @@ public class Restriction {
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (this == other) {
+    public boolean equals( Object other )
+    {
+        if ( this == other )
+        {
             return true;
         }
 
-        if (!(other instanceof Restriction)) {
+        if ( !( other instanceof Restriction ) )
+        {
             return false;
         }
 
         Restriction restriction = (Restriction) other;
-        if (lowerBound != null) {
-            if (!lowerBound.equals(restriction.lowerBound)) {
+        if ( lowerBound != null )
+        {
+            if ( !lowerBound.equals( restriction.lowerBound ) )
+            {
                 return false;
             }
-        } else if (restriction.lowerBound != null) {
+        }
+        else if ( restriction.lowerBound != null )
+        {
             return false;
         }
 
-        if (lowerBoundInclusive != restriction.lowerBoundInclusive) {
+        if ( lowerBoundInclusive != restriction.lowerBoundInclusive )
+        {
             return false;
         }
 
-        if (upperBound != null) {
-            if (!upperBound.equals(restriction.upperBound)) {
+        if ( upperBound != null )
+        {
+            if ( !upperBound.equals( restriction.upperBound ) )
+            {
                 return false;
             }
-        } else if (restriction.upperBound != null) {
+        }
+        else if ( restriction.upperBound != null )
+        {
             return false;
         }
 
-        if (upperBoundInclusive != restriction.upperBoundInclusive) {
+        if ( upperBoundInclusive != restriction.upperBoundInclusive )
+        {
             return false;
         }
 
         return true;
     }
 
-    public String toString() {
+    public String toString()
+    {
         StringBuilder buf = new StringBuilder();
 
-        buf.append(isLowerBoundInclusive() ? "[" : "(");
-        if (getLowerBound() != null) {
-            buf.append(getLowerBound().toString());
+        buf.append( isLowerBoundInclusive() ? "[" : "(" );
+        if ( getLowerBound() != null )
+        {
+            buf.append( getLowerBound().toString() );
         }
-        buf.append(",");
-        if (getUpperBound() != null) {
-            buf.append(getUpperBound().toString());
+        buf.append( "," );
+        if ( getUpperBound() != null )
+        {
+            buf.append( getUpperBound().toString() );
         }
-        buf.append(isUpperBoundInclusive() ? "]" : ")");
+        buf.append( isUpperBoundInclusive() ? "]" : ")" );
 
         return buf.toString();
     }

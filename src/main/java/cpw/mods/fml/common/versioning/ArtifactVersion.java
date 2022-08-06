@@ -40,7 +40,8 @@ package cpw.mods.fml.common.versioning;
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  */
 public interface ArtifactVersion
-        extends Comparable<ArtifactVersion> {
+    extends Comparable<ArtifactVersion>
+{
     String getLabel();
 
     String getVersionString();

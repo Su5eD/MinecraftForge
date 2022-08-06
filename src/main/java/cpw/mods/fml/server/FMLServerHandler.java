@@ -40,23 +40,25 @@ import java.util.List;
 
 /**
  * Handles primary communication from hooked code into the system
- * <p>
+ *
  * The FML entry point is {@link #beginServerLoading(MinecraftServer)} called from
  * {@link net.minecraft.server.dedicated.DedicatedServer}
- * <p>
+ *
  * Obfuscated code should focus on this class and other members of the "server"
  * (or "client") code
- * <p>
+ *
  * The actual mod loading is handled at arms length by {@link Loader}
- * <p>
+ *
  * It is expected that a similar class will exist for each target environment:
  * Bukkit and Client side.
- * <p>
+ *
  * It should not be directly modified.
  *
  * @author cpw
+ *
  */
-public class FMLServerHandler implements IFMLSidedHandler {
+public class FMLServerHandler implements IFMLSidedHandler
+{
     /**
      * The singleton
      */
@@ -67,17 +69,18 @@ public class FMLServerHandler implements IFMLSidedHandler {
      */
     private MinecraftServer server;
 
-    private FMLServerHandler() {
+    private FMLServerHandler()
+    {
         FMLCommonHandler.instance().beginLoading(this);
     }
-
     /**
      * Called to start the whole game off from
      * {@link MinecraftServer#startServer}
      *
      * @param minecraftServer
      */
-    public void beginServerLoading(MinecraftServer minecraftServer) {
+    public void beginServerLoading(MinecraftServer minecraftServer)
+    {
         server = minecraftServer;
         ObfuscationReflectionHelper.detectObfuscation(World.class);
         Loader.instance().loadMods();
@@ -86,28 +89,32 @@ public class FMLServerHandler implements IFMLSidedHandler {
     /**
      * Called a bit later on during server initialization to finish loading mods
      */
-    public void finishServerLoading() {
+    public void finishServerLoading()
+    {
         Loader.instance().initializeMods();
         LanguageRegistry.reloadLanguageTable();
         GameData.initializeServerGate(1);
     }
 
     @Override
-    public void haltGame(String message, Throwable exception) {
+    public void haltGame(String message, Throwable exception)
+    {
         throw new RuntimeException(message, exception);
     }
 
     /**
      * Get the server instance
      */
-    public MinecraftServer getServer() {
+    public MinecraftServer getServer()
+    {
         return server;
     }
 
     /**
      * @return the instance
      */
-    public static FMLServerHandler instance() {
+    public static FMLServerHandler instance()
+    {
         return INSTANCE;
     }
 
@@ -115,66 +122,72 @@ public class FMLServerHandler implements IFMLSidedHandler {
      * @see cpw.mods.fml.common.IFMLSidedHandler#getAdditionalBrandingInformation()
      */
     @Override
-    public List<String> getAdditionalBrandingInformation() {
-        return ImmutableList.of();
+    public List<String> getAdditionalBrandingInformation()
+    {
+        return ImmutableList.<String>of();
     }
 
     /* (non-Javadoc)
      * @see cpw.mods.fml.common.IFMLSidedHandler#getSide()
      */
     @Override
-    public Side getSide() {
+    public Side getSide()
+    {
         return Side.SERVER;
     }
 
     @Override
-    public void showGuiScreen(Object clientGuiElement) {
+    public void showGuiScreen(Object clientGuiElement)
+    {
 
     }
 
     @Override
-    public Entity spawnEntityIntoClientWorld(EntityRegistration er, EntitySpawnPacket packet) {
+    public Entity spawnEntityIntoClientWorld(EntityRegistration er, EntitySpawnPacket packet)
+    {
         // NOOP
         return null;
     }
 
     @Override
-    public void adjustEntityLocationOnClient(EntitySpawnAdjustmentPacket entitySpawnAdjustmentPacket) {
+    public void adjustEntityLocationOnClient(EntitySpawnAdjustmentPacket entitySpawnAdjustmentPacket)
+    {
         // NOOP
     }
-
     @Override
-    public void sendPacket(Packet packet) {
+    public void sendPacket(Packet packet)
+    {
         throw new RuntimeException("You cannot send a bare packet without a target on the server!");
     }
-
     @Override
-    public void displayMissingMods(ModMissingPacket modMissingPacket) {
+    public void displayMissingMods(ModMissingPacket modMissingPacket)
+    {
         // NOOP on server
     }
-
     @Override
-    public void handleTinyPacket(NetHandler handler, Packet131MapData mapData) {
+    public void handleTinyPacket(NetHandler handler, Packet131MapData mapData)
+    {
         // NOOP on server
     }
-
     @Override
-    public void setClientCompatibilityLevel(byte compatibilityLevel) {
+    public void setClientCompatibilityLevel(byte compatibilityLevel)
+    {
         // NOOP on server
     }
-
     @Override
-    public byte getClientCompatibilityLevel() {
+    public byte getClientCompatibilityLevel()
+    {
         return 0;
     }
 
     @Override
-    public boolean shouldServerShouldBeKilledQuietly() {
+    public boolean shouldServerShouldBeKilledQuietly()
+    {
         return false;
     }
-
     @Override
-    public void disconnectIDMismatch(MapDifference<Integer, ItemData> s, NetHandler handler, INetworkManager mgr) {
+    public void disconnectIDMismatch(MapDifference<Integer, ItemData> s, NetHandler handler, INetworkManager mgr)
+    {
 
     }
 }

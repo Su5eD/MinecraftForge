@@ -16,35 +16,40 @@ package cpw.mods.fml.common.modloader;
 
 import cpw.mods.fml.common.network.NetworkModHandler;
 
-public class ModLoaderNetworkHandler extends NetworkModHandler {
+public class ModLoaderNetworkHandler extends NetworkModHandler
+{
 
     private BaseModProxy baseMod;
-
-    public ModLoaderNetworkHandler(ModLoaderModContainer mlmc) {
+    public ModLoaderNetworkHandler(ModLoaderModContainer mlmc)
+    {
         super(mlmc, null);
     }
 
-    public void setBaseMod(BaseModProxy baseMod) {
+    public void setBaseMod(BaseModProxy baseMod)
+    {
         this.baseMod = baseMod;
     }
 
     @Override
-    public boolean requiresClientSide() {
+    public boolean requiresClientSide()
+    {
         return false;
     }
 
     @Override
-    public boolean requiresServerSide() {
+    public boolean requiresServerSide()
+    {
         return false;
     }
 
     @Override
-    public boolean acceptVersion(String version) {
+    public boolean acceptVersion(String version)
+    {
         return baseMod.getVersion().equals(version);
     }
-
     @Override
-    public boolean isNetworkMod() {
+    public boolean isNetworkMod()
+    {
         return true;
     }
 }

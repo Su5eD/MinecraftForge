@@ -23,7 +23,8 @@ import java.awt.*;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class FMLTextureFX extends TextureFX implements ITextureFX {
+public class FMLTextureFX extends TextureFX implements ITextureFX
+{
     public int tileSizeBase = 16;
     public int tileSizeSquare = 256;
     public int tileSizeMask = 15;
@@ -31,27 +32,21 @@ public class FMLTextureFX extends TextureFX implements ITextureFX {
     public boolean errored = false;
     protected Logger log = FMLLog.getLogger();
 
-    public FMLTextureFX(int icon) {
+    public FMLTextureFX(int icon)
+    {
         super(icon);
     }
 
+    @Override public void setErrored(boolean err){ errored = err; }
+    @Override public boolean getErrored(){ return errored; }
     @Override
-    public void setErrored(boolean err) {
-        errored = err;
-    }
-
-    @Override
-    public boolean getErrored() {
-        return errored;
-    }
-
-    @Override
-    public void onTexturePackChanged(RenderEngine engine, ITexturePack texturepack, Dimension dimensions) {
+    public void onTexturePackChanged(RenderEngine engine, ITexturePack texturepack, Dimension dimensions)
+    {
         onTextureDimensionsUpdate(dimensions.width, dimensions.height);
     }
-
     @Override
-    public void onTextureDimensionsUpdate(int width, int height) {
+    public void onTextureDimensionsUpdate(int width, int height)
+    {
         tileSizeBase = width >> 4;
         tileSizeSquare = tileSizeBase * tileSizeBase;
         tileSizeMask = tileSizeBase - 1;
@@ -60,11 +55,13 @@ public class FMLTextureFX extends TextureFX implements ITextureFX {
         setup();
     }
 
-    protected void setup() {
+    protected void setup()
+    {
         imageData = new byte[tileSizeSquare << 2];
     }
 
-    public boolean unregister(RenderEngine engine, List<TextureFX> effects) {
+    public boolean unregister(RenderEngine engine, List<TextureFX> effects)
+    {
         effects.remove(this);
         return true;
     }

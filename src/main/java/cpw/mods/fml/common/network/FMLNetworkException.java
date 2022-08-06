@@ -14,12 +14,15 @@
 
 package cpw.mods.fml.common.network;
 
-public class FMLNetworkException extends RuntimeException {
+public class FMLNetworkException extends RuntimeException
+{
 
-    public FMLNetworkException(Exception e) {
+    public FMLNetworkException(Exception e)
+    {
         super(e);
     }
 
-    public FMLNetworkException() {
+    public FMLNetworkException()
+    {
     }
 }

@@ -25,57 +25,83 @@ import java.util.logging.Level;
  * Some reflection helper code.
  *
  * @author cpw
+ *
  */
-public class ObfuscationReflectionHelper {
+public class ObfuscationReflectionHelper
+{
     public static boolean obfuscation;
 
-    public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, int fieldIndex) {
-        try {
+    @SuppressWarnings("unchecked")
+    public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, int fieldIndex)
+    {
+        try
+        {
             return ReflectionHelper.getPrivateValue(classToAccess, instance, fieldIndex);
-        } catch (UnableToAccessFieldException e) {
+        }
+        catch (UnableToAccessFieldException e)
+        {
             FMLLog.log(Level.SEVERE, e, "There was a problem getting field index %d from %s", fieldIndex, classToAccess.getName());
             throw e;
         }
     }
 
-    public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, String... fieldNames) {
-        try {
+    @SuppressWarnings("unchecked")
+    public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, String... fieldNames)
+    {
+        try
+        {
             return ReflectionHelper.getPrivateValue(classToAccess, instance, fieldNames);
-        } catch (UnableToFindFieldException e) {
-            FMLLog.log(Level.SEVERE, e, "Unable to locate any field %s on type %s", Arrays.toString(fieldNames), classToAccess.getName());
+        }
+        catch (UnableToFindFieldException e)
+        {
+            FMLLog.log(Level.SEVERE,e,"Unable to locate any field %s on type %s", Arrays.toString(fieldNames), classToAccess.getName());
             throw e;
-        } catch (UnableToAccessFieldException e) {
+        }
+        catch (UnableToAccessFieldException e)
+        {
             FMLLog.log(Level.SEVERE, e, "Unable to access any field %s on type %s", Arrays.toString(fieldNames), classToAccess.getName());
             throw e;
         }
     }
 
     @Deprecated
-    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, int fieldIndex, E value) {
+    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, int fieldIndex, E value)
+    {
         setPrivateValue(classToAccess, instance, value, fieldIndex);
     }
 
-    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, int fieldIndex) {
-        try {
+    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, int fieldIndex)
+    {
+        try
+        {
             ReflectionHelper.setPrivateValue(classToAccess, instance, value, fieldIndex);
-        } catch (UnableToAccessFieldException e) {
+        }
+        catch (UnableToAccessFieldException e)
+        {
             FMLLog.log(Level.SEVERE, e, "There was a problem setting field index %d on type %s", fieldIndex, classToAccess.getName());
             throw e;
         }
     }
 
     @Deprecated
-    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, String fieldName, E value) {
+    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, String fieldName, E value)
+    {
         setPrivateValue(classToAccess, instance, value, fieldName);
     }
 
-    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, String... fieldNames) {
-        try {
+    public static <T, E> void setPrivateValue(Class<? super T> classToAccess, T instance, E value, String... fieldNames)
+    {
+        try
+        {
             ReflectionHelper.setPrivateValue(classToAccess, instance, value, fieldNames);
-        } catch (UnableToFindFieldException e) {
+        }
+        catch (UnableToFindFieldException e)
+        {
             FMLLog.log(Level.SEVERE, e, "Unable to locate any field %s on type %s", Arrays.toString(fieldNames), classToAccess.getName());
             throw e;
-        } catch (UnableToAccessFieldException e) {
+        }
+        catch (UnableToAccessFieldException e)
+        {
             FMLLog.log(Level.SEVERE, e, "Unable to set any field %s on type %s", Arrays.toString(fieldNames), classToAccess.getName());
             throw e;
         }
@@ -84,7 +110,8 @@ public class ObfuscationReflectionHelper {
     /**
      *
      */
-    public static void detectObfuscation(Class<?> clazz) {
+    public static void detectObfuscation(Class<?> clazz)
+    {
         obfuscation = !clazz.getSimpleName().equals("World");
     }
 

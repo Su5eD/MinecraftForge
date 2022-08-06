@@ -27,11 +27,14 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 /**
+ *
  * Marker interface for BaseMod
  *
  * @author cpw
+ *
  */
-public interface BaseModProxy {
+public interface BaseModProxy
+{
     void modsLoaded();
 
     void load();
@@ -43,34 +46,28 @@ public interface BaseModProxy {
     String getVersion();
 
     boolean doTickInGUI(TickType type, boolean end, Object... tickData);
-
     boolean doTickInGame(TickType type, boolean end, Object... tickData);
-
     void generateSurface(World w, Random random, int i, int j);
-
     void generateNether(World w, Random random, int i, int j);
-
     int addFuel(int itemId, int damage);
-
     void takenFromCrafting(EntityPlayer player, ItemStack item, IInventory craftMatrix);
-
     void takenFromFurnace(EntityPlayer player, ItemStack item);
 
-    void onClientLogout(INetworkManager manager);
+    public abstract void onClientLogout(INetworkManager manager);
 
-    void onClientLogin(EntityPlayer player);
+    public abstract void onClientLogin(EntityPlayer player);
 
-    void serverDisconnect();
+    public abstract void serverDisconnect();
 
-    void serverConnect(NetHandler handler);
+    public abstract void serverConnect(NetHandler handler);
 
-    void receiveCustomPacket(Packet250CustomPayload packet);
+    public abstract void receiveCustomPacket(Packet250CustomPayload packet);
 
-    void clientChat(String text);
+    public abstract void clientChat(String text);
 
-    void onItemPickup(EntityPlayer player, ItemStack item);
+    public abstract void onItemPickup(EntityPlayer player, ItemStack item);
 
-    void serverCustomPayload(NetServerHandler handler, Packet250CustomPayload packet);
+    public abstract void serverCustomPayload(NetServerHandler handler, Packet250CustomPayload packet);
 
-    void serverChat(NetServerHandler source, String message);
+    public abstract void serverChat(NetServerHandler source, String message);
 }

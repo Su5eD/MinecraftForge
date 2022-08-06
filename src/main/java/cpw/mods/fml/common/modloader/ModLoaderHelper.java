@@ -36,21 +36,26 @@ import java.util.Map;
 
 /**
  * @author cpw
+ *
  */
 @SuppressWarnings("deprecation")
-public class ModLoaderHelper {
+public class ModLoaderHelper
+{
     public static IModLoaderSidedHelper sidedHelper;
 
     private static Map<BaseModProxy, ModLoaderGuiHelper> guiHelpers = Maps.newHashMap();
     private static Map<Integer, ModLoaderGuiHelper> guiIDs = Maps.newHashMap();
 
-    public static void updateStandardTicks(BaseModProxy mod, boolean enable, boolean useClock) {
+    public static void updateStandardTicks(BaseModProxy mod, boolean enable, boolean useClock)
+    {
         ModLoaderModContainer mlmc = (ModLoaderModContainer) Loader.instance().getReversedModObjectList().get(mod);
-        if (mlmc == null) {
+        if (mlmc==null)
+        {
             mlmc = (ModLoaderModContainer) Loader.instance().activeModContainer();
         }
-        if (mlmc == null) {
-            FMLLog.severe("Attempted to register ModLoader ticking for invalid BaseMod %s", mod);
+        if (mlmc == null)
+        {
+            FMLLog.severe("Attempted to register ModLoader ticking for invalid BaseMod %s",mod);
             return;
         }
         BaseModTicker ticker = mlmc.getGameTickHandler();
@@ -71,13 +76,16 @@ public class ModLoaderHelper {
         }
     }
 
-    public static void updateGUITicks(BaseModProxy mod, boolean enable, boolean useClock) {
+    public static void updateGUITicks(BaseModProxy mod, boolean enable, boolean useClock)
+    {
         ModLoaderModContainer mlmc = (ModLoaderModContainer) Loader.instance().getReversedModObjectList().get(mod);
-        if (mlmc == null) {
+        if (mlmc==null)
+        {
             mlmc = (ModLoaderModContainer) Loader.instance().activeModContainer();
         }
-        if (mlmc == null) {
-            FMLLog.severe("Attempted to register ModLoader ticking for invalid BaseMod %s", mod);
+        if (mlmc == null)
+        {
+            FMLLog.severe("Attempted to register ModLoader ticking for invalid BaseMod %s",mod);
             return;
         }
         EnumSet<TickType> ticks = mlmc.getGUITickHandler().ticks();
@@ -97,76 +105,93 @@ public class ModLoaderHelper {
         }
     }
 
-    public static IPacketHandler buildPacketHandlerFor(BaseModProxy mod) {
+    public static IPacketHandler buildPacketHandlerFor(BaseModProxy mod)
+    {
         return new ModLoaderPacketHandler(mod);
     }
 
-    public static IWorldGenerator buildWorldGenHelper(BaseModProxy mod) {
+    public static IWorldGenerator buildWorldGenHelper(BaseModProxy mod)
+    {
         return new ModLoaderWorldGenerator(mod);
     }
 
-    public static IFuelHandler buildFuelHelper(BaseModProxy mod) {
+    public static IFuelHandler buildFuelHelper(BaseModProxy mod)
+    {
         return new ModLoaderFuelHelper(mod);
     }
 
-    public static ICraftingHandler buildCraftingHelper(BaseModProxy mod) {
+    public static ICraftingHandler buildCraftingHelper(BaseModProxy mod)
+    {
         return new ModLoaderCraftingHelper(mod);
     }
 
-    public static void finishModLoading(ModLoaderModContainer mc) {
-        if (sidedHelper != null) {
+    public static void finishModLoading(ModLoaderModContainer mc)
+    {
+        if (sidedHelper != null)
+        {
             sidedHelper.finishModLoading(mc);
         }
     }
 
-    public static IConnectionHandler buildConnectionHelper(BaseModProxy mod) {
+    public static IConnectionHandler buildConnectionHelper(BaseModProxy mod)
+    {
         return new ModLoaderConnectionHandler(mod);
     }
 
-    public static IPickupNotifier buildPickupHelper(BaseModProxy mod) {
+    public static IPickupNotifier buildPickupHelper(BaseModProxy mod)
+    {
         return new ModLoaderPickupNotifier(mod);
     }
 
-    public static void buildGuiHelper(BaseModProxy mod, int id) {
+    public static void buildGuiHelper(BaseModProxy mod, int id)
+    {
         ModLoaderGuiHelper handler = guiHelpers.get(mod);
-        if (handler == null) {
+        if (handler == null)
+        {
             handler = new ModLoaderGuiHelper(mod);
-            guiHelpers.put(mod, handler);
+            guiHelpers.put(mod,handler);
             NetworkRegistry.instance().registerGuiHandler(mod, handler);
         }
         handler.associateId(id);
         guiIDs.put(id, handler);
     }
 
-    public static void openGui(int id, EntityPlayer player, Container container, int x, int y, int z) {
+    public static void openGui(int id, EntityPlayer player, Container container, int x, int y, int z)
+    {
         ModLoaderGuiHelper helper = guiIDs.get(id);
         helper.injectContainerAndID(container, id);
         player.openGui(helper.getMod(), id, player.worldObj, x, y, z);
     }
 
-    public static Object getClientSideGui(BaseModProxy mod, EntityPlayer player, int ID, int x, int y, int z) {
-        if (sidedHelper != null) {
+    public static Object getClientSideGui(BaseModProxy mod, EntityPlayer player, int ID, int x, int y, int z)
+    {
+        if (sidedHelper != null)
+        {
             return sidedHelper.getClientGui(mod, player, ID, x, y, z);
         }
         return null;
     }
 
-    public static IDispenserHandler buildDispenseHelper(BaseModProxy mod) {
+    public static IDispenserHandler buildDispenseHelper(BaseModProxy mod)
+    {
         return new ModLoaderDispenseHelper(mod);
     }
 
 
     public static void buildEntityTracker(BaseModProxy mod, Class<? extends Entity> entityClass, int entityTypeId, int updateRange, int updateInterval,
-                                          boolean sendVelocityInfo) {
+            boolean sendVelocityInfo)
+    {
         EntityRegistration er = EntityRegistry.registerModLoaderEntity(mod, entityClass, entityTypeId, updateRange, updateInterval, sendVelocityInfo);
         er.setCustomSpawning(new ModLoaderEntitySpawnCallback(mod, er), EntityDragon.class.isAssignableFrom(entityClass) || IAnimals.class.isAssignableFrom(entityClass));
     }
 
     private static ModLoaderVillageTradeHandler[] tradeHelpers = new ModLoaderVillageTradeHandler[6];
 
-    public static void registerTrade(int profession, TradeEntry entry) {
+    public static void registerTrade(int profession, TradeEntry entry)
+    {
         assert profession < tradeHelpers.length : "The profession is out of bounds";
-        if (tradeHelpers[profession] == null) {
+        if (tradeHelpers[profession] == null)
+        {
             tradeHelpers[profession] = new ModLoaderVillageTradeHandler();
             VillagerRegistry.instance().registerVillageTradeHandler(profession, tradeHelpers[profession]);
         }
@@ -174,14 +199,17 @@ public class ModLoaderHelper {
         tradeHelpers[profession].addTrade(entry);
     }
 
-    public static void addCommand(ICommand command) {
+    public static void addCommand(ICommand command)
+    {
         ModLoaderModContainer mlmc = (ModLoaderModContainer) Loader.instance().activeModContainer();
-        if (mlmc != null) {
+        if (mlmc!=null)
+        {
             mlmc.addServerCommand(command);
         }
     }
 
-    public static IChatListener buildChatListener(BaseModProxy mod) {
+    public static IChatListener buildChatListener(BaseModProxy mod)
+    {
         return new ModLoaderChatListener(mod);
     }
 }

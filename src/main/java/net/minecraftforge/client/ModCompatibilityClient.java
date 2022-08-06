@@ -10,8 +10,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet100OpenWindow;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.repack.paulscode.sound.codecs.CodecIBXM;
 import paulscode.sound.SoundSystemConfig;
-import paulscode.sound.codecs.CodecIBXM;
 
 import java.io.File;
 import java.io.IOException;

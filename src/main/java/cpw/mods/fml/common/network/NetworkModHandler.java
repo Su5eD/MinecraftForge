@@ -30,7 +30,8 @@ import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class NetworkModHandler {
+public class NetworkModHandler
+{
     private static Object connectionHandlerDefaultValue;
     private static Object packetHandlerDefaultValue;
     private static Object clientHandlerDefaultValue;
@@ -49,48 +50,63 @@ public class NetworkModHandler {
     private VersionRange acceptableRange;
     private ITinyPacketHandler tinyPacketHandler;
 
-    public NetworkModHandler(ModContainer container, NetworkMod modAnnotation) {
+    public NetworkModHandler(ModContainer container, NetworkMod modAnnotation)
+    {
         this.container = container;
         this.mod = modAnnotation;
         this.localId = assignedIds++;
         this.networkId = this.localId;
         // Skip over the map object because it has special network id meaning
-        if (Item.map.itemID == assignedIds) {
+        if (Item.map.itemID == assignedIds)
+        {
             assignedIds++;
         }
     }
-
-    public NetworkModHandler(ModContainer container, Class<?> networkModClass, ASMDataTable table) {
+    public NetworkModHandler(ModContainer container, Class<?> networkModClass, ASMDataTable table)
+    {
         this(container, networkModClass.getAnnotation(NetworkMod.class));
-        if (this.mod == null) {
+        if (this.mod == null)
+        {
             return;
         }
 
         Set<ASMData> versionCheckHandlers = table.getAnnotationsFor(container).get(NetworkMod.VersionCheckHandler.class.getName());
         String versionCheckHandlerMethod = null;
-        for (ASMData vch : versionCheckHandlers) {
-            if (vch.getClassName().equals(networkModClass.getName())) {
+        for (ASMData vch : versionCheckHandlers)
+        {
+            if (vch.getClassName().equals(networkModClass.getName()))
+            {
                 versionCheckHandlerMethod = vch.getObjectName();
                 break;
             }
         }
-        if (versionCheckHandlerMethod != null) {
-            try {
+        if (versionCheckHandlerMethod != null)
+        {
+            try
+            {
                 Method checkHandlerMethod = networkModClass.getDeclaredMethod(versionCheckHandlerMethod, String.class);
-                if (checkHandlerMethod.isAnnotationPresent(NetworkMod.VersionCheckHandler.class)) {
+                if (checkHandlerMethod.isAnnotationPresent(NetworkMod.VersionCheckHandler.class))
+                {
                     this.checkHandler = checkHandlerMethod;
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 FMLLog.log(Level.WARNING, e, "The declared version check handler method %s on network mod id %s is not accessible", versionCheckHandlerMethod, container.getModId());
             }
         }
 
-        if (this.checkHandler == null) {
+        if (this.checkHandler == null)
+        {
             String versionBounds = mod.versionBounds();
-            if (!Strings.isNullOrEmpty(versionBounds)) {
-                try {
+            if (!Strings.isNullOrEmpty(versionBounds))
+            {
+                try
+                {
                     this.acceptableRange = VersionRange.createFromVersionSpec(versionBounds);
-                } catch (InvalidVersionSpecificationException e) {
+                }
+                catch (InvalidVersionSpecificationException e)
+                {
                     FMLLog.log(Level.WARNING, e, "Invalid bounded range %s specified for network mod id %s", versionBounds, container.getModId());
                 }
             }
@@ -98,27 +114,37 @@ public class NetworkModHandler {
 
         FMLLog.finest("Testing mod %s to verify it accepts its own version in a remote connection", container.getModId());
         boolean acceptsSelf = acceptVersion(container.getVersion());
-        if (!acceptsSelf) {
+        if (!acceptsSelf)
+        {
             FMLLog.severe("The mod %s appears to reject its own version number (%s) in its version handling. This is likely a severe bug in the mod!", container.getModId(), container.getVersion());
-        } else {
+        }
+        else
+        {
             FMLLog.finest("The mod %s accepts its own version (%s)", container.getModId(), container.getVersion());
         }
 
         tryCreatingPacketHandler(container, mod.packetHandler(), mod.channels(), null);
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            if (mod.clientPacketHandlerSpec() != getClientHandlerSpecDefaultValue()) {
+        if (FMLCommonHandler.instance().getSide().isClient())
+        {
+            if (mod.clientPacketHandlerSpec() != getClientHandlerSpecDefaultValue())
+            {
                 tryCreatingPacketHandler(container, mod.clientPacketHandlerSpec().packetHandler(), mod.clientPacketHandlerSpec().channels(), Side.CLIENT);
             }
         }
-        if (mod.serverPacketHandlerSpec() != getServerHandlerSpecDefaultValue()) {
+        if (mod.serverPacketHandlerSpec() != getServerHandlerSpecDefaultValue())
+        {
             tryCreatingPacketHandler(container, mod.serverPacketHandlerSpec().packetHandler(), mod.serverPacketHandlerSpec().channels(), Side.SERVER);
         }
 
-        if (mod.connectionHandler() != getConnectionHandlerDefaultValue()) {
+        if (mod.connectionHandler() != getConnectionHandlerDefaultValue())
+        {
             IConnectionHandler instance;
-            try {
+            try
+            {
                 instance = mod.connectionHandler().newInstance();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 FMLLog.log(Level.SEVERE, e, "Unable to create connection handler instance %s", mod.connectionHandler().getName());
                 throw new FMLNetworkException(e);
             }
@@ -126,54 +152,72 @@ public class NetworkModHandler {
             NetworkRegistry.instance().registerConnectionHandler(instance);
         }
 
-        if (mod.tinyPacketHandler() != getTinyPacketHandlerDefaultValue()) {
-            try {
+        if (mod.tinyPacketHandler()!=getTinyPacketHandlerDefaultValue())
+        {
+            try
+            {
                 tinyPacketHandler = mod.tinyPacketHandler().newInstance();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 FMLLog.log(Level.SEVERE, e, "Unable to create tiny packet handler instance %s", mod.tinyPacketHandler().getName());
                 throw new FMLNetworkException(e);
             }
         }
     }
-
     /**
      * @param container
      */
-    private void tryCreatingPacketHandler(ModContainer container, Class<? extends IPacketHandler> clazz, String[] channels, Side side) {
-        if (side != null && side.isClient() && !FMLCommonHandler.instance().getSide().isClient()) {
+    private void tryCreatingPacketHandler(ModContainer container, Class<? extends IPacketHandler> clazz, String[] channels, Side side)
+    {
+        if (side!=null && side.isClient() && ! FMLCommonHandler.instance().getSide().isClient())
+        {
             return;
         }
-        if (clazz != getPacketHandlerDefaultValue()) {
-            if (channels.length == 0) {
+        if (clazz!=getPacketHandlerDefaultValue())
+        {
+            if (channels.length==0)
+            {
                 FMLLog.log(Level.WARNING, "The mod id %s attempted to register a packet handler without specifying channels for it", container.getModId());
-            } else {
+            }
+            else
+            {
                 IPacketHandler instance;
-                try {
+                try
+                {
                     instance = clazz.newInstance();
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     FMLLog.log(Level.SEVERE, e, "Unable to create a packet handler instance %s for mod %s", clazz.getName(), container.getModId());
                     throw new FMLNetworkException(e);
                 }
 
-                for (String channel : channels) {
+                for (String channel : channels)
+                {
                     NetworkRegistry.instance().registerChannel(instance, channel, side);
                 }
             }
-        } else if (channels.length > 0) {
+        }
+        else if (channels.length > 0)
+        {
             FMLLog.warning("The mod id %s attempted to register channels without specifying a packet handler", container.getModId());
         }
     }
-
     /**
      * @return the default {@link NetworkMod#connectionHandler()} annotation value
      */
-    private Object getConnectionHandlerDefaultValue() {
+    private Object getConnectionHandlerDefaultValue()
+    {
         try {
-            if (connectionHandlerDefaultValue == null) {
+            if (connectionHandlerDefaultValue == null)
+            {
                 connectionHandlerDefaultValue = NetworkMod.class.getMethod("connectionHandler").getDefaultValue();
             }
             return connectionHandlerDefaultValue;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             throw new RuntimeException("Derp?", e);
         }
     }
@@ -181,13 +225,17 @@ public class NetworkModHandler {
     /**
      * @return the default {@link NetworkMod#packetHandler()} annotation value
      */
-    private Object getPacketHandlerDefaultValue() {
+    private Object getPacketHandlerDefaultValue()
+    {
         try {
-            if (packetHandlerDefaultValue == null) {
+            if (packetHandlerDefaultValue == null)
+            {
                 packetHandlerDefaultValue = NetworkMod.class.getMethod("packetHandler").getDefaultValue();
             }
             return packetHandlerDefaultValue;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             throw new RuntimeException("Derp?", e);
         }
     }
@@ -195,99 +243,123 @@ public class NetworkModHandler {
     /**
      * @return the default {@link NetworkMod#tinyPacketHandler()} annotation value
      */
-    private Object getTinyPacketHandlerDefaultValue() {
+    private Object getTinyPacketHandlerDefaultValue()
+    {
         try {
-            if (tinyPacketHandlerDefaultValue == null) {
+            if (tinyPacketHandlerDefaultValue == null)
+            {
                 tinyPacketHandlerDefaultValue = NetworkMod.class.getMethod("tinyPacketHandler").getDefaultValue();
             }
             return tinyPacketHandlerDefaultValue;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             throw new RuntimeException("Derp?", e);
         }
     }
-
     /**
      * @return the {@link NetworkMod#clientPacketHandlerSpec()} default annotation value
      */
-    private Object getClientHandlerSpecDefaultValue() {
+    private Object getClientHandlerSpecDefaultValue()
+    {
         try {
-            if (clientHandlerDefaultValue == null) {
+            if (clientHandlerDefaultValue == null)
+            {
                 clientHandlerDefaultValue = NetworkMod.class.getMethod("clientPacketHandlerSpec").getDefaultValue();
             }
             return clientHandlerDefaultValue;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             throw new RuntimeException("Derp?", e);
         }
     }
-
     /**
      * @return the default {@link NetworkMod#serverPacketHandlerSpec()} annotation value
      */
-    private Object getServerHandlerSpecDefaultValue() {
+    private Object getServerHandlerSpecDefaultValue()
+    {
         try {
-            if (serverHandlerDefaultValue == null) {
+            if (serverHandlerDefaultValue == null)
+            {
                 serverHandlerDefaultValue = NetworkMod.class.getMethod("serverPacketHandlerSpec").getDefaultValue();
             }
             return serverHandlerDefaultValue;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e)
+        {
             throw new RuntimeException("Derp?", e);
         }
     }
-
-    public boolean requiresClientSide() {
+    public boolean requiresClientSide()
+    {
         return mod.clientSideRequired();
     }
 
-    public boolean requiresServerSide() {
+    public boolean requiresServerSide()
+    {
         return mod.serverSideRequired();
     }
 
-    public boolean acceptVersion(String version) {
-        if (checkHandler != null) {
-            try {
-                return (Boolean) checkHandler.invoke(container.getMod(), version);
-            } catch (Exception e) {
+    public boolean acceptVersion(String version)
+    {
+        if (checkHandler != null)
+        {
+            try
+            {
+                return (Boolean)checkHandler.invoke(container.getMod(), version);
+            }
+            catch (Exception e)
+            {
                 FMLLog.log(Level.WARNING, e, "There was a problem invoking the checkhandler method %s for network mod id %s", checkHandler.getName(), container.getModId());
                 return false;
             }
         }
 
-        if (acceptableRange != null) {
+        if (acceptableRange!=null)
+        {
             return acceptableRange.containsVersion(new DefaultArtifactVersion(version));
         }
 
         return container.getVersion().equals(version);
     }
 
-    public int getLocalId() {
+    public int getLocalId()
+    {
         return localId;
     }
 
-    public int getNetworkId() {
+    public int getNetworkId()
+    {
         return networkId;
     }
 
-    public ModContainer getContainer() {
+    public ModContainer getContainer()
+    {
         return container;
     }
 
-    public NetworkMod getMod() {
+    public NetworkMod getMod()
+    {
         return mod;
     }
 
-    public boolean isNetworkMod() {
+    public boolean isNetworkMod()
+    {
         return mod != null;
     }
 
-    public void setNetworkId(int value) {
+    public void setNetworkId(int value)
+    {
         this.networkId = value;
     }
 
-    public boolean hasTinyPacketHandler() {
+    public boolean hasTinyPacketHandler()
+    {
         return tinyPacketHandler != null;
     }
-
-    public ITinyPacketHandler getTinyPacketHandler() {
+    public ITinyPacketHandler getTinyPacketHandler()
+    {
         return tinyPacketHandler;
     }
 }

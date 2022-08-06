@@ -24,44 +24,50 @@ import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
 import java.security.cert.Certificate;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
 /**
  * @author cpw
+ *
  */
-public class FMLDummyContainer extends DummyModContainer implements WorldAccessContainer {
-    public FMLDummyContainer() {
+public class FMLDummyContainer extends DummyModContainer implements WorldAccessContainer
+{
+    public FMLDummyContainer()
+    {
         super(new ModMetadata());
         ModMetadata meta = getMetadata();
-        meta.modId = "FML";
-        meta.name = "Forge Mod Loader";
-        meta.version = Loader.instance().getFMLVersionString();
-        meta.credits = "Made possible with help from many people";
-        meta.authorList = Collections.singletonList("cpw, LexManos");
-        meta.description = "The Forge Mod Loader provides the ability for systems to load mods " +
-                "from the file system. It also provides key capabilities for mods to be able " +
-                "to cooperate and provide a good modding environment. " +
-                "The mod loading system is compatible with ModLoader, all your ModLoader " +
-                "mods should work.";
-        meta.url = "https://github.com/MinecraftForge/FML/wiki";
-        meta.updateUrl = "https://github.com/MinecraftForge/FML/wiki";
-        meta.screenshots = new String[0];
-        meta.logoFile = "";
+        meta.modId="FML";
+        meta.name="Forge Mod Loader";
+        meta.version=Loader.instance().getFMLVersionString();
+        meta.credits="Made possible with help from many people";
+        meta.authorList=Arrays.asList("cpw, LexManos");
+        meta.description="The Forge Mod Loader provides the ability for systems to load mods " +
+                    "from the file system. It also provides key capabilities for mods to be able " +
+                    "to cooperate and provide a good modding environment. " +
+                    "The mod loading system is compatible with ModLoader, all your ModLoader " +
+                    "mods should work.";
+        meta.url="https://github.com/MinecraftForge/FML/wiki";
+        meta.updateUrl="https://github.com/MinecraftForge/FML/wiki";
+        meta.screenshots=new String[0];
+        meta.logoFile="";
     }
 
     @Override
-    public boolean registerBus(EventBus bus, LoadController controller) {
+    public boolean registerBus(EventBus bus, LoadController controller)
+    {
         return true;
     }
 
     @Override
-    public NBTTagCompound getDataForWriting(SaveHandler handler, WorldInfo info) {
+    public NBTTagCompound getDataForWriting(SaveHandler handler, WorldInfo info)
+    {
         NBTTagCompound fmlData = new NBTTagCompound();
         NBTTagList list = new NBTTagList();
-        for (ModContainer mc : Loader.instance().getActiveModList()) {
+        for (ModContainer mc : Loader.instance().getActiveModList())
+        {
             NBTTagCompound mod = new NBTTagCompound();
             mod.setString("ModId", mc.getModId());
             mod.setString("ModVersion", mc.getVersion());
@@ -75,35 +81,44 @@ public class FMLDummyContainer extends DummyModContainer implements WorldAccessC
     }
 
     @Override
-    public void readData(SaveHandler handler, WorldInfo info, Map<String, NBTBase> propertyMap, NBTTagCompound tag) {
-        if (tag.hasKey("ModList")) {
+    public void readData(SaveHandler handler, WorldInfo info, Map<String, NBTBase> propertyMap, NBTTagCompound tag)
+    {
+        if (tag.hasKey("ModList"))
+        {
             NBTTagList modList = tag.getTagList("ModList");
-            for (int i = 0; i < modList.tagCount(); i++) {
+            for (int i = 0; i < modList.tagCount(); i++)
+            {
                 NBTTagCompound mod = (NBTTagCompound) modList.tagAt(i);
                 String modId = mod.getString("ModId");
                 String modVersion = mod.getString("ModVersion");
                 ModContainer container = Loader.instance().getIndexedModList().get(modId);
-                if (container == null) {
+                if (container == null)
+                {
                     FMLLog.log("fml.ModTracker", Level.SEVERE, "This world was saved with mod %s which appears to be missing, things may not work well", modId);
                     continue;
                 }
-                if (!modVersion.equals(container.getVersion())) {
+                if (!modVersion.equals(container.getVersion()))
+                {
                     FMLLog.log("fml.ModTracker", Level.INFO, "This world was saved with mod %s version %s and it is now at version %s, things may not work well", modId, modVersion, container.getVersion());
                 }
             }
         }
-        if (tag.hasKey("ModItemData")) {
+        if (tag.hasKey("ModItemData"))
+        {
             NBTTagList modList = tag.getTagList("ModItemData");
             Set<ItemData> worldSaveItems = GameData.buildWorldItemData(modList);
             GameData.validateWorldSave(worldSaveItems);
-        } else {
+        }
+        else
+        {
             GameData.validateWorldSave(null);
         }
     }
 
 
     @Override
-    public Certificate getSigningCertificate() {
+    public Certificate getSigningCertificate()
+    {
         Certificate[] certificates = getClass().getProtectionDomain().getCodeSource().getCertificates();
         return certificates != null ? certificates[0] : null;
     }

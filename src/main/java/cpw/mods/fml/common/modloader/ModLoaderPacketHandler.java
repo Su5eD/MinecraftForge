@@ -20,18 +20,24 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 
-public class ModLoaderPacketHandler implements IPacketHandler {
+public class ModLoaderPacketHandler implements IPacketHandler
+{
     private BaseModProxy mod;
 
-    public ModLoaderPacketHandler(BaseModProxy mod) {
+    public ModLoaderPacketHandler(BaseModProxy mod)
+    {
         this.mod = mod;
     }
 
     @Override
-    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) {
-        if (player instanceof EntityPlayerMP) {
-            mod.serverCustomPayload(((EntityPlayerMP) player).playerNetServerHandler, packet);
-        } else {
+    public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+    {
+        if (player instanceof EntityPlayerMP)
+        {
+            mod.serverCustomPayload(((EntityPlayerMP)player).playerNetServerHandler, packet);
+        }
+        else
+        {
             ModLoaderHelper.sidedHelper.sendClientPacket(mod, packet);
         }
     }

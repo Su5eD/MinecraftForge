@@ -34,20 +34,24 @@ import java.util.Set;
 import static cpw.mods.fml.common.network.FMLPacket.Type.MOD_LIST_REQUEST;
 import static cpw.mods.fml.common.network.FMLPacket.Type.MOD_LIST_RESPONSE;
 
-public class ModListRequestPacket extends FMLPacket {
+public class ModListRequestPacket extends FMLPacket
+{
     private List<String> sentModList;
     private byte compatibilityLevel;
 
-    public ModListRequestPacket() {
+    public ModListRequestPacket()
+    {
         super(MOD_LIST_REQUEST);
     }
 
     @Override
-    public byte[] generatePacket(Object... data) {
+    public byte[] generatePacket(Object... data)
+    {
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
         Set<ModContainer> activeMods = FMLNetworkHandler.instance().getNetworkModList();
         dat.writeInt(activeMods.size());
-        for (ModContainer mc : activeMods) {
+        for (ModContainer mc : activeMods)
+        {
             dat.writeUTF(mc.getModId());
         }
         dat.writeByte(FMLNetworkHandler.getCompatibilityLevel());
@@ -55,36 +59,45 @@ public class ModListRequestPacket extends FMLPacket {
     }
 
     @Override
-    public FMLPacket consumePacket(byte[] data) {
+    public FMLPacket consumePacket(byte[] data)
+    {
         sentModList = Lists.newArrayList();
         ByteArrayDataInput in = ByteStreams.newDataInput(data);
         int listSize = in.readInt();
-        for (int i = 0; i < listSize; i++) {
+        for (int i = 0; i < listSize; i++)
+        {
             sentModList.add(in.readUTF());
         }
-        try {
+        try
+        {
             compatibilityLevel = in.readByte();
-        } catch (IllegalStateException e) {
+        }
+        catch (IllegalStateException e)
+        {
             FMLLog.fine("No compatibility byte found - the server is too old");
         }
         return this;
     }
 
     /**
+     *
      * This packet is executed on the client to evaluate the server's mod list against
      * the client
      *
-     * @see FMLPacket#execute(INetworkManager, FMLNetworkHandler, NetHandler, String)
+     * @see cpw.mods.fml.common.network.FMLPacket#execute(INetworkManager, FMLNetworkHandler, NetHandler, String)
      */
     @Override
-    public void execute(INetworkManager mgr, FMLNetworkHandler handler, NetHandler netHandler, String userName) {
+    public void execute(INetworkManager mgr, FMLNetworkHandler handler, NetHandler netHandler, String userName)
+    {
         List<String> missingMods = Lists.newArrayList();
-        Map<String, String> modVersions = Maps.newHashMap();
+        Map<String,String> modVersions = Maps.newHashMap();
         Map<String, ModContainer> indexedModList = Maps.newHashMap(Loader.instance().getIndexedModList());
 
-        for (String m : sentModList) {
+        for (String m : sentModList)
+        {
             ModContainer mc = indexedModList.get(m);
-            if (mc == null) {
+            if (mc == null)
+            {
                 missingMods.add(m);
                 continue;
             }
@@ -92,11 +105,15 @@ public class ModListRequestPacket extends FMLPacket {
             modVersions.put(m, mc.getVersion());
         }
 
-        if (indexedModList.size() > 0) {
-            for (Entry<String, ModContainer> e : indexedModList.entrySet()) {
-                if (e.getValue().isNetworkMod()) {
+        if (indexedModList.size()>0)
+        {
+            for (Entry<String, ModContainer> e : indexedModList.entrySet())
+            {
+                if (e.getValue().isNetworkMod())
+                {
                     NetworkModHandler missingHandler = FMLNetworkHandler.instance().findNetworkModHandler(e.getValue());
-                    if (missingHandler.requiresServerSide()) {
+                    if (missingHandler.requiresServerSide())
+                    {
                         // TODO : what should we do if a mod is marked "serverSideRequired"? Stop the connection?
                         FMLLog.warning("The mod %s was not found on the server you connected to, but requested that the server side be present", e.getKey());
                     }

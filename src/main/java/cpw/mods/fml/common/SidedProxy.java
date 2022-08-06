@@ -21,10 +21,12 @@ import java.lang.annotation.Target;
 
 /**
  * @author cpw
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface SidedProxy {
+public @interface SidedProxy
+{
     /**
      * The name of the client side class to load and populate
      */

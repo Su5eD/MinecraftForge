@@ -24,13 +24,15 @@ import net.minecraft.src.BaseMod;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
-public class ASMModParser {
+public class ASMModParser
+{
 
     private Type asmType;
     private int classVersion;
@@ -38,42 +40,52 @@ public class ASMModParser {
     private LinkedList<ModAnnotation> annotations = Lists.newLinkedList();
     private String baseModProperties;
 
-    enum AnnotationType {
-        CLASS, FIELD, METHOD, SUBTYPE
+    static enum AnnotationType
+    {
+        CLASS, FIELD, METHOD, SUBTYPE;
     }
 
-    public ASMModParser(InputStream stream) {
-        try {
+    public ASMModParser(InputStream stream) throws IOException
+    {
+        try
+        {
             ClassReader reader = new ClassReader(stream);
             reader.accept(new ModClassVisitor(this), 0);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             FMLLog.log(Level.SEVERE, ex, "Unable to read a class file correctly");
             throw new LoaderException(ex);
         }
     }
 
-    public void beginNewTypeName(String typeQName, int classVersion, String superClassQName) {
+    public void beginNewTypeName(String typeQName, int classVersion, String superClassQName)
+    {
         this.asmType = Type.getObjectType(typeQName);
         this.classVersion = classVersion;
         this.asmSuperType = Type.getObjectType(superClassQName);
     }
 
-    public void startClassAnnotation(String annotationName) {
+    public void startClassAnnotation(String annotationName)
+    {
         ModAnnotation ann = new ModAnnotation(AnnotationType.CLASS, Type.getType(annotationName), this.asmType.getClassName());
         annotations.addFirst(ann);
     }
 
-    public void addAnnotationProperty(String key, Object value) {
+    public void addAnnotationProperty(String key, Object value)
+    {
         annotations.getFirst().addProperty(key, value);
     }
 
-    public void startFieldAnnotation(String fieldName, String annotationName) {
+    public void startFieldAnnotation(String fieldName, String annotationName)
+    {
         ModAnnotation ann = new ModAnnotation(AnnotationType.FIELD, Type.getType(annotationName), fieldName);
         annotations.addFirst(ann);
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return Objects.toStringHelper("ASMAnnotationDiscoverer")
                 .add("className", asmType.getClassName())
                 .add("classVersion", classVersion)
@@ -84,23 +96,28 @@ public class ASMModParser {
                 .toString();
     }
 
-    public Type getASMType() {
+    public Type getASMType()
+    {
         return asmType;
     }
 
-    public int getClassVersion() {
+    public int getClassVersion()
+    {
         return classVersion;
     }
 
-    public Type getASMSuperType() {
+    public Type getASMSuperType()
+    {
         return asmSuperType;
     }
 
-    public LinkedList<ModAnnotation> getAnnotations() {
+    public LinkedList<ModAnnotation> getAnnotations()
+    {
         return annotations;
     }
 
-    public void validate() {
+    public void validate()
+    {
 //        if (classVersion > 50.0)
 //        {
 //
@@ -108,44 +125,54 @@ public class ASMModParser {
 //        }
     }
 
-    public boolean isBaseMod(List<String> rememberedTypes) {
+    public boolean isBaseMod(List<String> rememberedTypes)
+    {
         return getASMSuperType().equals(Type.getType(BaseMod.class)) || rememberedTypes.contains(getASMSuperType().getClassName());
     }
 
-    public void setBaseModProperties(String foundProperties) {
+    public void setBaseModProperties(String foundProperties)
+    {
         this.baseModProperties = foundProperties;
     }
 
-    public String getBaseModProperties() {
+    public String getBaseModProperties()
+    {
         return this.baseModProperties;
     }
 
-    public void sendToTable(ASMDataTable table, ModCandidate candidate) {
-        for (ModAnnotation ma : annotations) {
+    public void sendToTable(ASMDataTable table, ModCandidate candidate)
+    {
+        for (ModAnnotation ma : annotations)
+        {
             table.addASMData(candidate, ma.asmType.getClassName(), this.asmType.getClassName(), ma.member, ma.values);
         }
     }
 
-    public void addAnnotationArray(String name) {
+    public void addAnnotationArray(String name)
+    {
         annotations.getFirst().addArray(name);
     }
 
-    public void addAnnotationEnumProperty(String name, String desc, String value) {
+    public void addAnnotationEnumProperty(String name, String desc, String value)
+    {
         annotations.getFirst().addEnumProperty(name, desc, value);
 
     }
 
-    public void endArray() {
+    public void endArray()
+    {
         annotations.getFirst().endArray();
 
     }
 
-    public void addSubAnnotation(String name, String desc) {
+    public void addSubAnnotation(String name, String desc)
+    {
         ModAnnotation ma = annotations.getFirst();
         annotations.addFirst(ma.addChildAnnotation(name, desc));
     }
 
-    public void endSubAnnotation() {
+    public void endSubAnnotation()
+    {
         // take the child and stick it at the end
         ModAnnotation child = annotations.removeFirst();
         annotations.addLast(child);

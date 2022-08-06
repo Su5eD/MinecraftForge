@@ -20,10 +20,11 @@ import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.server.MinecraftServer;
 
-public interface IConnectionHandler {
+public interface IConnectionHandler
+{
     /**
      * Called when a player logs into the server
-     * SERVER SIDE
+     *  SERVER SIDE
      *
      * @param player
      * @param netHandler
@@ -35,7 +36,7 @@ public interface IConnectionHandler {
      * If you don't want the connection to continue, return a non-empty string here
      * If you do, you can do other stuff here- note no FML negotiation has occured yet
      * though the client is verified as having FML installed
-     * <p>
+     *
      * SERVER SIDE
      *
      * @param netHandler
@@ -52,10 +53,10 @@ public interface IConnectionHandler {
      * @param port
      */
     void connectionOpened(NetHandler netClientHandler, String server, int port, INetworkManager manager);
-
     /**
+     *
      * Fired when a local connection is opened
-     * <p>
+     *
      * CLIENT SIDE
      *
      * @param netClientHandler
@@ -65,7 +66,7 @@ public interface IConnectionHandler {
 
     /**
      * Fired when a connection closes
-     * <p>
+     *
      * ALL SIDES
      *
      * @param manager
@@ -74,9 +75,8 @@ public interface IConnectionHandler {
 
     /**
      * Fired when the client established the connection to the server
-     * <p>
-     * CLIENT SIDE
      *
+     * CLIENT SIDE
      * @param clientHandler
      * @param manager
      * @param login
