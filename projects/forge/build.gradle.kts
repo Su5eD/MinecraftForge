@@ -80,6 +80,7 @@ val installerTools = "net.minecraftforge:installertools:1.1.11"
 
 patcher {
     excs.from(rootProject.file("src/main/resources/forge.exc"))
+    extraMapping(rootProject.file("src/main/resources/modloader.tsrg"))
     parent.set(project(":clean"))
     patches.set(rootProject.file("patches/minecraft"))
     patchedSrc.set(file("src/main/java"))
@@ -293,7 +294,7 @@ tasks {
             add("If you MUST automate this, please consider supporting the project through https://www.patreon.com/LexManos/")
         }
 
-        ext {
+        extra.apply {
             set("comment", comment)
             set("id", id)
         }
