@@ -93,6 +93,7 @@ patcher {
     runs { 
         "forge_client" {
             taskName = "forge_client"
+            ideaModule = "${rootProject.name}.${project.name}.main"
             workingDirectory = project.file("run").absolutePath
             main = "net.minecraftforge.legacydev.MainClient"
 
@@ -114,6 +115,7 @@ patcher {
 
         "forge_server" {
             taskName = "forge_server"
+            ideaModule = "${rootProject.name}.${project.name}.main"
             main = "net.minecraftforge.legacydev.MainServer"
 
             environment(

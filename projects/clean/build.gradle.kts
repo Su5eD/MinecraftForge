@@ -38,6 +38,7 @@ patcher {
     runs {
         "clean_client" {
             taskName = "clean_client"
+            ideaModule = "${rootProject.name}.${project.name}.main"
 
             main = "mcp.client.Start"
             workingDirectory = project.file("run").absolutePath
@@ -50,6 +51,7 @@ patcher {
 
         "clean_server" {
             taskName = "clean_server"
+            ideaModule = "${rootProject.name}.${project.name}.main"
 
             main = "net.minecraft.server.MinecraftServer"
             workingDirectory = project.file("run").absolutePath
