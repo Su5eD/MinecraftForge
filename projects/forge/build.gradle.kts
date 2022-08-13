@@ -611,7 +611,7 @@ tasks {
         }
         libraries.add("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
         libraries.add("org.bouncycastle:bcprov-jdk15on:1.47")
-        sourceFilters.set(listOf("^(?!argo|org/bouncycastle).*"))
+        universalFilters.add("^(?!argo|org/bouncycastle).*")
         javaRecompileTarget.set(7)
 
         runs {
