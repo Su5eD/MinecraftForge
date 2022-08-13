@@ -10,7 +10,6 @@ buildscript {
     dependencies {
         classpath("org.eclipse.jgit:org.eclipse.jgit:5.10.+")
         classpath("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC")
-        classpath("com.lectra:koson:1.2.4")
     }
 }
 
@@ -75,6 +74,10 @@ subprojects {
     }
 
     repositories {
+        maven {
+            name = "Su5eD"
+            url = uri(su5edMaven)
+        }
         exclusiveContent {
             forRepository {
                 maven {

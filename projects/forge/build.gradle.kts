@@ -174,18 +174,6 @@ configurations {
     }
 }
 
-repositories {
-    maven {
-        name = "Su5eD"
-        url = uri(su5edMaven)
-        content {
-            includeGroup("de.oceanlabs.mcp")
-            includeModule("net.minecraftforge", "legacydev")
-        }
-    }
-    mavenCentral()
-}
-
 dependencies {
     installer("org.ow2.asm:asm-all:4.1")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
