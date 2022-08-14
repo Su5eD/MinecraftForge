@@ -19,7 +19,6 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
-import java.util.function.Predicate
 
 plugins {
     `java-library`
@@ -81,6 +80,7 @@ val installerTools = "net.minecraftforge:installertools:1.1.11"
 patcher {
     excs.from(rootProject.file("src/main/resources/forge.exc"))
     extraMapping(rootProject.file("src/main/resources/modloader.tsrg"))
+    excludeReobfPackages("argo/", "org/bouncycastle/")
     parent.set(project(":clean"))
     patches.set(rootProject.file("patches/minecraft"))
     patchedSrc.set(file("src/main/java"))
@@ -180,11 +180,10 @@ dependencies {
     installer("org.ow2.asm:asm-all:4.1")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
     installer("com.google.guava:guava:12.0.1")
-    installer("com.google.code.gson:gson:2.3")
     installer("net.sourceforge.argo:argo:2.25")
+    installer("org.bouncycastle:bcprov-jdk15on:1.47")
 
     implementation("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.47")
 }
 
 val jsonFormat = Json { prettyPrint = true }
@@ -610,8 +609,6 @@ tasks {
             libraries.add(lib["name"]!!.jsonPrimitive.content)
         }
         libraries.add("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
-        libraries.add("org.bouncycastle:bcprov-jdk15on:1.47")
-        universalFilters.add("^(?!argo|org/bouncycastle).*")
         javaRecompileTarget.set(7)
 
         runs {
@@ -671,12 +668,6 @@ tasks {
                     FileUtils.deleteDirectory(path.toFile())
                 }
         }
-    }
-
-    extractMapped {
-        filter.set(Predicate { zipEntry ->
-            zipEntry.name.startsWith("net/minecraft/") || zipEntry.name.startsWith("mcp/")
-        })
     }
     
     if (project.hasProperty("UPDATE_MAPPINGS")) {
