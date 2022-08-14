@@ -79,7 +79,6 @@ val installerTools = "net.minecraftforge:installertools:1.1.11"
 
 patcher {
     excs.from(rootProject.file("src/main/resources/forge.exc"))
-    extraMapping(rootProject.file("src/main/resources/modloader.tsrg"))
     excludeReobfPackages("argo/", "org/bouncycastle/")
     parent.set(project(":clean"))
     patches.set(rootProject.file("patches/minecraft"))
@@ -657,6 +656,7 @@ tasks {
     }
 
     genPatches {
+        lineEnding.set("\n")
         doLast {
             val outputPath = output.get().asFile.toPath()
             Files.walk(outputPath)
