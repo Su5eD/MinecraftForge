@@ -803,14 +803,12 @@ publishing {
             }
         }
 
-        if (project.hasProperty("artifactoryPassword")) {
-            maven {
-                name = "artifactory"
-                url = uri(su5edMaven)
-                credentials {
-                    username = project.properties["artifactoryUser"] as String
-                    password = project.properties["artifactoryPassword"] as String
-                }
+        maven {
+            name = "Su5eD"
+            url = uri(su5edMaven)
+            credentials {
+                username = System.getenv("MAVEN_USER") ?: "not"
+                password = System.getenv("MAVEN_PASSWORD") ?: "set"
             }
         }
     }

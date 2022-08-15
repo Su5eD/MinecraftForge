@@ -98,7 +98,7 @@ tasks.register("setup") {
 }
 
 fun gitInfo(): Map<String, String> {
-    val legacyBuild = 543 // Base build number to not conflict with existing build numbers
+    val legacyBuild = 580 // Base build number to not conflict with existing build numbers
     val git: Git
     try {
         git = Git.open(rootProject.file("."))
