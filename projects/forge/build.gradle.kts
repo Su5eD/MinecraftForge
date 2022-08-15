@@ -6,9 +6,9 @@ import net.minecraftforge.forge.tasks.CheckSAS
 import net.minecraftforge.forge.tasks.DownloadLibraries
 import net.minecraftforge.gradle.common.tasks.*
 import net.minecraftforge.gradle.common.util.Artifact
-import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import net.minecraftforge.gradle.mcp.MCPExtension
 import net.minecraftforge.gradle.patcher.tasks.GenerateBinPatches
+import net.minecraftforge.gradle.userdev.tasks.RenameJar
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
@@ -74,12 +74,16 @@ eclipse.classpath.file.whenMerged {
 val specVersion = "23.5" // This is overwritten by git tag, but here so dev time doesnt explode
 val mcpArtifact: Artifact = project(":mcp").extensions.getByType(MCPExtension::class).config.get()
 val versionJson = project(":mcp").file("build/mcp/downloadJson/version.json")
-val binpatchTool = "net.minecraftforge:binarypatcher:1.1.1:fatjar"
+val binpatchTool = "net.minecraftforge:binarypatcher:1.1.1"
 val installerTools = "net.minecraftforge:installertools:1.1.11"
+val jarSplitter = "net.minecraftforge:jarsplitter:1.1.2"
+val specialSource = "net.md-5:SpecialSource:1.11.1-fixed"
+val jarFilterTool = "dev.su5ed:JarFilter:1.0.0"
+val protectedPackages = listOf("argo/", "org/bouncycastle/")
 
 patcher {
     excs.from(rootProject.file("src/main/resources/forge.exc"))
-    excludeReobfPackages("argo/", "org/bouncycastle/")
+    excludedReobfPackages.addAll(protectedPackages)
     parent.set(project(":clean"))
     patches.set(rootProject.file("patches/minecraft"))
     patchedSrc.set(file("src/main/java"))
@@ -191,20 +195,46 @@ tasks {
     applyPatches {
         maxFuzzOffset = 3
     }
-
-    sequenceOf("client", "server", "joined").forEach { side ->
-        val name = side.capitalize()
-        val gen = named<GenerateBinPatches>("gen${name}BinPatches")
-        register<ApplyBinPatches>("apply${name}BinPatches") {
+    
+    sequenceOf("Client", "Server", "Joined").forEach { side ->
+        val downloadSlim = if (side == "Joined") {
+            register<DownloadMavenArtifact>("downloadJoined") {
+                setArtifact("net.minecraft:joined:$minecraftVersion")
+            }
+        } else {
+            listOf("slim", "extra").map { type ->
+                register<DownloadMavenArtifact>("download${side}${type.capitalize()}") {
+                    setArtifact("net.minecraft:${side.toLowerCase()}:$minecraftVersion:$type")
+                }
+            }.first()
+        }
+        
+        val extractSrg = project(":clean").tasks.named<ExtractMCPData>("extractSrg")
+        val createSRG = register<RenameJar>("create${side}SRG") {
+            dependsOn(downloadSlim, extractSrg)
+            
+            tool.set("$specialSource:shaded")
+            args.set(listOf(
+                "--in-jar", "{input}",
+                "--out-jar", "{output}",
+                "--srg-in", "{mappings}",
+                "--remap-only", protectedPackages.joinToString(separator = ",")
+            ))
+            input.set(downloadSlim.flatMap(DownloadMavenArtifact::getOutput))
+            mappings.set(extractSrg.flatMap(ExtractMCPData::getOutput))
+            output.set(file("build/$name/output.jar"))
+        }
+        
+        val gen = named<GenerateBinPatches>("gen${side}BinPatches")
+        gen.configure {
+            dependsOn(createSRG)
+            cleanJar.set(createSRG.flatMap(RenameJar::getOutput))
+        }
+        
+        register<ApplyBinPatches>("apply${side}BinPatches") {
             dependsOn(gen)
             clean.set(gen.flatMap(GenerateBinPatches::getCleanJar))
             patch.set(gen.flatMap(GenerateBinPatches::getOutput))
-        }
-
-        afterEvaluate {
-            gen.configure { 
-                cleanJar.set(MavenArtifactDownloader.generate(project, "net.minecraft:$side:$minecraftVersion", true))
-            }
         }
     }
 
@@ -252,7 +282,7 @@ tasks {
                 val artifactPath = lib.jsonObject["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")?.jsonPrimitive?.content
                 classpath.append("libraries/$artifactPath ")
             }
-            classpath.append("minecraft_server.$minecraftVersion.jar")
+            classpath.append("libraries/net/minecraft/server/$minecraftVersion-$mcpVersion/server-$minecraftVersion-$mcpVersion-extra.jar")
             manifests.forEach { (pkg, values) ->
                 if (pkg == "/") {
                     values += mutableMapOf(
@@ -346,17 +376,22 @@ tasks {
         val applyClientBinPatches = named<ApplyBinPatches>("applyClientBinPatches")
         val applyServerBinPatches = named<ApplyBinPatches>("applyServerBinPatches")
         val genClientBinPatches = named<GenerateBinPatches>("genClientBinPatches")
+        val downloadClientSlim = named<DownloadMavenArtifact>("downloadClientSlim")
+        val downloadServerSlim = named<DownloadMavenArtifact>("downloadServerSlim")
+        val downloadClientExtra = named<DownloadMavenArtifact>("downloadClientExtra")
+        val downloadServerExtra = named<DownloadMavenArtifact>("downloadServerExtra")
         
-        dependsOn(launcherJson, universalJar, applyClientBinPatches, applyServerBinPatches, genClientBinPatches)
+        dependsOn(launcherJson, universalJar, applyClientBinPatches, applyServerBinPatches, genClientBinPatches,
+            downloadClientSlim, downloadServerSlim, downloadClientExtra, downloadServerExtra)
 
         val universalJarFile = universalJar.get().archiveFile.get().asFile
         val output = file("build/install_profile.json")
-        val jarSplitter = "net.minecraftforge:jarsplitter:1.1.2"
-        val binPatcher = binpatchTool.substring(0, binpatchTool.length - 1 - binpatchTool.split(':')[3].length)
 
-        inputs.file(universalJarFile)
-        inputs.file(genClientBinPatches.flatMap(GenerateBinPatches::getToolJar))
-        inputs.files(launcherJson.map { it.outputs.files })
+        inputs.files(
+            universalJarFile,
+            genClientBinPatches.flatMap(GenerateBinPatches::getToolJar),
+            launcherJson.map { it.outputs.files }
+        )
         outputs.file(output)
 
         doLast {
@@ -411,11 +446,11 @@ tasks {
                     putJsonObject("MC_SLIM_SHA") {
                         put(
                             "client",
-                            "'${getByName<DownloadMavenArtifact>("downloadClientSlim").output.get().asFile.sha1()}'"
+                            "'${downloadClientSlim.get().output.get().asFile.sha1()}'"
                         )
                         put(
                             "server",
-                            "'${getByName<DownloadMavenArtifact>("downloadServerSlim").output.get().asFile.sha1()}'"
+                            "'${downloadServerSlim.get().output.get().asFile.sha1()}'"
                         )
                     }
                     putJsonObject("MC_EXTRA") {
@@ -425,12 +460,16 @@ tasks {
                     putJsonObject("MC_EXTRA_SHA") {
                         put(
                             "client",
-                            "'${getByName<DownloadMavenArtifact>("downloadClientExtra").output.get().asFile.sha1()}'"
+                            "'${downloadClientExtra.get().output.get().asFile.sha1()}'"
                         )
                         put(
                             "server",
-                            "'${getByName<DownloadMavenArtifact>("downloadServerExtra").output.get().asFile.sha1()}'"
+                            "'${downloadServerExtra.get().output.get().asFile.sha1()}'"
                         )
+                    }
+                    putJsonObject("MC_LIB_SRG") {
+                        put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:srg-all]")
+                        put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:srg-all]")
                     }
                     putJsonObject("MC_SRG") {
                         put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:srg]")
@@ -443,10 +482,6 @@ tasks {
                     putJsonObject("PATCHED_SHA") {
                         put("client", "'${applyClientBinPatches.get().output.get().asFile.sha1()}'")
                         put("server", "'${applyServerBinPatches.get().output.get().asFile.sha1()}'")
-                    }
-                    putJsonObject("MCP_VERSION") {
-                        put("client", "'${mcpVersion}'")
-                        put("server", "'${mcpVersion}'")
                     }
                 }
                 putJsonArray("processors") {
@@ -479,12 +514,35 @@ tasks {
                         }
                     }
                     addJsonObject {
-                        put("jar", binPatcher)
+                        put("jar", specialSource)
                         putJsonArray("classpath") {
-                            getClasspath(libs, binPatcher).forEach(::add)
+                            getClasspath(libs, specialSource).forEach(::add)
                         }
                         putJsonArray("args") {
-                            add("--clean"); add("{MC_SLIM}")
+                            add("--in-jar"); add("{MC_SLIM}")
+                            add("--out-jar"); add("{MC_LIB_SRG}")
+                            add("--srg-in"); add("{MAPPINGS}")
+                            add("--remap-only"); add(protectedPackages.joinToString(separator = ","))
+                        }
+                    }
+                    addJsonObject {
+                        put("jar", jarFilterTool)
+                        putJsonArray("classpath") {
+                            getClasspath(libs, jarFilterTool).forEach(::add)
+                        }
+                        putJsonArray("args") {
+                            add("--input"); add("{MC_LIB_SRG}")
+                            add("--output"); add("{MC_SRG}")
+                            add("--filter"); add(protectedPackages.joinToString(separator = ","))
+                        }
+                    }
+                    addJsonObject {
+                        put("jar", binpatchTool)
+                        putJsonArray("classpath") {
+                            getClasspath(libs, binpatchTool).forEach(::add)
+                        }
+                        putJsonArray("args") {
+                            add("--clean"); add("{MC_SRG}")
                             add("--output"); add("{PATCHED}")
                             add("--apply"); add("{BINPATCH}")
                         }
@@ -499,19 +557,6 @@ tasks {
             json["libraries"] = JsonArray(libs.values.sortedBy { it.jsonObject["name"]?.jsonPrimitive?.content })
 
             output.writeText(jsonFormat.encodeToString(json))
-        }
-    }
-
-    sequenceOf("client", "server").forEach { side ->
-        sequenceOf("slim", "extra").forEach { type ->
-            val name = "download${side.capitalize()}${type.capitalize()}"
-            val task = create<DownloadMavenArtifact>(name) {
-                setArtifact("net.minecraft:${side}:${minecraftVersion}:${type}")
-            }
-            installerJson.configure { 
-                dependsOn(name)
-                inputs.file(task.output)
-            }
         }
     }
 
