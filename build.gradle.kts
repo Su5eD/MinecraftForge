@@ -22,8 +22,8 @@ plugins {
 
 val minecraftVersion: String by extra("1.4.7")
 val mappingsChannel: String by extra("stable")
-val mcpVersion: String by extra("7.26")
-val mappingsVersion: String by extra("$mcpVersion-$minecraftVersion")
+val mcpVersion: String by extra("20220815.133714")
+val mappingsVersion: String by extra("7.26-$minecraftVersion")
 val postProcessor: Map<String, Any> by extra(
     mapOf(
         "tool" to "net.minecraftforge:mcpcleanup:2.3.2:fatjar",

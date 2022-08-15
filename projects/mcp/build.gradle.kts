@@ -3,8 +3,9 @@ plugins {
 }
 
 val minecraftVersion: String by rootProject.extra
+val mcpVersion: String by rootProject.extra
 
 mcp {
-    setConfig(minecraftVersion)
+    setConfig("$minecraftVersion-$mcpVersion")
     pipeline.set("joined")
 }

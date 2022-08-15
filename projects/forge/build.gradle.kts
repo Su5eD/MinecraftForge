@@ -199,12 +199,12 @@ tasks {
     sequenceOf("Client", "Server", "Joined").forEach { side ->
         val downloadSlim = if (side == "Joined") {
             register<DownloadMavenArtifact>("downloadJoined") {
-                setArtifact("net.minecraft:joined:$minecraftVersion")
+                setArtifact("net.minecraft:joined:$minecraftVersion-$mcpVersion")
             }
         } else {
             listOf("slim", "extra").map { type ->
                 register<DownloadMavenArtifact>("download${side}${type.capitalize()}") {
-                    setArtifact("net.minecraft:${side.toLowerCase()}:$minecraftVersion:$type")
+                    setArtifact("net.minecraft:${side.toLowerCase()}:$minecraftVersion-$mcpVersion-stable:$type")
                 }
             }.first()
         }
@@ -215,6 +215,7 @@ tasks {
             
             tool.set("$specialSource:shaded")
             args.set(listOf(
+                "--stable",
                 "--in-jar", "{input}",
                 "--out-jar", "{output}",
                 "--srg-in", "{mappings}",
@@ -282,7 +283,7 @@ tasks {
                 val artifactPath = lib.jsonObject["downloads"]?.jsonObject?.get("artifact")?.jsonObject?.get("path")?.jsonPrimitive?.content
                 classpath.append("libraries/$artifactPath ")
             }
-            classpath.append("libraries/net/minecraft/server/$minecraftVersion-$mcpVersion/server-$minecraftVersion-$mcpVersion-extra.jar")
+            classpath.append("libraries/net/minecraft/server/$minecraftVersion-$mcpVersion/server-$minecraftVersion-$mcpVersion-extra-stable.jar")
             manifests.forEach { (pkg, values) ->
                 if (pkg == "/") {
                     values += mutableMapOf(
@@ -440,32 +441,20 @@ tasks {
                         put("server", "/data/server.lzma")
                     }
                     putJsonObject("MC_SLIM") {
-                        put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:slim]")
-                        put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:slim]")
+                        put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:slim-stable]")
+                        put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:slim-stable]")
                     }
                     putJsonObject("MC_SLIM_SHA") {
-                        put(
-                            "client",
-                            "'${downloadClientSlim.get().output.get().asFile.sha1()}'"
-                        )
-                        put(
-                            "server",
-                            "'${downloadServerSlim.get().output.get().asFile.sha1()}'"
-                        )
+                        put("client", "'${downloadClientSlim.get().output.get().asFile.sha1()}'")
+                        put("server", "'${downloadServerSlim.get().output.get().asFile.sha1()}'")
                     }
                     putJsonObject("MC_EXTRA") {
-                        put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:extra]")
-                        put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:extra]")
+                        put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:extra-stable]")
+                        put("server", "[net.minecraft:server:${minecraftVersion}-${mcpVersion}:extra-stable]")
                     }
                     putJsonObject("MC_EXTRA_SHA") {
-                        put(
-                            "client",
-                            "'${downloadClientExtra.get().output.get().asFile.sha1()}'"
-                        )
-                        put(
-                            "server",
-                            "'${downloadServerExtra.get().output.get().asFile.sha1()}'"
-                        )
+                        put("client", "'${downloadClientExtra.get().output.get().asFile.sha1()}'")
+                        put("server", "'${downloadServerExtra.get().output.get().asFile.sha1()}'")
                     }
                     putJsonObject("MC_LIB_SRG") {
                         put("client", "[net.minecraft:client:${minecraftVersion}-${mcpVersion}:srg-all]")
