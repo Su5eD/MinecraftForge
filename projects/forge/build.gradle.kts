@@ -180,7 +180,7 @@ configurations {
 }
 
 dependencies {
-    installer("org.ow2.asm:asm-all:4.1")
+    installer("org.ow2.asm:asm-all:4.0")
     installer("net.sf.jopt-simple:jopt-simple:5.0.4")
     installer("com.google.guava:guava:12.0.1")
     installer("net.sourceforge.argo:argo:2.25")
