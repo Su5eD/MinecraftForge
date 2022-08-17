@@ -179,7 +179,7 @@ public class FMLRelauncher
             }
 
             if (!deobfEnvironment) {
-                classLoader.setChildClassLoader(new URLClassLoader(locateMcDeps()));
+                classLoader.setChildClassLoader(new URLClassLoader(locateMcDeps(minecraftHome)));
             }
 
             RelaunchLibraryManager.handleLaunch(minecraftHome, classLoader);
@@ -235,9 +235,8 @@ public class FMLRelauncher
         return minecraftHome;
     }
 
-    private static URL[] locateMcDeps() {
-        Path root = LibraryFinder.getLibrariesRoot();
-        List<Path> mcDeps = LibraryFinder.getMcDeps(root, side.toLowerCase(Locale.ROOT));
+    private static URL[] locateMcDeps(File mcHome) {
+        List<Path> mcDeps = LibraryFinder.getMcDeps(mcHome, side.toLowerCase(Locale.ROOT));
         List<URL> urls = new ArrayList<>();
 
         try {

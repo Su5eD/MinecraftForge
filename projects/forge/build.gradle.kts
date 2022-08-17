@@ -332,15 +332,19 @@ tasks {
                 put("mainClass", "cpw.mods.fml.relauncher.wrapper.ClientLaunchWrapper")
                 put("inheritsFrom", minecraftVersion)
                 putJsonObject("logging") {}
-                put(
-                    "minecraftArguments", listOf(
-                        "\${auth_player_name}",
-                        "\${auth_session}",
-                        "--uuid", "\${auth_uuid}",
-                        "--gameDir", "\${game_directory}",
-                        "--assetsDir", "\${game_assets}"
-                    ).joinToString(separator = " ")
-                )
+                putJsonObject("arguments") {
+                    putJsonArray("game") {
+                        add("\${auth_player_name}"); add("\${auth_session}")
+                        add("--uuid"); add("\${auth_uuid}")
+                        add("--gameDir"); add("\${game_directory}")
+                        add("--assetsDir"); add("\${game_assets}")
+                    }
+                    putJsonArray("jvm") {
+                        add("-DlibraryDirectory=\${library_directory}")
+                        add("-Djava.library.path=\${natives_directory}")
+                        add("-cp"); add("\${classpath}")
+                    }
+                }
                 putJsonArray("libraries") {
                     addJsonObject {
                         put("name", "${project.group}:${project.name}:${project.version}")
