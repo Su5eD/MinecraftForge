@@ -186,7 +186,7 @@ dependencies {
     installer("net.sourceforge.argo:argo:2.25")
     installer("org.bouncycastle:bcprov-jdk15on:1.47")
 
-    implementation("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
+    implementation("net.minecraftforge:legacydev:0.2.4-legacy.+")
 }
 
 val jsonFormat = Json { prettyPrint = true }
@@ -643,9 +643,13 @@ tasks {
     userdevConfig {
         val artifacts = getArtifacts(installer, true)
         artifacts.values.forEach { lib ->
-            libraries.add(lib["name"]!!.jsonPrimitive.content)
+            val libName = lib["name"]!!.jsonPrimitive.content.let { str ->
+                if (str.contains("org.ow2.asm:asm-all:")) str.replace("asm-all", "asm-debug-all")
+                else str
+            }
+            libraries.add(libName)
         }
-        libraries.add("net.minecraftforge:legacydev:0.2.4-legacy.+:fatjar")
+        libraries.add("net.minecraftforge:legacydev:0.2.4-legacy.+")
         javaRecompileTarget.set(7)
 
         runs {
