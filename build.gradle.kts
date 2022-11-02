@@ -74,6 +74,7 @@ subprojects {
     }
 
     repositories {
+        mavenCentral()
         maven {
             name = "Su5eD"
             url = uri(su5edMaven)
