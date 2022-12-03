@@ -58,10 +58,14 @@ public class ModDirTransformerDiscoverer implements ITransformerDiscoveryService
         if (!path.toString().endsWith(".jar")) return;
         if (LamdbaExceptionUtils.uncheck(() -> Files.size(path)) == 0) return;
 
-        SecureJar jar = SecureJar.from(path);
-        jar.moduleDataProvider().descriptor().provides().stream()
-            .map(ModuleDescriptor.Provides::service)
-            .filter(SERVICES::contains)
-            .forEach(s -> found.add(new NamedPath(s, path)));
+        try {
+            SecureJar jar = SecureJar.from(path);
+            jar.moduleDataProvider().descriptor().provides().stream()
+                .map(ModuleDescriptor.Provides::service)
+                .filter(SERVICES::contains)
+                .forEach(s -> found.add(new NamedPath(s, path)));
+        } catch (Exception e) {
+            LOGGER.error("Exception when loading jar file {}", path, e);
+        }
     }
 }
