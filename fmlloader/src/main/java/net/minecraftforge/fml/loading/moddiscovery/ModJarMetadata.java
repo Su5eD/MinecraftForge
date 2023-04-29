@@ -7,6 +7,7 @@ package net.minecraftforge.fml.loading.moddiscovery;
 
 import cpw.mods.jarhandling.JarMetadata;
 import cpw.mods.jarhandling.SecureJar;
+import cpw.mods.jarhandling.impl.ModuleJarMetadata;
 import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.forgespi.locating.IModLocator;
 
@@ -19,6 +20,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class ModJarMetadata implements JarMetadata {
+    private static final String MODULE_INFO = "module-info.class";
+    private static final String AUTOMATIC_MODULE_NAME = "Automatic-Module-Name";
+    private static final String MINECRAFT_MODULE = "minecraft";
+
     private IModFile modFile;
     private ModuleDescriptor descriptor;
 
@@ -57,7 +62,7 @@ public final class ModJarMetadata implements JarMetadata {
 
     @Override
     public String name() {
-        return modFile.getModFileInfo().moduleName();
+        return descriptor().name();
     }
 
     @Override
@@ -67,15 +72,28 @@ public final class ModJarMetadata implements JarMetadata {
 
     @Override
     public ModuleDescriptor descriptor() {
-        if (descriptor != null) return descriptor;
-        var bld = ModuleDescriptor.newAutomaticModule(name())
-                .version(version())
-                .packages(modFile.getSecureJar().getPackages());
-        modFile.getSecureJar().getProviders().stream()
-                .filter(p -> !p.providers().isEmpty())
-                .forEach(p -> bld.provides(p.serviceName(), p.providers()));
-        modFile.getModFileInfo().usesServices().forEach(bld::uses);
-        descriptor = bld.build();
+        if (descriptor == null) {
+            SecureJar secureJar = modFile.getSecureJar();
+            descriptor = secureJar.moduleDataProvider().findFile(MODULE_INFO)
+                .map(uri -> {
+                    JarMetadata metadata = new ModuleJarMetadata(uri, secureJar.getPackages());
+                    ModuleDescriptor jarDescriptor = metadata.descriptor();
+                    var builder = wrapDescriptor(jarDescriptor);
+                    builder.version(version());
+                    builder.requires(MINECRAFT_MODULE);
+                    return builder.build();
+                })
+                .orElseGet(() -> {
+                    var name = Optional.ofNullable(secureJar.moduleDataProvider().getManifest().getMainAttributes().getValue(AUTOMATIC_MODULE_NAME))
+                        .orElseGet(() -> modFile.getModFileInfo().moduleName());
+                    var bld = ModuleDescriptor.newAutomaticModule(name)
+                        .version(version())
+                        .packages(modFile.getSecureJar().getPackages());
+                    secureJar.getProviders().forEach(p -> bld.provides(p.serviceName(), p.providers()));
+                    modFile.getModFileInfo().usesServices().forEach(bld::uses);
+                    return bld.build();
+                });
+        }
         return descriptor;
     }
 
@@ -100,4 +118,16 @@ public final class ModJarMetadata implements JarMetadata {
     public String toString() {
         return "ModJarMetadata[" +"modFile=" + modFile + ']';
     }
+
+    private ModuleDescriptor.Builder wrapDescriptor(ModuleDescriptor descriptor) {
+        var builder = ModuleDescriptor.newModule(descriptor.name(), descriptor.modifiers())
+            .packages(descriptor.packages());
+        descriptor.version().ifPresent(builder::version);
+        descriptor.requires().forEach(builder::requires);
+        descriptor.exports().forEach(builder::exports);
+        descriptor.opens().forEach(builder::opens);
+        descriptor.uses().forEach(builder::uses);
+        descriptor.provides().forEach(builder::provides);
+        return builder;
+    } 
 }
