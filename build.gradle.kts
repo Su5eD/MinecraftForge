@@ -22,7 +22,7 @@ plugins {
 
 val minecraftVersion: String by extra("1.4.7")
 val mappingsChannel: String by extra("stable")
-val mcpVersion: String by extra("20220818.151340")
+val mcpVersion: String by extra("20230502.202159")
 val mappingsVersion: String by extra("7.26-$minecraftVersion")
 val postProcessor: Map<String, Any> by extra(
     mapOf(
