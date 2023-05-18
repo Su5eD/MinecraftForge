@@ -12,6 +12,7 @@ import cpw.mods.modlauncher.Launcher;
 import cpw.mods.modlauncher.api.IModuleLayerManager;
 import cpw.mods.modlauncher.util.ServiceLoaderUtils;
 import net.minecraftforge.fml.loading.EarlyLoadingException;
+import net.minecraftforge.fml.loading.JarVersionLookupHandler;
 import net.minecraftforge.fml.loading.LogMarkers;
 import net.minecraftforge.fml.loading.UniqueModListBuilder;
 import net.minecraftforge.fml.loading.progress.StartupMessageManager;
@@ -50,13 +51,15 @@ public class ModDiscoverer {
         {
             LOGGER.debug(LogMarkers.CORE, "Found Mod Locators : {}", modLocatorList.stream()
                                                                        .map(modLocator -> "(%s:%s)".formatted(modLocator.name(),
-                                                                         modLocator.getClass().getPackage().getImplementationVersion())).collect(Collectors.joining(",")));
+                                                                           JarVersionLookupHandler.getImplementationVersion(modLocator.getClass()).orElse(null)))
+                                                                       .collect(Collectors.joining(",")));
         }
         if (LOGGER.isDebugEnabled(LogMarkers.CORE))
         {
             LOGGER.debug(LogMarkers.CORE, "Found Dependency Locators : {}", dependencyLocatorList.stream()
                                                                        .map(dependencyLocator -> "(%s:%s)".formatted(dependencyLocator.name(),
-                                                                         dependencyLocator.getClass().getPackage().getImplementationVersion())).collect(Collectors.joining(",")));
+                                                                           JarVersionLookupHandler.getImplementationVersion(dependencyLocator.getClass()).orElse(null)))
+                                                                       .collect(Collectors.joining(",")));
         }
     }
 

@@ -1,11 +1,9 @@
 plugins {
+    id 'java-library'
+    id 'jacoco'
     id 'com.github.ben-manes.versions'
-    id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
     id 'org.cadixdev.licenser'
 }
-apply plugin: 'java-library'
-apply plugin: 'jacoco'
-apply plugin: 'org.javamodularity.moduleplugin'
 
 dependencyUpdates.rejectVersionIf { isNonStable(it.candidate.version) }
 
@@ -48,6 +46,10 @@ jar.doFirst {
 }
 
 tasks.withType(JavaCompile) {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
     options.compilerArgs << '-Xlint:unchecked'
 }
 

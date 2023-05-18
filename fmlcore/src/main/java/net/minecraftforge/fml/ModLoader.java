@@ -10,6 +10,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.fml.loading.JarVersionLookupHandler;
 import net.minecraftforge.fml.loading.LoadingModList;
 import net.minecraftforge.fml.loading.moddiscovery.InvalidModIdentifier;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
@@ -108,7 +109,7 @@ public class ModLoader
     }
 
     private String computeLanguageList() {
-        return "\n"+FMLLoader.getLanguageLoadingProvider().applyForEach(lp->lp.name() +"@"+ lp.getClass().getPackage().getImplementationVersion()).collect(Collectors.joining("\n\t\t", "\t\t", ""));
+        return "\n"+FMLLoader.getLanguageLoadingProvider().applyForEach(lp->lp.name() +"@"+ JarVersionLookupHandler.getImplementationVersion(lp.getClass())).collect(Collectors.joining("\n\t\t", "\t\t", ""));
     }
 
     private String computeModLauncherServiceList() {

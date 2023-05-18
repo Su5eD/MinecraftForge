@@ -1,23 +1,18 @@
 plugins {
+    id 'java-library'
+    id 'jacoco'
     id 'com.github.ben-manes.versions'
-    id 'org.javamodularity.moduleplugin' version '1.8.3' apply false
     id 'org.cadixdev.licenser'
 }
-apply plugin: 'java-library'
-apply plugin: 'jacoco'
-apply plugin: 'org.javamodularity.moduleplugin'
 
 dependencyUpdates.rejectVersionIf { isNonStable(it.candidate.version) }
+
+java.withSourcesJar()
 
 dependencies {
     compileOnly("org.jetbrains:annotations:${JETBRAINS_ANNOTATIONS_VERSION}")
     implementation(project(':fmlloader'))
     implementation(project(':fmlcore'))
-}
-
-task sourcesJar(type: Jar) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
 }
 
 ext {
@@ -50,7 +45,12 @@ jar.doFirst {
 }
 
 tasks.withType(JavaCompile) {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+        classpath = files()
+    }
     options.compilerArgs << '-Xlint:unchecked'
+    options.javaModuleVersion = '1.0'
 }
 
 license {
@@ -61,10 +61,8 @@ license {
 
 artifacts {
     archives jar
-    archives sourcesJar
 }
 
 publishing.publications.mavenJava(MavenPublication) {
     from components.java
-    artifact sourcesJar
 }
