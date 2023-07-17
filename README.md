@@ -299,8 +299,8 @@ it by reusing existing code from the SRG parser.
 #### Package Renaming
 
 The SRG mappings format allows defining mappings for entire packages as a fallback if no class mapping is present. The
-old FML used this feature to remap all unmapped classes in the default package to `net.minecraft.src`, specifically **
-ModLoader** classes.
+old FML used this feature to remap all unmapped classes in the default package to `net.minecraft.src`, specifically
+**ModLoader** classes.
 
 Due to a [bug](https://github.com/md-5/SpecialSource/issues/85), package renaming doesn't currently work in reverse.
 However, I was able to easily fix it by reusing existing handler code from the SRG parser again.

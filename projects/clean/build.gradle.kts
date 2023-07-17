@@ -2,7 +2,7 @@ import net.minecraftforge.gradle.common.tasks.ExtractNatives
 
 plugins {
     eclipse
-    id("net.minecraftforge.gradle-legacy.patcher")
+    id("dev.su5ed.minecraftforge-legacy.gradle.patcher")
 }
 
 evaluationDependsOn(":mcp")
@@ -14,7 +14,7 @@ val mappingsVersion: String by rootProject.extra
 val postProcessor: Map<String, Any> by rootProject.extra
 
 dependencies {
-    implementation("net.minecraftforge:mergetool:1.1.6-legacy:cpw")
+    implementation("dev.su5ed.minecraftforge-legacy:mergetool:1.1.6:cpw")
 }
 
 patcher {

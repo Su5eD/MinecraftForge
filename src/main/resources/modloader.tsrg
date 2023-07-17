@@ -1,0 +1,9 @@
+tsrg2 left right
+net/minecraft/src/BaseMod BaseMod
+net/minecraft/src/EntityRendererProxy EntityRendererProxy
+net/minecraft/src/FMLRenderAccessLibrary FMLRenderAccessLibrary
+net/minecraft/src/MLProp MLProp
+net/minecraft/src/ModLoader ModLoader
+net/minecraft/src/ModTextureAnimation ModTextureAnimation
+net/minecraft/src/ModTextureStatic ModTextureStatic
+net/minecraft/src/TradeEntry TradeEntry

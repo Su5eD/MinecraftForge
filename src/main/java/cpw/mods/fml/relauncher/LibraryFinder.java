@@ -37,7 +37,7 @@ public class LibraryFinder {
         Map<String, String> mcDeps = new HashMap<>();
         mcDeps.put("MC SRG", getJarMavenCoordinates("net.minecraft", side, mcversion + "-" +  FMLInjectionData.mcpversion, "srg"));
         mcDeps.put("MC EXTRA", getJarMavenCoordinates("net.minecraft", side, mcversion + "-" +  FMLInjectionData.mcpversion, "extra-stable"));
-        mcDeps.put("Forge Patches", getJarMavenCoordinates("net.minecraftforge", "forge", mcversion + "-" + ForgeVersion.getVersion(), side));
+        mcDeps.put("Forge Patches", getJarMavenCoordinates("dev.su5ed.minecraftforge-legacy", "forge", mcversion + "-" + ForgeVersion.getVersion(), side));
 
         List<Path> paths = new ArrayList<>();
         for (Map.Entry<String, String> entry : mcDeps.entrySet()) {

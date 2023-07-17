@@ -1,5 +1,5 @@
 plugins {
-    id("net.minecraftforge.gradle-legacy.mcp")
+    id("dev.su5ed.minecraftforge-legacy.gradle.mcp")
 }
 
 val minecraftVersion: String by rootProject.extra

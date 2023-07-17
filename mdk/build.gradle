@@ -1,7 +1,7 @@
 plugins {
     id 'eclipse'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle-legacy' version '5.1.+'
+    id 'dev.su5ed.minecraftforge-legacy.gradle' version '5.1.+'
 }
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 

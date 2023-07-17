@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-    id("net.minecraftforge.gradle-legacy") version "5.1.+" apply false
+    id("dev.su5ed.minecraftforge-legacy.gradle") version "5.1.+" apply false
     id("org.cadixdev.licenser") version "0.6.1" apply false
     id("com.github.ben-manes.versions") version "0.22.0" apply false
     eclipse
@@ -22,8 +22,8 @@ plugins {
 
 val minecraftVersion: String by extra("1.4.7")
 val mappingsChannel: String by extra("stable")
-val mcpVersion: String by extra("20230502.202159")
-val mappingsVersion: String by extra("7.26-$minecraftVersion")
+val mcpVersion: String by extra("20230717.115309")
+val mappingsVersion: String by extra("7.26a-$minecraftVersion")
 val postProcessor: Map<String, Any> by extra(
     mapOf(
         "tool" to "net.minecraftforge:mcpcleanup:2.3.2:fatjar",
@@ -62,7 +62,7 @@ subprojects {
         targetCompatibility = "1.7"
     }
 
-    group = "net.minecraftforge"
+    group = "dev.su5ed.minecraftforge-legacy"
     version = gitVersion
 
     configurations.all {

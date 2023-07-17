@@ -24,7 +24,7 @@ plugins {
     `java-library`
     `maven-publish`
     eclipse
-    id("net.minecraftforge.gradle-legacy.patcher")
+    id("dev.su5ed.minecraftforge-legacy.gradle.patcher")
     id("org.cadixdev.licenser")
 }
 
@@ -92,6 +92,7 @@ patcher {
     accessTransformers(rootProject.file("src/main/resources/fml_at.cfg"), rootProject.file("src/main/resources/forge_at.cfg"))
     //sideAnnotationStripper = rootProject.file("src/main/resources/forge.sas")
     processor(postProcessor)
+    extraMapping(rootProject.file("src/main/resources/modloader.tsrg"))
 
     runs { 
         "forge_client" {
@@ -690,7 +691,7 @@ tasks {
     }
 
     userdevJar {
-        archiveClassifier.set("userdev3")
+        archiveClassifier.set("userdev")
     }
 
     "eclipse" {
