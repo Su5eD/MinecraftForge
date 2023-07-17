@@ -7,7 +7,7 @@ developing as well as running mods, and is fully backwards-compatible with origi
 
 ## Download
 
-Get the latest release from maven [here](https://maven.su5ed.dev/#/releases/net/minecraftforge/forge).
+Get the latest release from maven [here](https://maven.su5ed.dev/#/releases/dev/su5ed/minecraftforge-legacy/forge).
 
 Mod developers should download the **MDK**, while users will want the **installer**.
 
